@@ -1,0 +1,52 @@
+{
+  "id": "2324-03-MA-P4",
+  "title": "2023–2024年度 四年級 數學科考試三",
+  "school_year": "2023-2024",
+  "grade": 4,
+  "subject": "數學",
+  "language": "zh-Hant-HK",
+  "paper_code": "2324-03-MA-P4",
+  "source_pdf": "/Users/cheng/Downloads/四-三考_數學(TT2324).pdf",
+  "source_type": "image_only_scan",
+  "source_pages": 24,
+  "printable_pages": 12,
+  "total_questions": 46,
+  "total_marks": 100,
+  "sections": [
+    {
+      "id": "A",
+      "title": "簡答題",
+      "question_range": [1, 42],
+      "marks_each": 2,
+      "total_marks": 84
+    },
+    {
+      "id": "B",
+      "title": "詳答題",
+      "question_range": [43, 46],
+      "marks_each": 4,
+      "total_marks": 16
+    }
+  ],
+  "online_practice": {
+    "default_draw_count": 15,
+    "exclude_question_ids": [
+      "2324-03-MA-P4-Q24",
+      "2324-03-MA-P4-Q37"
+    ],
+    "exclusion_reasons": {
+      "2324-03-MA-P4-Q24": "題目要求使用實體厘米尺，畫面縮放會改變答案。",
+      "2324-03-MA-P4-Q37": "題目計算與批改版本答案不一致，等待內容擁有人確認。"
+    }
+  },
+  "assets": {
+    "print_pdf": "print/2324-03-MA-P4-print.pdf",
+    "question_images": "assets/questions/q01.png ... q46.png",
+    "shared_stimulus_q38_q42": "assets/questions/stimulus-q38-q42.png"
+  },
+  "privacy": {
+    "student_answer_pages_in_source": [13, 24],
+    "publish_student_answer_pages": false,
+    "note": "後12頁含學生姓名、班別、筆跡及批改資料，只可內部核對答案。"
+  }
+}

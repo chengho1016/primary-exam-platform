@@ -1,0 +1,23 @@
+name: primary-exam-platform
+
+services:
+  database:
+    image: postgres:17-alpine
+    container_name: primary-exam-database
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: primary_exam
+      POSTGRES_USER: primary_exam
+      POSTGRES_PASSWORD: local_primary_exam_2026
+    ports:
+      - "127.0.0.1:54329:5432"
+    volumes:
+      - primary_exam_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U primary_exam -d primary_exam"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  primary_exam_postgres:

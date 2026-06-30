@@ -1,0 +1,253 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  PARENT
+  ADMIN
+}
+
+enum PaperStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PaperAccess {
+  FREE
+  MEMBERSHIP
+  PURCHASE
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  NUMBER
+  TEXT
+  WORKED_RESPONSE
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+}
+
+enum PrintJobStatus {
+  CREATED
+  PRINTED
+  EXPIRED
+}
+
+model User {
+  id             String             @id @default(cuid())
+  email          String             @unique
+  passwordHash   String
+  displayName    String
+  role           UserRole           @default(PARENT)
+  children       ChildProfile[]
+  authoredPapers Paper[]            @relation("PaperAuthor")
+  subscriptions  Subscription[]
+  entitlements   PaperEntitlement[]
+  printJobs      PrintJob[]
+  auditLogs      AdminAuditLog[]
+  sessions       Session[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model ChildProfile {
+  id             String          @id @default(cuid())
+  parentId       String
+  parent         User            @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  displayName    String
+  grade          Int
+  attempts       Attempt[]
+  wrongBookItems WrongBookItem[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([parentId])
+}
+
+model Paper {
+  id               String             @id @default(cuid())
+  code             String             @unique
+  title            String
+  grade            Int
+  subject          String
+  academicYear     String?
+  status           PaperStatus        @default(DRAFT)
+  access           PaperAccess        @default(MEMBERSHIP)
+  priceInCents     Int?
+  sourceAssetPath  String
+  printablePdfPath String?
+  pageCount        Int                @default(0)
+  durationMinutes  Int                @default(45)
+  totalMarks       Int                @default(0)
+  createdById      String
+  createdBy        User               @relation("PaperAuthor", fields: [createdById], references: [id])
+  questions        Question[]
+  attempts         Attempt[]
+  entitlements     PaperEntitlement[]
+  printJobs        PrintJob[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([grade, subject, status])
+}
+
+model Question {
+  id             String          @id @default(cuid())
+  paperId        String
+  paper          Paper           @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  number         Int
+  section        String
+  marks          Int
+  sourcePage     Int?
+  type           QuestionType
+  stem           String
+  options        Json?
+  answerRule     Json
+  explanation    String?
+  topic          String
+  subtopic       String?
+  difficulty     String
+  assetPath      String?
+  stimulusPath   String?
+  onlineEligible Boolean         @default(true)
+  reviewStatus   String          @default("pending")
+  attemptAnswers AttemptAnswer[]
+  wrongBookItems WrongBookItem[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([paperId, number])
+  @@index([paperId, onlineEligible, topic, difficulty])
+}
+
+model Attempt {
+  id          String          @id @default(cuid())
+  childId     String
+  child       ChildProfile    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  paperId     String
+  paper       Paper           @relation(fields: [paperId], references: [id])
+  status      AttemptStatus   @default(IN_PROGRESS)
+  score       Int?
+  maximumMark Int?
+  answers     AttemptAnswer[]
+  startedAt   DateTime        @default(now())
+  completedAt DateTime?
+
+  @@index([childId, completedAt])
+}
+
+model AttemptAnswer {
+  id          String   @id @default(cuid())
+  attemptId   String
+  attempt     Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id])
+  response    Json
+  isCorrect   Boolean?
+  awardedMark Int?
+  answeredAt  DateTime @default(now())
+
+  @@unique([attemptId, questionId])
+}
+
+model WrongBookItem {
+  id             String       @id @default(cuid())
+  childId        String
+  child          ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  questionId     String
+  question       Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  incorrectCount Int          @default(1)
+  resolvedAt     DateTime?
+  lastWrongAt    DateTime     @default(now())
+
+  @@unique([childId, questionId])
+  @@index([childId, resolvedAt])
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  userId             String
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providerCustomerId String?
+  providerPlanId     String?
+  status             SubscriptionStatus
+  printAllowance     Int                @default(0)
+  periodStartsAt     DateTime
+  periodEndsAt       DateTime
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([userId, status])
+}
+
+model PaperEntitlement {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paperId        String
+  paper          Paper     @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  printAllowance Int       @default(0)
+  expiresAt      DateTime?
+  purchasedAt    DateTime  @default(now())
+
+  @@unique([userId, paperId])
+}
+
+model PrintJob {
+  id            String         @id @default(cuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  paperId       String
+  paper         Paper          @relation(fields: [paperId], references: [id])
+  authorization String         @unique
+  watermarkText String
+  status        PrintJobStatus @default(CREATED)
+  expiresAt     DateTime
+  printedAt     DateTime?
+  createdAt     DateTime       @default(now())
+
+  @@index([userId, paperId, createdAt])
+}
+
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  admin      User     @relation(fields: [adminId], references: [id])
+  action     String
+  entityType String
+  entityId   String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([adminId, createdAt])
+  @@index([entityType, entityId])
+}

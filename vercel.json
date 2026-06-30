@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd apps/web && pnpm build",
+  "installCommand": "cd apps/web && pnpm install",
+  "outputDirectory": "apps/web/.next",
+  "framework": "nextjs",
+  "build": {
+    "env": {
+      "ENABLE_EXPERIMENTAL_COREPACK": "1"
+    }
+  }
+}

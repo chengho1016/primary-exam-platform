@@ -1,0 +1,27 @@
+{
+  "paper_id": "2324-03-MA-P4",
+  "draw_count": 15,
+  "topic_quota": {
+    "分數": 6,
+    "四則運算": 3,
+    "周界與面積": 4,
+    "數據處理": 2
+  },
+  "difficulty_target": {
+    "easy": 5,
+    "medium": 6,
+    "hard": 4
+  },
+  "rules": {
+    "online_eligible_only": true,
+    "exclude_review_status": [
+      "owner_confirmation_required",
+      "print_only_due_to_scale"
+    ],
+    "avoid_repeating_recent_questions": true,
+    "max_worked_response_questions": 2,
+    "max_questions_per_shared_stimulus": 2,
+    "prefer_unseen_questions": true,
+    "fallback": "如果某難度配額不足，先維持課題配額，再改用相鄰難度。"
+  }
+}
