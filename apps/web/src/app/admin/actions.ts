@@ -1,10 +1,9 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
-import { mkdir, rm, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { put } from "@vercel/blob";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
@@ -86,14 +85,13 @@ export async function createPaperAction(
   }
 
   const paperId = randomUUID();
-  const storageDirectory = path.join(process.cwd(), "storage", "private", "papers", paperId);
-  const sourceFilename = `source${uploadedFile.extension}`;
-  const sourceFilePath = path.join(storageDirectory, sourceFilename);
-  const sourceAssetPath = `private://papers/${paperId}/${sourceFilename}`;
+  const sourceFilename = `papers/${paperId}/source${uploadedFile.extension}`;
 
   try {
-    await mkdir(storageDirectory, { recursive: true });
-    await writeFile(sourceFilePath, new Uint8Array(await uploadedFile.file.arrayBuffer()));
+    const blob = await put(sourceFilename, uploadedFile.file, {
+      access: "public",
+      addRandomSuffix: false,
+    });
     const adminId = await getAdminId();
 
     await db.$transaction([
@@ -107,7 +105,7 @@ export async function createPaperAction(
           academicYear: parsedPaper.data.academicYear || undefined,
           access: parsedPaper.data.access,
           status: "DRAFT",
-          sourceAssetPath,
+          sourceAssetPath: blob.url,
           createdById: adminId,
         },
       }),
@@ -122,7 +120,6 @@ export async function createPaperAction(
       }),
     ]);
   } catch (error) {
-    await rm(storageDirectory, { recursive: true, force: true });
     if (isUniqueConstraintError(error)) return { error: "試卷編號已經存在" };
     console.error("Failed to create paper.", error);
     return { error: "未能儲存試卷，請稍後再試" };
