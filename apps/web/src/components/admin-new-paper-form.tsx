@@ -1,17 +1,38 @@
 "use client";
 
-import { useActionState } from "react";
-import { createPaperAction } from "@/app/admin/actions";
-import type { NewPaperActionState } from "@/app/admin/action-types";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { UploadIcon } from "@/components/icons";
 
-const initialState: NewPaperActionState = {};
-
 export function AdminNewPaperForm() {
-  const [state, formAction, isPending] = useActionState(createPaperAction, initialState);
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setIsPending(true);
+
+    const formData = new FormData(e.currentTarget);
+    try {
+      const res = await fetch("/api/admin/papers", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "上傳失敗");
+        return;
+      }
+      router.push("/admin/papers?created=1");
+      router.refresh();
+    } catch {
+      setError("網絡錯誤，請稍後再試");
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   return (
-    <form action={formAction} className="upload-form" encType="multipart/form-data">
+    <form onSubmit={handleSubmit} className="upload-form" encType="multipart/form-data">
       <section className="form-panel">
         <h2>試卷檔案</h2>
         <p>支援PDF、Word及清晰掃描圖片；檔案會儲存在私人目錄，上傳後不會自動發布。</p>
@@ -32,7 +53,7 @@ export function AdminNewPaperForm() {
           </div>
           <div className="field"><label htmlFor="paper-year">學年</label><input id="paper-year" name="academicYear" placeholder="2025–2026" /></div>
           <div className="field"><label htmlFor="paper-access">會員存取</label><select id="paper-access" name="access" defaultValue="MEMBERSHIP"><option value="FREE">免費試用</option><option value="MEMBERSHIP">月費會員</option><option value="PURCHASE">逐份購買</option></select></div>
-          {state.error ? <p className="form-error" role="alert">{state.error}</p> : null}
+          {error ? <p className="form-error" role="alert">{error}</p> : null}
           <button className="button button-primary button-full" disabled={isPending} type="submit">{isPending ? "正在安全上傳…" : "儲存草稿並上傳"}</button>
         </div>
       </aside>
