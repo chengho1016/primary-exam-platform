@@ -3,7 +3,6 @@
   "installCommand": "cd apps/web && pnpm install",
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
-  "nodeVersion": "22.x",
   "build": {
     "env": {
       "ENABLE_EXPERIMENTAL_COREPACK": "1"
