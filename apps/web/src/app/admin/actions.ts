@@ -3,7 +3,6 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { put } from "@vercel/blob";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
@@ -85,13 +84,11 @@ export async function createPaperAction(
   }
 
   const paperId = randomUUID();
-  const sourceFilename = `papers/${paperId}/source${uploadedFile.extension}`;
+  const mimeType = uploadedFile.file.type;
+  const fileBuffer = Buffer.from(await uploadedFile.file.arrayBuffer());
+  const base64Data = `data:${mimeType};base64,${fileBuffer.toString("base64")}`;
 
   try {
-    const blob = await put(sourceFilename, uploadedFile.file, {
-      access: "public",
-      addRandomSuffix: false,
-    });
     const adminId = await getAdminId();
 
     await db.$transaction([
@@ -105,7 +102,7 @@ export async function createPaperAction(
           academicYear: parsedPaper.data.academicYear || undefined,
           access: parsedPaper.data.access,
           status: "DRAFT",
-          sourceAssetPath: blob.url,
+          sourceAssetPath: base64Data,
           createdById: adminId,
         },
       }),
