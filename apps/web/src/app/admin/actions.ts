@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
+import type { NewPaperActionState } from "@/app/admin/action-types";
 
 const ADMIN_EMAIL = "admin@local.exam";
 const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
@@ -44,10 +45,6 @@ const updateQuestionSchema = z.object({
   canonicalAnswer: z.string().trim().min(1).max(200),
   explanation: z.string().trim().max(1000),
 });
-
-export interface NewPaperActionState {
-  error?: string;
-}
 
 function isUniqueConstraintError(error: unknown) {
   return Boolean(error && typeof error === "object" && "code" in error && error.code === "P2002");

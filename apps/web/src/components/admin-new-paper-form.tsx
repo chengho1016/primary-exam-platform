@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { createPaperAction, type NewPaperActionState } from "@/app/admin/actions";
+import { createPaperAction } from "@/app/admin/actions";
+import type { NewPaperActionState } from "@/app/admin/action-types";
 import { UploadIcon } from "@/components/icons";
 
 const initialState: NewPaperActionState = {};
