@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd apps/web && pnpm build",
+  "buildCommand": "cd apps/web && pnpm install && npx prisma generate && npx prisma db push && pnpm build",
   "installCommand": "cd apps/web && pnpm install",
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
