@@ -28,7 +28,7 @@
 ## 開發指令
 
 ```bash
-pnpm install
+corepack pnpm install
 pnpm db:start
 pnpm db:migrate
 pnpm db:seed
@@ -42,6 +42,13 @@ pnpm test
 pnpm lint
 pnpm build
 ```
+
+## 部署備註
+
+- 生產環境部署到 Vercel，資料庫使用 Neon PostgreSQL。
+- Vercel 使用 npm 安裝，所以本目錄保留 `package-lock.json`；本機開發仍可用 `pnpm-lock.yaml`。
+- 上傳試卷已改用 `POST /api/admin/papers` API Route，避免 Next.js 16 Server Action ID mismatch。
+- 上傳檔案目前以 base64 儲存在 `Paper.sourceAssetPath`，不需要 Vercel Blob token。
 
 ## 正式上線前
 

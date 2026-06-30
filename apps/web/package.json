@@ -17,6 +17,10 @@
     "test": "vitest run",
     "postinstall": "prisma generate"
   },
+  "overrides": {
+    "@hono/node-server": "1.19.14",
+    "postcss": "8.5.16"
+  },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",

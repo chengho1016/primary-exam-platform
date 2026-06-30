@@ -28,4 +28,10 @@ pnpm dev
 - 水印列印：`/print/2324-03-MA-P4`
 - Admin：`/admin`
 
-Admin會從PostgreSQL讀取即時資料；試卷上傳檔案存放在忽略版本控制的私人目錄。資料模型及安全邊界見 `apps/web/docs/ARCHITECTURE.md`。
+Admin會從PostgreSQL讀取即時資料；生產環境的試卷上傳檔案會以 base64 data URI 儲存在 PostgreSQL `Paper.sourceAssetPath`，避免依賴 Vercel Blob。資料模型及安全邊界見 `apps/web/docs/ARCHITECTURE.md`。
+
+## 部署及依賴管理注意
+
+- 本機開發沿用 `pnpm`（見 `apps/web/pnpm-lock.yaml`）。如本機沒有 `pnpm`，可用 `corepack pnpm install`。
+- Vercel 部署目前使用 `npm install`，因此 repo 同時保留 npm lockfile，避免清 cache 後因 transitive dependency 版本漂移而 build 失敗。
+- 已透過 overrides pin `postcss@8.5.16` 及 `@hono/node-server@1.19.14`，修復已知 moderate advisories。
