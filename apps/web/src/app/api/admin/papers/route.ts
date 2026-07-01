@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
 
 const ADMIN_EMAIL = "admin@local.exam";
-const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 
 const newPaperSchema = z.object({
   code: z.string().trim().min(3).max(40).regex(/^[A-Za-z0-9-]+$/),
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "請選擇試卷檔案" }, { status: 400 });
   }
   if (file.size > MAX_UPLOAD_BYTES) {
-    return NextResponse.json({ error: "試卷檔案不可超過50MB" }, { status: 400 });
+    return NextResponse.json({ error: "試卷檔案不可超過4MB；大檔案需要改用 Blob/S3 direct upload" }, { status: 400 });
   }
 
   const allowedTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/png", "image/jpeg"];

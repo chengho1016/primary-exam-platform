@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { UploadIcon } from "@/components/icons";
 
+const VERCEL_FUNCTION_BODY_LIMIT_BYTES = 4 * 1024 * 1024;
+
 export function AdminNewPaperForm() {
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -14,13 +16,22 @@ export function AdminNewPaperForm() {
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.currentTarget.files?.[0] ?? null;
+    setSelectedFile(file);
+    if (file && file.size > VERCEL_FUNCTION_BODY_LIMIT_BYTES) {
+      setError(`呢份檔案 ${formatFileSize(file.size)} 太大，Vercel 上傳限制約 4MB。請先用較細 PDF 測試，或改接 Blob/S3 大檔案儲存。`);
+      return;
+    }
     setError(null);
-    setSelectedFile(e.currentTarget.files?.[0] ?? null);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    if (selectedFile && selectedFile.size > VERCEL_FUNCTION_BODY_LIMIT_BYTES) {
+      setError(`呢份檔案 ${formatFileSize(selectedFile.size)} 太大，暫時不能經 Vercel API 直接上傳。下一步要接 Blob/S3 direct upload。`);
+      return;
+    }
     setIsPending(true);
 
     const formData = new FormData(e.currentTarget);
@@ -48,11 +59,11 @@ export function AdminNewPaperForm() {
           <span>
             <UploadIcon />
             <strong>{selectedFile ? selectedFile.name : "拖放檔案或按此選擇"}</strong>
-            <span>{selectedFile ? `${selectedFile.type || "未知格式"} · ${formatFileSize(selectedFile.size)}` : "PDF、DOCX、PNG、JPG · 每份最多50MB"}</span>
+            <span>{selectedFile ? `${selectedFile.type || "未知格式"} · ${formatFileSize(selectedFile.size)}` : "PDF、DOCX、PNG、JPG · 暫時建議4MB以下"}</span>
           </span>
           <input accept=".pdf,.docx,.png,.jpg,.jpeg" className="visually-hidden-file" id="paper-file" name="paperFile" onChange={handleFileChange} required type="file" />
         </label>
-        {selectedFile ? <p className="upload-hint" aria-live="polite">已選擇：{selectedFile.name}，可以按「儲存草稿並上傳」。</p> : null}
+        {selectedFile && selectedFile.size <= VERCEL_FUNCTION_BODY_LIMIT_BYTES ? <p className="upload-hint" aria-live="polite">已選擇：{selectedFile.name}，可以按「儲存草稿並上傳」。</p> : null}
       </section>
       <aside className="form-panel">
         <h2>基本資料</h2>

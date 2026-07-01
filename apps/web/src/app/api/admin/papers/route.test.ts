@@ -76,6 +76,17 @@ describe("POST /api/admin/papers", () => {
     expect(mocks.transaction).not.toHaveBeenCalled();
   });
 
+  it("rejects files over the Vercel function body limit", async () => {
+    const oversizedPdf = new File([new Uint8Array(4 * 1024 * 1024 + 1)], "too-large.pdf", { type: "application/pdf" });
+
+    const response = await POST(makeUploadRequest({ code: "audit-004" }, oversizedPdf));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toEqual({ error: "試卷檔案不可超過4MB；大檔案需要改用 Blob/S3 direct upload" });
+    expect(mocks.transaction).not.toHaveBeenCalled();
+  });
+
   it("stores uploaded PDF as base64 data URI and writes an audit log", async () => {
     const response = await POST(makeUploadRequest({ code: "audit-003", title: "Uploaded PDF" }));
     const body = await response.json();
