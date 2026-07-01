@@ -11,16 +11,17 @@ export const metadata = { title: "學習首頁" };
 export default async function DashboardPage() {
   const user = await requireUser();
   const child = user.children[0];
-  const learning = child ? await getDashboardLearningData(child.id) : { weeklyAttemptCount: 0, recentAttempts: [] };
+  const learning = child ? await getDashboardLearningData(child.id) : { weeklyAttemptCount: 0, recentAttempts: [], recommendedPaper: null };
   const weeklyGoal = 4;
   const goalProgress = Math.min(100, learning.weeklyAttemptCount / weeklyGoal * 100);
+  const recommendedHref = learning.recommendedPaper ? `/practice/${learning.recommendedPaper.id}` : "/papers?subject=math";
 
   return (
     <AppShell activePath="/dashboard">
       <div className="app-content">
         <header className="app-page-header"><div><h1>你好，{user.displayName} 👋</h1><p>{child?.displayName ?? "孩子"}今個星期已完成{learning.weeklyAttemptCount}次練習。</p></div><ButtonLink href="/papers" variant="secondary">尋找試卷</ButtonLink></header>
         <div className="dashboard-hero">
-          <section className="welcome-card"><div><p className="eyebrow">建議練習</p><h2>今天溫習「分數」</h2><p>系統會從四年級數學試卷抽出15題，約需15分鐘完成。</p><ButtonLink href="/practice/2324-03-MA-P4">開始15題練習<ArrowRightIcon /></ButtonLink></div></section>
+          <section className="welcome-card"><div><p className="eyebrow">建議練習</p><h2>{learning.recommendedPaper ? "今天溫習「分數」" : "先選一份數學試卷"}</h2><p>{learning.recommendedPaper ? `${learning.recommendedPaper.title} 已準備好網上練習，約需15分鐘完成。` : "目前未有足夠題目的建議練習，先到試卷庫查看可用內容。"}</p><ButtonLink href={recommendedHref}>{learning.recommendedPaper ? "開始15題練習" : "前往試卷庫"}<ArrowRightIcon /></ButtonLink></div></section>
           <aside className="profile-card">
             <div className="child-card-top"><div className="child-avatar">{child?.displayName.slice(0, 1) ?? "童"}</div><div><h3>{child?.displayName ?? "尚未加入孩子"}</h3><span>小{child?.grade ?? "-"} · 本週第{learning.weeklyAttemptCount}次練習</span></div></div>
             <div className="weekly-score"><div><small>本週目標</small><strong>{learning.weeklyAttemptCount} / {weeklyGoal}</strong></div><span className="badge badge-mint">{learning.weeklyAttemptCount >= weeklyGoal ? "已達標" : `還差${weeklyGoal - learning.weeklyAttemptCount}次`}</span></div>
