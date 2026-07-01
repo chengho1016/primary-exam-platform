@@ -14,7 +14,7 @@ export async function createPrintJobAction(formData: FormData) {
   if (!(await hasPaperAccess(user.id, paperId))) redirect("/membership");
 
   const paper = await db.paper.findFirst({
-    where: { id: paperId, status: "PUBLISHED", printablePdfPath: { not: null } },
+    where: { id: paperId, status: "PUBLISHED", OR: [{ printablePdfPath: { not: null } }, { sourceAssetPath: { not: "" } }] },
     select: { id: true },
   });
   if (!paper) throw new Error("此試卷暫時未能列印");

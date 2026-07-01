@@ -22,5 +22,5 @@ export default async function PrintPage({ params, searchParams }: { params: Prom
   });
   if (!printJob) redirect(`/papers/${paperId}`);
 
-  return <PrintPreview authorization={authorization} paperId={paperId} watermarkText={printJob.watermarkText} />;
+  return <PrintPreview authorization={authorization} mode={paper.printMode} paperId={paperId} title={paper.summary.title} watermarkText={printJob.watermarkText} />;
 }

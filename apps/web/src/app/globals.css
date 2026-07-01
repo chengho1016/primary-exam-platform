@@ -419,6 +419,9 @@ svg { display: block; }
 .print-toolbar h1 { margin: 0 0 3px; font-size: 15px; }
 .print-toolbar p { margin: 0; color: var(--ink-soft); font-size: 10px; }
 .print-pages { display: grid; gap: 28px; justify-content: center; padding: 34px 20px 80px; }
+.source-print-preview { position: relative; width: min(1000px, calc(100vw - 40px)); height: calc(100vh - 120px); margin: 28px auto; overflow: hidden; border-radius: 16px; background: #fff; box-shadow: 0 12px 36px rgba(24,48,74,.18); }
+.source-print-preview iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+.source-print-watermark { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; color: #244f78; font-size: clamp(22px, 4vw, 48px); font-weight: 900; opacity: .08; transform: rotate(-24deg); white-space: nowrap; }
 .print-page { position: relative; width: min(794px, calc(100vw - 40px)); aspect-ratio: 210 / 297; overflow: hidden; background: #fff; box-shadow: 0 12px 36px rgba(24,48,74,.18); }
 .print-page-image { display: block; width: 100%; height: 100%; object-fit: contain; }
 .print-page-label { position: absolute; right: 16px; bottom: 10px; z-index: 2; padding: 3px 6px; color: #32465b; background: rgba(255,255,255,.78); font-size: 7px; }

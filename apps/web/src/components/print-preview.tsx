@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRef } from "react";
 import { LockIcon, PrinterIcon } from "@/components/icons";
 
 const PAPER_ID = "2324-03-MA-P4";
@@ -15,8 +16,45 @@ function WatermarkLayer({ watermarkText }: { watermarkText: string }) {
   );
 }
 
-export function PrintPreview({ authorization, paperId, watermarkText }: { authorization: string; paperId: string; watermarkText: string }) {
+type PrintPreviewProps = {
+  authorization: string;
+  paperId: string;
+  watermarkText: string;
+  mode?: "pages" | "source";
+  title?: string;
+};
+
+export function PrintPreview({ authorization, paperId, watermarkText, mode = "pages", title }: PrintPreviewProps) {
   const activePaperId = paperId === PAPER_ID ? paperId : PAPER_ID;
+  const sourceFrameRef = useRef<HTMLIFrameElement>(null);
+
+  function printUploadedSource() {
+    sourceFrameRef.current?.contentWindow?.focus();
+    sourceFrameRef.current?.contentWindow?.print();
+  }
+
+  if (mode === "source") {
+    const sourceUrl = `/api/print-source/${paperId}?job=${encodeURIComponent(authorization)}`;
+    return (
+      <main className="print-workspace">
+        <header className="print-toolbar">
+          <div>
+            <h1>列印預覽 · {title ?? "已上傳試卷"}</h1>
+            <p>此試卷由Admin上傳；列印授權有效15分鐘。若瀏覽器未能直接列印，請先在預覽框打開PDF列印功能。</p>
+          </div>
+          <div className="header-tools">
+            <span className="security-note"><LockIcon />授權有效15分鐘</span>
+            <Link className="button button-secondary button-small" href={`/papers/${paperId}`}>返回</Link>
+            <button className="button button-primary button-small" onClick={printUploadedSource} type="button"><PrinterIcon />直接列印</button>
+          </div>
+        </header>
+        <section className="source-print-preview">
+          <iframe ref={sourceFrameRef} src={sourceUrl} title="試卷PDF列印預覽" />
+          <div className="source-print-watermark" aria-hidden="true">{watermarkText}</div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="print-workspace">

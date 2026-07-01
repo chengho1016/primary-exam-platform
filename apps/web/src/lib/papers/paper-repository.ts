@@ -68,6 +68,7 @@ export async function getPublishedPaperDetails(paperId: string) {
     summary: mapPaperSummary(paper),
     topics: topics.map(({ topic }) => topic),
     onlineQuestionCount,
-    canPrint: Boolean(paper.printablePdfPath),
+    canPrint: Boolean(paper.printablePdfPath || paper.sourceAssetPath),
+    printMode: paper.printablePdfPath ? "pages" as const : "source" as const,
   };
 }
