@@ -48,12 +48,25 @@ export function listAdminPapers(filters: { query?: string; status?: PaperStatus 
   });
 }
 
-export function listAdminQuestions(paperCode?: string) {
+export function listAdminQuestions(filters: { paperCode?: string; topic?: string; review?: "verified" | "needs-review" | "print-only" } = {}) {
+  const where: Prisma.QuestionWhereInput = {};
+  if (filters.paperCode) where.paper = { code: filters.paperCode };
+  if (filters.topic) where.topic = filters.topic;
+  if (filters.review === "verified") {
+    where.onlineEligible = true;
+    where.reviewStatus = { startsWith: "verified" };
+  } else if (filters.review === "needs-review") {
+    where.onlineEligible = true;
+    where.NOT = { reviewStatus: { startsWith: "verified" } };
+  } else if (filters.review === "print-only") {
+    where.onlineEligible = false;
+  }
+
   return db.question.findMany({
-    where: paperCode ? { paper: { code: paperCode } } : undefined,
+    where,
     orderBy: [{ paper: { code: "asc" } }, { number: "asc" }],
     take: 200,
-    include: { paper: { select: { code: true, title: true } } },
+    include: { paper: { select: { code: true, title: true, status: true } } },
   });
 }
 

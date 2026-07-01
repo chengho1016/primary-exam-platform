@@ -394,6 +394,12 @@ svg { display: block; }
 .admin-status-bad { color: #9f3b2e; background: var(--coral-soft); }
 .admin-status-muted { color: #687889; background: #eef2f6; }
 .admin-next-step { color: var(--ink); font-size: 11px; font-weight: 850; }
+.admin-question-metrics { margin-bottom: 16px; }
+.admin-question-table th, .admin-question-table td { vertical-align: top; }
+.admin-source-cell small, .admin-source-cell strong, .admin-source-cell span { display: block; }
+.admin-source-cell small, .admin-source-cell span { color: var(--ink-soft); font-size: 10px; }
+.admin-source-cell strong { margin: 4px 0; }
+.admin-answer-cell { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
 .admin-table th, .admin-table td { padding: 14px 16px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
 .admin-table td.question-stem-cell { max-width: 420px; white-space: normal; line-height: 1.55; }
 .admin-table th { color: var(--ink-soft); background: #f8fafc; font-size: 10px; }
