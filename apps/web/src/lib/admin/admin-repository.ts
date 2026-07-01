@@ -41,7 +41,10 @@ export function listAdminPapers(filters: { query?: string; status?: PaperStatus 
   return db.paper.findMany({
     where,
     orderBy: [{ updatedAt: "desc" }, { title: "asc" }],
-    include: { _count: { select: { questions: true } } },
+    include: {
+      _count: { select: { questions: true } },
+      questions: { select: { onlineEligible: true, reviewStatus: true } },
+    },
   });
 }
 

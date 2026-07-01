@@ -384,6 +384,16 @@ svg { display: block; }
 .admin-stat.tone-coral::after { background: var(--coral-soft); }
 .admin-table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: var(--shadow-sm); }
 .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.admin-paper-table th, .admin-paper-table td { vertical-align: top; }
+.admin-paper-title-cell strong, .admin-paper-title-cell small { display: block; }
+.admin-paper-title-cell small { margin-top: 4px; color: var(--ink-soft); }
+.admin-status-stack { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.admin-status-pill { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; font-size: 9px; font-weight: 900; }
+.admin-status-good { color: #176348; background: var(--mint-soft); }
+.admin-status-warn { color: #8a6208; background: var(--sun-soft); }
+.admin-status-bad { color: #9f3b2e; background: var(--coral-soft); }
+.admin-status-muted { color: #687889; background: #eef2f6; }
+.admin-next-step { color: var(--ink); font-size: 11px; font-weight: 850; }
 .admin-table th, .admin-table td { padding: 14px 16px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
 .admin-table td.question-stem-cell { max-width: 420px; white-space: normal; line-height: 1.55; }
 .admin-table th { color: var(--ink-soft); background: #f8fafc; font-size: 10px; }
@@ -391,6 +401,9 @@ svg { display: block; }
 .status-dot { display: inline-flex; align-items: center; gap: 6px; }
 .status-dot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--mint); }
 .status-draft::before { background: var(--sun); }
+.status-review::before { background: var(--blue); }
+.status-published::before { background: var(--mint); }
+.status-archived::before { background: #93a1b2; }
 .row-actions { display: flex; gap: 7px; }
 .row-actions a { padding: 6px 8px; border-radius: 8px; color: var(--blue); background: var(--blue-soft); font-size: 10px; font-weight: 850; }
 .row-actions form { display: inline; }
