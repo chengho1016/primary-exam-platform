@@ -143,7 +143,10 @@ export default async function AdminPapersPage({ searchParams }: { searchParams: 
                           <button type="submit">{nextStatus.label}</button>
                         </form>
                         {deleteBlockReason ? (
-                          <span className="row-muted" title={`已有${deleteBlockReason}，不可直接刪除`}>不可刪除</span>
+                          <>
+                            <button className="danger-action" disabled title={`已有${deleteBlockReason}，不可直接刪除`} type="button">刪除</button>
+                            <span className="row-muted">已有紀錄</span>
+                          </>
                         ) : (
                           <form action={deletePaperAction}>
                             <input name="paperId" type="hidden" value={paper.id} />
