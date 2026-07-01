@@ -1,13 +1,22 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { UploadIcon } from "@/components/icons";
 
 export function AdminNewPaperForm() {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isPending, setIsPending] = useState(false);
+
+  function formatFileSize(bytes: number) {
+    if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setError(null);
+    setSelectedFile(e.currentTarget.files?.[0] ?? null);
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,13 +26,12 @@ export function AdminNewPaperForm() {
     const formData = new FormData(e.currentTarget);
     try {
       const res = await fetch("/api/admin/papers", { method: "POST", body: formData });
-      const data = await res.json();
+      const data = (await res.json().catch(() => null)) as { error?: string; redirect?: string } | null;
       if (!res.ok) {
-        setError(data.error ?? "上傳失敗");
+        setError(data?.error ?? `上傳失敗（HTTP ${res.status}）`);
         return;
       }
-      router.push("/admin/papers?created=1");
-      router.refresh();
+      window.location.assign(data?.redirect ?? "/admin/papers?created=1");
     } catch {
       setError("網絡錯誤，請稍後再試");
     } finally {
@@ -35,11 +43,16 @@ export function AdminNewPaperForm() {
     <form onSubmit={handleSubmit} className="upload-form" encType="multipart/form-data">
       <section className="form-panel">
         <h2>試卷檔案</h2>
-        <p>支援PDF、Word及清晰掃描圖片；檔案會儲存在私人目錄，上傳後不會自動發布。</p>
-        <label className="dropzone" htmlFor="paper-file">
-          <span><UploadIcon /><strong>拖放檔案或按此選擇</strong><span>PDF、DOCX、PNG、JPG · 每份最多50MB</span></span>
-          <input accept=".pdf,.docx,.png,.jpg,.jpeg" id="paper-file" name="paperFile" required style={{ display: "none" }} type="file" />
+        <p>支援PDF、Word及清晰掃描圖片；檔案會安全儲存到資料庫，上傳後不會自動發布。</p>
+        <label className={`dropzone${selectedFile ? " dropzone-selected" : ""}`} htmlFor="paper-file">
+          <span>
+            <UploadIcon />
+            <strong>{selectedFile ? selectedFile.name : "拖放檔案或按此選擇"}</strong>
+            <span>{selectedFile ? `${selectedFile.type || "未知格式"} · ${formatFileSize(selectedFile.size)}` : "PDF、DOCX、PNG、JPG · 每份最多50MB"}</span>
+          </span>
+          <input accept=".pdf,.docx,.png,.jpg,.jpeg" className="visually-hidden-file" id="paper-file" name="paperFile" onChange={handleFileChange} required type="file" />
         </label>
+        {selectedFile ? <p className="upload-hint" aria-live="polite">已選擇：{selectedFile.name}，可以按「儲存草稿並上傳」。</p> : null}
       </section>
       <aside className="form-panel">
         <h2>基本資料</h2>
