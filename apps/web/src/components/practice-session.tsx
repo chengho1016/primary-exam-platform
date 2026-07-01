@@ -7,6 +7,7 @@ import { BookIcon, CheckIcon, CloseIcon } from "@/components/icons";
 import { Badge, ProgressBar } from "@/components/ui";
 import type { PracticeQuestion } from "@/lib/domain/types";
 import { selectPracticeQuestions } from "@/lib/practice/select-practice-questions";
+import { isTextAnswerType } from "@/lib/practice/question-type";
 import { siteConfig } from "@/lib/site-config";
 
 function normalizeAnswer(answer: string) {
@@ -40,6 +41,10 @@ function isAnswerCorrect(question: PracticeQuestion, answer: string) {
   return (question.acceptedAnswers ?? [question.correctAnswer]).some(
     (acceptedAnswer) => normalizeAnswer(answer) === normalizeAnswer(acceptedAnswer),
   );
+}
+
+function isTextAnswerQuestion(question: PracticeQuestion) {
+  return isTextAnswerType(question.type);
 }
 
 export function PracticeSession({ paperId, paperTitle, questionPool }: { paperId: string; paperTitle: string; questionPool: PracticeQuestion[] }) {
@@ -141,7 +146,17 @@ export function PracticeSession({ paperId, paperTitle, questionPool }: { paperId
           {currentQuestion.type === "multiple-choice" ? (
             <div className="answer-options">{currentQuestion.options?.map((option, index) => <button className={`answer-option ${currentAnswer === option ? "selected" : ""}`} key={option} onClick={() => updateAnswer(option)} type="button"><span className="option-letter">{String.fromCharCode(65 + index)}</span>{option}</button>)}</div>
           ) : (
-            <input aria-label="輸入答案" className="number-answer" disabled={isCurrentGraded} inputMode="decimal" onChange={(event) => updateAnswer(event.target.value)} placeholder="在此輸入答案" value={currentAnswer} />
+            <input
+              aria-label="輸入答案"
+              autoCapitalize={isTextAnswerQuestion(currentQuestion) ? "none" : undefined}
+              className="number-answer"
+              disabled={isCurrentGraded}
+              inputMode={isTextAnswerQuestion(currentQuestion) ? "text" : "decimal"}
+              onChange={(event) => updateAnswer(event.target.value)}
+              placeholder={isTextAnswerQuestion(currentQuestion) ? "在此輸入文字答案，例如：正方形" : "在此輸入答案"}
+              type="text"
+              value={currentAnswer}
+            />
           )}
 
           {isCurrentGraded ? (

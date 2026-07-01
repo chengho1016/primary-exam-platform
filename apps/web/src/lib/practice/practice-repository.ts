@@ -3,6 +3,7 @@ import path from "node:path";
 import { db } from "@/lib/db/prisma";
 import type { Difficulty, PracticeQuestion } from "@/lib/domain/types";
 import { getCanonicalAnswer, type AnswerRule } from "@/lib/practice/grading";
+import { mapPracticeQuestionType } from "@/lib/practice/question-type";
 
 function answerToText(answer: string | string[]) {
   return Array.isArray(answer) ? answer.join(" > ") : answer;
@@ -36,7 +37,7 @@ export async function getPracticeQuestionPool(paperId: string): Promise<Practice
       prompt: question.stem,
       topic: question.topic,
       difficulty: mapDifficulty(question.difficulty),
-      type: question.type === "MULTIPLE_CHOICE" ? "multiple-choice" : "number",
+      type: mapPracticeQuestionType(question.type),
       options: options ? Object.values(options) : undefined,
       correctAnswer: canonicalAnswer,
       acceptedAnswers: Array.from(new Set([canonicalKey, canonicalAnswer, selectedOption, ...acceptedAnswers].filter((answer): answer is string => Boolean(answer)))),

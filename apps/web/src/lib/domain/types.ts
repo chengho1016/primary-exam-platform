@@ -1,7 +1,7 @@
 export type UserRole = "student" | "parent" | "admin";
 export type PaperStatus = "draft" | "review" | "published" | "archived";
 export type Difficulty = "easy" | "medium" | "hard";
-export type QuestionType = "multiple-choice" | "number";
+export type QuestionType = "multiple-choice" | "number" | "text" | "worked-response";
 
 export interface PaperSummary {
   id: string;
