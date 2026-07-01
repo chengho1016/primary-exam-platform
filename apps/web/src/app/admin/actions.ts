@@ -46,6 +46,18 @@ const updateQuestionSchema = z.object({
   explanation: z.string().trim().max(1000),
 });
 
+const adminUserSchema = z.object({
+  userId: z.string().min(1),
+  displayName: z.string().trim().min(1, "請輸入會員名稱").max(80),
+  email: z.string().trim().email("請輸入有效電郵").max(160),
+  role: z.enum(["PARENT", "ADMIN"]),
+  membershipStatus: z.enum(["NONE", "TRIAL", "ACTIVE", "PAST_DUE", "CANCELLED"]),
+  providerPlanId: z.string().trim().max(80),
+  printAllowance: z.coerce.number().int().min(0).max(9999),
+  periodStartsAt: z.string().trim().max(40),
+  periodEndsAt: z.string().trim().max(40),
+});
+
 function isUniqueConstraintError(error: unknown) {
   return Boolean(error && typeof error === "object" && "code" in error && error.code === "P2002");
 }
@@ -216,4 +228,83 @@ export async function updateQuestionAction(formData: FormData) {
 
   revalidatePath("/admin/questions");
   redirect(`/admin/questions?paper=${encodeURIComponent(existingQuestion.paper.code)}&updated=1`);
+}
+
+function parseAdminDateTime(value: string, fallback: Date) {
+  if (!value) return fallback;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return fallback;
+  return parsed;
+}
+
+export async function updateAdminUserAction(formData: FormData) {
+  const admin = await requireAdmin();
+  const parsedUser = adminUserSchema.safeParse(Object.fromEntries(formData));
+  if (!parsedUser.success) throw new Error(parsedUser.error.issues[0]?.message ?? "會員資料不正確");
+
+  const user = await db.user.findUnique({
+    where: { id: parsedUser.data.userId },
+    include: { subscriptions: { orderBy: { createdAt: "desc" }, take: 1 } },
+  });
+  if (!user) throw new Error("找不到會員");
+
+  const now = new Date();
+  const periodStartsAt = parseAdminDateTime(parsedUser.data.periodStartsAt, user.subscriptions[0]?.periodStartsAt ?? now);
+  const periodEndsAt = parseAdminDateTime(parsedUser.data.periodEndsAt, user.subscriptions[0]?.periodEndsAt ?? new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000));
+
+  await db.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id: parsedUser.data.userId },
+      data: {
+        displayName: parsedUser.data.displayName,
+        email: parsedUser.data.email.toLowerCase(),
+        role: parsedUser.data.role,
+      },
+    });
+
+    const latestSubscription = user.subscriptions[0];
+    if (parsedUser.data.membershipStatus === "NONE") {
+      if (latestSubscription) await tx.subscription.deleteMany({ where: { userId: parsedUser.data.userId } });
+    } else if (latestSubscription) {
+      await tx.subscription.update({
+        where: { id: latestSubscription.id },
+        data: {
+          status: parsedUser.data.membershipStatus,
+          providerPlanId: parsedUser.data.providerPlanId || null,
+          printAllowance: parsedUser.data.printAllowance,
+          periodStartsAt,
+          periodEndsAt,
+        },
+      });
+    } else {
+      await tx.subscription.create({
+        data: {
+          userId: parsedUser.data.userId,
+          status: parsedUser.data.membershipStatus,
+          providerPlanId: parsedUser.data.providerPlanId || null,
+          printAllowance: parsedUser.data.printAllowance,
+          periodStartsAt,
+          periodEndsAt,
+        },
+      });
+    }
+
+    await tx.adminAuditLog.create({
+      data: {
+        adminId: admin.id,
+        action: "user.updated",
+        entityType: "User",
+        entityId: parsedUser.data.userId,
+        metadata: {
+          role: parsedUser.data.role,
+          membershipStatus: parsedUser.data.membershipStatus,
+          printAllowance: parsedUser.data.printAllowance,
+        },
+      },
+    });
+  });
+
+  revalidatePath("/admin/users");
+  revalidatePath(`/admin/users/${parsedUser.data.userId}/edit`);
+  redirect("/admin/users?updated=1");
 }

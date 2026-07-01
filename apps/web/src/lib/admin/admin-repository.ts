@@ -72,10 +72,21 @@ export function listAdminQuestions(filters: { paperCode?: string; topic?: string
 
 export function listAdminUsers() {
   return db.user.findMany({
-    where: { role: "PARENT" },
     orderBy: { createdAt: "desc" },
     include: {
-      _count: { select: { children: true } },
+      _count: { select: { children: true, entitlements: true, printJobs: true } },
+      subscriptions: { orderBy: { createdAt: "desc" }, take: 1 },
+    },
+  });
+}
+
+export function getAdminUserDetail(userId: string) {
+  return db.user.findUnique({
+    where: { id: userId },
+    include: {
+      children: { orderBy: { createdAt: "asc" } },
+      entitlements: { include: { paper: { select: { code: true, title: true } } }, orderBy: { purchasedAt: "desc" } },
+      printJobs: { orderBy: { createdAt: "desc" }, take: 10, include: { paper: { select: { code: true, title: true } } } },
       subscriptions: { orderBy: { createdAt: "desc" }, take: 1 },
     },
   });

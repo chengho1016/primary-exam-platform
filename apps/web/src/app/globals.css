@@ -431,6 +431,11 @@ svg { display: block; }
 .upload-hint { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; color: #16794c; background: #eaf8f0; font-size: 11px; font-weight: 750; overflow-wrap: anywhere; }
 .form-error { margin: 0; padding: 10px 12px; border-radius: 10px; color: #9b2d20; background: var(--coral-soft); font-size: 11px; font-weight: 750; }
 .edit-form { max-width: 820px; display: grid; gap: 18px; }
+.admin-user-edit-form { max-width: 980px; }
+.readonly-box { min-height: 48px; display: flex; align-items: center; gap: 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink-soft); background: #f8fafc; font-size: 12px; }
+.admin-related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.admin-related-grid h3 { margin: 0 0 10px; font-size: 14px; }
+.admin-related-grid ul { margin: 0; padding-left: 18px; color: var(--ink-soft); font-size: 12px; line-height: 1.8; }
 .field textarea { width: 100%; resize: vertical; padding: 12px 13px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: #fff; font: inherit; line-height: 1.6; }
 
 .print-workspace { min-height: 100vh; background: #e9edf2; }
