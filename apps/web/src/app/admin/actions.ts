@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/session";
+import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db/prisma";
 import type { NewPaperActionState } from "@/app/admin/action-types";
 
@@ -36,17 +37,23 @@ const updatePaperSchema = newPaperSchema.extend({
   durationMinutes: z.coerce.number().int().min(1).max(300),
 });
 
+const questionTypeSchema = z.enum(["MULTIPLE_CHOICE", "NUMBER", "TEXT", "WORKED_RESPONSE"]);
+
 const updateQuestionSchema = z.object({
   questionId: z.string().min(1),
-  stem: z.string().trim().min(2).max(1000),
+  number: z.coerce.number().int().min(1).max(999),
+  section: z.string().trim().min(1).max(40),
+  marks: z.coerce.number().int().min(0).max(100),
+  sourcePage: z.coerce.number().int().min(0).max(999).optional().default(0),
+  type: questionTypeSchema,
+  stem: z.string().trim().min(2).max(2000),
+  optionsText: z.string().trim().max(1000),
   topic: z.string().trim().min(1).max(80),
   subtopic: z.string().trim().max(100),
   difficulty: z.enum(["easy", "medium", "hard"]),
   canonicalAnswer: z.string().trim().min(1).max(200),
   explanation: z.string().trim().max(1000),
 });
-
-const questionTypeSchema = z.enum(["MULTIPLE_CHOICE", "NUMBER", "TEXT", "WORKED_RESPONSE"]);
 
 const createQuestionSchema = z.object({
   paperId: z.string().min(1, "請選擇試卷"),
@@ -213,6 +220,13 @@ function buildAnswerRule(canonicalAnswer: string) {
   return { canonical: canonicalAnswer };
 }
 
+function mergeAnswerRule(existingRule: unknown, canonicalAnswer: string) {
+  const currentRule = existingRule && typeof existingRule === "object" && !Array.isArray(existingRule)
+    ? existingRule as Record<string, unknown>
+    : {};
+  return { ...currentRule, canonical: canonicalAnswer };
+}
+
 function parseMultipleChoiceOptions(optionsText: string) {
   const optionKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const lines = optionsText.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
@@ -305,36 +319,66 @@ export async function updateQuestionAction(formData: FormData) {
 
   const existingQuestion = await db.question.findUnique({
     where: { id: parsedQuestion.data.questionId },
-    select: { answerRule: true, paper: { select: { code: true } } },
+    select: { id: true, paperId: true, marks: true, answerRule: true, paper: { select: { code: true } } },
   });
   if (!existingQuestion) throw new Error("找不到題目");
 
-  const currentRule = existingQuestion.answerRule && typeof existingQuestion.answerRule === "object" && !Array.isArray(existingQuestion.answerRule)
-    ? existingQuestion.answerRule
-    : {};
-  const answerRule = { ...currentRule, canonical: parsedQuestion.data.canonicalAnswer };
+  const options = parsedQuestion.data.type === "MULTIPLE_CHOICE" ? parseMultipleChoiceOptions(parsedQuestion.data.optionsText) : null;
+  if (parsedQuestion.data.type === "MULTIPLE_CHOICE" && Object.keys(options ?? {}).length < 2) {
+    throw new Error("選擇題至少需要兩個選項，每行一個，例如 A. 12cm");
+  }
 
-  await db.$transaction([
-    db.question.update({
-      where: { id: parsedQuestion.data.questionId },
-      data: {
-        stem: parsedQuestion.data.stem,
-        topic: parsedQuestion.data.topic,
-        subtopic: parsedQuestion.data.subtopic || null,
-        difficulty: parsedQuestion.data.difficulty,
-        answerRule,
-        explanation: parsedQuestion.data.explanation || null,
-        onlineEligible: formData.get("onlineEligible") === "on",
-        reviewStatus: "verified_admin",
-      },
-    }),
-    db.adminAuditLog.create({
-      data: { adminId: admin.id, action: "question.updated", entityType: "Question", entityId: parsedQuestion.data.questionId },
-    }),
-  ]);
+  const marksDelta = parsedQuestion.data.marks - existingQuestion.marks;
 
+  try {
+    await db.$transaction(async (tx) => {
+      await tx.question.update({
+        where: { id: parsedQuestion.data.questionId },
+        data: {
+          number: parsedQuestion.data.number,
+          section: parsedQuestion.data.section,
+          marks: parsedQuestion.data.marks,
+          sourcePage: parsedQuestion.data.sourcePage || null,
+          type: parsedQuestion.data.type,
+          stem: parsedQuestion.data.stem,
+          options: parsedQuestion.data.type === "MULTIPLE_CHOICE" ? options ?? undefined : Prisma.JsonNull,
+          topic: parsedQuestion.data.topic,
+          subtopic: parsedQuestion.data.subtopic || null,
+          difficulty: parsedQuestion.data.difficulty,
+          answerRule: mergeAnswerRule(existingQuestion.answerRule, parsedQuestion.data.canonicalAnswer),
+          explanation: parsedQuestion.data.explanation || null,
+          onlineEligible: formData.get("onlineEligible") === "on",
+          reviewStatus: "verified_admin",
+        },
+      });
+
+      if (marksDelta !== 0) {
+        await tx.paper.update({
+          where: { id: existingQuestion.paperId },
+          data: { totalMarks: { increment: marksDelta } },
+        });
+      }
+
+      await tx.adminAuditLog.create({
+        data: {
+          adminId: admin.id,
+          action: "question.updated",
+          entityType: "Question",
+          entityId: parsedQuestion.data.questionId,
+          metadata: { number: parsedQuestion.data.number, topic: parsedQuestion.data.topic, type: parsedQuestion.data.type },
+        },
+      });
+    });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) throw new Error("同一份試卷已經有相同題號，請改用另一個題號");
+    throw error;
+  }
+
+  revalidatePath("/admin");
   revalidatePath("/admin/questions");
-  redirect(`/admin/questions?paper=${encodeURIComponent(existingQuestion.paper.code)}&updated=1`);
+  revalidatePath("/admin/database");
+  revalidatePath(`/papers/${existingQuestion.paperId}`);
+  redirect(`/admin/questions?paper=${encodeURIComponent(existingQuestion.paper.code)}&updated=1#question-${existingQuestion.id}`);
 }
 
 function parseAdminDateTime(value: string, fallback: Date) {
