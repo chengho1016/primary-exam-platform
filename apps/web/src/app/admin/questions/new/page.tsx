@@ -8,9 +8,13 @@ export const metadata = { title: "新增題目" };
 export const dynamic = "force-dynamic";
 
 type PaperOption = Awaited<ReturnType<typeof getPaperOptions>>[number];
+type SubjectFilter = "all" | "數學" | "中文" | "英文" | "人文" | "科學";
 
-async function getPaperOptions() {
+const validSubjectFilters = new Set<SubjectFilter>(["all", "數學", "中文", "英文", "人文", "科學"]);
+
+async function getPaperOptions(subject?: string) {
   return db.paper.findMany({
+    where: subject ? { subject } : undefined,
     orderBy: [{ updatedAt: "desc" }, { code: "asc" }],
     include: {
       _count: { select: { questions: true } },
@@ -25,12 +29,15 @@ function getDefaultPaper(papers: PaperOption[], paperCode?: string) {
   return papers.find((paper) => paper.code === paperCode || paper.id === paperCode) ?? papers[0];
 }
 
-export default async function NewQuestionPage({ searchParams }: { searchParams: Promise<{ paper?: string }> }) {
+export default async function NewQuestionPage({ searchParams }: { searchParams: Promise<{ paper?: string; subject?: string }> }) {
   const filters = await searchParams;
-  const papers = await getPaperOptions();
+  const selectedSubject = filters.subject && validSubjectFilters.has(filters.subject as SubjectFilter) ? filters.subject as SubjectFilter : "數學";
+  const subjectFilter = selectedSubject === "all" ? undefined : selectedSubject;
+  const papers = await getPaperOptions(subjectFilter);
   const defaultPaper = getDefaultPaper(papers, filters.paper);
   const nextNumber = (defaultPaper?.questions[0]?.number ?? defaultPaper?._count.questions ?? 0) + 1;
   const topics = await db.question.findMany({
+    where: subjectFilter ? { paper: { subject: subjectFilter } } : undefined,
     distinct: ["topic"],
     orderBy: { topic: "asc" },
     select: { topic: true },
@@ -42,9 +49,9 @@ export default async function NewQuestionPage({ searchParams }: { searchParams: 
         <header className="app-page-header">
           <div>
             <h1>新增題目</h1>
-            <p>逐條建立題目，先用現有 topic 文字欄位；之後再升級成正式 Topic table。</p>
+            <p>{selectedSubject === "all" ? "全部科目" : `${selectedSubject}科`} · 逐條建立題目；數學題會優先用於未來課題組卷。</p>
           </div>
-          <Link className="button button-secondary button-small" href="/admin/questions">返回題庫</Link>
+          <Link className="button button-secondary button-small" href={`/admin/questions?subject=${encodeURIComponent(selectedSubject)}`}>返回題庫</Link>
         </header>
 
         <section className="panel admin-guidance-panel">
@@ -64,7 +71,7 @@ export default async function NewQuestionPage({ searchParams }: { searchParams: 
               <select defaultValue={defaultPaper?.id} id="paperId" name="paperId" required>
                 {papers.map((paper) => (
                   <option key={paper.id} value={paper.id}>
-                    {paper.code} · {paper.title} · {paper._count.questions} 題
+                    {paper.subject} · {paper.code} · {paper.title} · {paper._count.questions} 題
                   </option>
                 ))}
               </select>

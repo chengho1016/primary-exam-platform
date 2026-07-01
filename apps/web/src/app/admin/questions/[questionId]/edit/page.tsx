@@ -34,7 +34,7 @@ export default async function EditQuestionPage({ params }: { params: Promise<{ q
   const { questionId } = await params;
   const question = await db.question.findUnique({
     where: { id: questionId },
-    include: { paper: { select: { code: true, title: true, status: true } } },
+    include: { paper: { select: { code: true, title: true, subject: true, status: true } } },
   });
   if (!question) notFound();
 
@@ -51,11 +51,11 @@ export default async function EditQuestionPage({ params }: { params: Promise<{ q
         <header className="app-page-header">
           <div>
             <h1>編輯第 {question.number} 題</h1>
-            <p>{question.paper.code} · {question.paper.title}</p>
+            <p>{question.paper.subject} · {question.paper.code} · {question.paper.title}</p>
           </div>
           <div className="admin-header-actions">
             <Badge tone={question.paper.status === "PUBLISHED" ? "mint" : "gray"}>{question.paper.status}</Badge>
-            <Link className="button button-secondary button-small" href={`/admin/questions?paper=${encodeURIComponent(question.paper.code)}`}>返回題庫</Link>
+            <Link className="button button-secondary button-small" href={`/admin/questions?subject=${encodeURIComponent(question.paper.subject)}&paper=${encodeURIComponent(question.paper.code)}`}>返回題庫</Link>
           </div>
         </header>
 

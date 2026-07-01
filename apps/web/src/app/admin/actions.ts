@@ -251,7 +251,7 @@ export async function createQuestionAction(formData: FormData) {
   const parsedQuestion = createQuestionSchema.safeParse(Object.fromEntries(formData));
   if (!parsedQuestion.success) throw new Error(parsedQuestion.error.issues[0]?.message ?? "題目資料不正確");
 
-  const paper = await db.paper.findUnique({ where: { id: parsedQuestion.data.paperId }, select: { id: true, code: true } });
+  const paper = await db.paper.findUnique({ where: { id: parsedQuestion.data.paperId }, select: { id: true, code: true, subject: true } });
   if (!paper) throw new Error("找不到試卷");
 
   const options = parsedQuestion.data.type === "MULTIPLE_CHOICE" ? parseMultipleChoiceOptions(parsedQuestion.data.optionsText) : null;
@@ -305,7 +305,7 @@ export async function createQuestionAction(formData: FormData) {
     revalidatePath("/admin/questions");
     revalidatePath("/admin/database");
     revalidatePath(`/papers/${parsedQuestion.data.paperId}`);
-    redirect(`/admin/questions?paper=${encodeURIComponent(paper.code)}&created=1#question-${createdQuestion.id}`);
+    redirect(`/admin/questions?subject=${encodeURIComponent(paper.subject)}&paper=${encodeURIComponent(paper.code)}&created=1#question-${createdQuestion.id}`);
   } catch (error) {
     if (isUniqueConstraintError(error)) throw new Error("同一份試卷已經有相同題號，請改用另一個題號");
     throw error;
@@ -319,7 +319,7 @@ export async function updateQuestionAction(formData: FormData) {
 
   const existingQuestion = await db.question.findUnique({
     where: { id: parsedQuestion.data.questionId },
-    select: { id: true, paperId: true, marks: true, answerRule: true, paper: { select: { code: true } } },
+    select: { id: true, paperId: true, marks: true, answerRule: true, paper: { select: { code: true, subject: true } } },
   });
   if (!existingQuestion) throw new Error("找不到題目");
 
@@ -378,7 +378,7 @@ export async function updateQuestionAction(formData: FormData) {
   revalidatePath("/admin/questions");
   revalidatePath("/admin/database");
   revalidatePath(`/papers/${existingQuestion.paperId}`);
-  redirect(`/admin/questions?paper=${encodeURIComponent(existingQuestion.paper.code)}&updated=1#question-${existingQuestion.id}`);
+  redirect(`/admin/questions?subject=${encodeURIComponent(existingQuestion.paper.subject)}&paper=${encodeURIComponent(existingQuestion.paper.code)}&updated=1#question-${existingQuestion.id}`);
 }
 
 function parseAdminDateTime(value: string, fallback: Date) {
