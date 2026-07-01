@@ -64,6 +64,13 @@ export default async function NewQuestionPage({ searchParams }: { searchParams: 
           </div>
         </section>
 
+        {!papers.length ? (
+          <p className="form-error">
+            {selectedSubject === "all" ? "暫時未有任何試卷。" : `${selectedSubject}科暫時未有試卷。`}請先到「上傳試卷」建立試卷，再逐條加入題目。
+            <Link href="/admin/papers/new"> 前往上傳試卷</Link>
+          </p>
+        ) : null}
+
         <form action={createQuestionAction} className="form-panel edit-form admin-question-form">
           <div className="field-row">
             <div className="field">
@@ -157,7 +164,7 @@ export default async function NewQuestionPage({ searchParams }: { searchParams: 
             允許放入網上練習 / 未來自動組卷池
           </label>
 
-          <button className="button button-primary" type="submit">新增題目</button>
+          <button className="button button-primary" disabled={!papers.length} type="submit">新增題目</button>
         </form>
       </div>
     </AppShell>
