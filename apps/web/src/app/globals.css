@@ -400,6 +400,14 @@ svg { display: block; }
 .admin-source-cell small, .admin-source-cell span { color: var(--ink-soft); font-size: 10px; }
 .admin-source-cell strong { margin: 4px 0; }
 .admin-answer-cell { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.database-grid { align-items: start; }
+.database-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.database-list > div { display: grid; gap: 3px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #f8fafc; }
+.database-list span { color: var(--ink-soft); font-size: 11px; font-weight: 850; }
+.database-list strong { color: var(--navy); font-size: 20px; }
+.database-list small { color: var(--ink-soft); font-size: 10px; }
+.database-audit-table td { white-space: normal; }
+.topic-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .admin-table th, .admin-table td { padding: 14px 16px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
 .admin-table td.question-stem-cell { max-width: 420px; white-space: normal; line-height: 1.55; }
 .admin-table th { color: var(--ink-soft); background: #f8fafc; font-size: 10px; }

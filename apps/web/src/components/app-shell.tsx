@@ -19,7 +19,7 @@ const adminNavigation = [
   { href: "/admin/questions", label: "題庫管理", icon: BookIcon },
   { href: "/admin/papers/new", label: "上傳試卷", icon: UploadIcon },
   { href: "/admin/users", label: "會員管理", icon: UsersIcon },
-  { href: "/admin", label: "系統設定", icon: SettingsIcon },
+  { href: "/admin/database", label: "資料庫概覽", icon: SettingsIcon },
 ];
 
 export async function AppShell({ children, activePath, mode = "member" }: { children: ReactNode; activePath: string; mode?: "member" | "admin" }) {
