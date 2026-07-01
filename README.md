@@ -12,11 +12,11 @@
 
 ```bash
 cd /Users/cheng/primary-exam-platform/apps/web
-pnpm install
-pnpm db:start
-pnpm db:migrate
-pnpm db:seed
-pnpm dev
+corepack pnpm install
+corepack pnpm db:start
+corepack pnpm db:migrate
+corepack pnpm db:seed
+corepack pnpm dev
 ```
 
 然後開啟 `http://127.0.0.1:3001`。
@@ -28,7 +28,12 @@ pnpm dev
 - 水印列印：`/print/2324-03-MA-P4`
 - Admin：`/admin`
 
-Admin會從PostgreSQL讀取即時資料；生產環境的試卷上傳檔案會以 base64 data URI 儲存在 PostgreSQL `Paper.sourceAssetPath`，避免依賴 Vercel Blob。資料模型及安全邊界見 `apps/web/docs/ARCHITECTURE.md`。
+Admin會從PostgreSQL讀取即時資料；生產環境的試卷上傳檔案會以 base64 data URI 儲存在 PostgreSQL `Paper.sourceAssetPath`，避免依賴 Vercel Blob。資料模型、安全邊界及流程文件見：
+
+- `apps/web/docs/ARCHITECTURE.md`：整體架構及安全邊界
+- `apps/web/docs/DATABASE_MAP.md`：資料庫 table/field 解釋及未來 schema 方向
+- `apps/web/docs/UPLOAD_AND_PRINT_FLOW.md`：Admin 上傳、發布、列印授權及 PDF delivery 流程
+- `apps/web/docs/PROJECT_STRUCTURE.md`：程式碼結構、開發規則及新增功能流程
 
 ## 部署及依賴管理注意
 

@@ -29,10 +29,10 @@
 
 ```bash
 corepack pnpm install
-pnpm db:start
-pnpm db:migrate
-pnpm db:seed
-pnpm dev
+corepack pnpm db:start
+corepack pnpm db:migrate
+corepack pnpm db:seed
+corepack pnpm dev
 ```
 
 驗證：
@@ -54,4 +54,10 @@ pnpm build
 
 付款供應商、電郵驗證／忘記密碼、雲端檔案儲存、自動備份及OCR批量入題仍需接駁外部服務。瀏覽器亦無法絕對禁止截圖或「列印成PDF」，所以本系統以短效授權、個人水印及列印紀錄追蹤來阻嚇外傳。
 
-詳細設計見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+詳細設計及操作文件：
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)：整體架構及安全邊界
+- [docs/DATABASE_MAP.md](docs/DATABASE_MAP.md)：資料庫 table/field 解釋及未來 schema 方向
+- [docs/UPLOAD_AND_PRINT_FLOW.md](docs/UPLOAD_AND_PRINT_FLOW.md)：Admin 上傳、發布、列印授權及 PDF delivery 流程
+- [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)：程式碼結構、開發規則及新增功能流程
+
