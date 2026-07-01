@@ -6,20 +6,20 @@ import { siteConfig } from "@/lib/site-config";
 import { getCurrentUser } from "@/lib/auth/session";
 
 const memberNavigation = [
-  { href: "/dashboard", label: "學習首頁", icon: HomeIcon },
-  { href: "/papers", label: "試卷練習", icon: PaperIcon },
-  { href: "/wrong-book", label: "錯題本", icon: WrongBookIcon },
-  { href: "/parent", label: "家長報告", icon: ChartIcon },
-  { href: "/membership", label: "會員計劃", icon: CardIcon },
+  { href: "/dashboard", label: "首頁", desktopLabel: "學習首頁", icon: HomeIcon },
+  { href: "/papers", label: "試卷", desktopLabel: "試卷練習", icon: PaperIcon },
+  { href: "/wrong-book", label: "錯題", desktopLabel: "錯題本", icon: WrongBookIcon },
+  { href: "/parent", label: "報告", desktopLabel: "家長報告", icon: ChartIcon },
+  { href: "/membership", label: "會員", desktopLabel: "會員計劃", icon: CardIcon },
 ];
 
 const adminNavigation = [
-  { href: "/admin", label: "管理概覽", icon: HomeIcon },
-  { href: "/admin/papers", label: "試卷管理", icon: PaperIcon },
-  { href: "/admin/questions", label: "題庫管理", icon: BookIcon },
-  { href: "/admin/papers/new", label: "上傳試卷", icon: UploadIcon },
-  { href: "/admin/users", label: "會員管理", icon: UsersIcon },
-  { href: "/admin/database", label: "資料庫概覽", icon: SettingsIcon },
+  { href: "/admin", label: "概覽", desktopLabel: "管理概覽", icon: HomeIcon },
+  { href: "/admin/papers", label: "試卷", desktopLabel: "試卷管理", icon: PaperIcon },
+  { href: "/admin/questions", label: "題庫", desktopLabel: "題庫管理", icon: BookIcon },
+  { href: "/admin/papers/new", label: "上傳", desktopLabel: "上傳試卷", icon: UploadIcon },
+  { href: "/admin/users", label: "會員", desktopLabel: "會員管理", icon: UsersIcon },
+  { href: "/admin/database", label: "資料庫", desktopLabel: "資料庫概覽", icon: SettingsIcon },
 ];
 
 export async function AppShell({ children, activePath, mode = "member" }: { children: ReactNode; activePath: string; mode?: "member" | "admin" }) {
@@ -38,10 +38,10 @@ export async function AppShell({ children, activePath, mode = "member" }: { chil
           {mode === "admin" ? <em>ADMIN</em> : null}
         </Link>
         <nav className="sidebar-nav" aria-label={mode === "admin" ? "管理導覽" : "會員導覽"}>
-          {navigation.map(({ href, label, icon: Icon }) => (
-            <Link className={activePath === href ? "active" : ""} href={href} key={`${href}-${label}`}>
+          {navigation.map(({ href, desktopLabel, icon: Icon }) => (
+            <Link className={activePath === href ? "active" : ""} href={href} key={`${href}-${desktopLabel}`}>
               <Icon />
-              <span>{label}</span>
+              <span>{desktopLabel}</span>
             </Link>
           ))}
         </nav>
@@ -52,8 +52,19 @@ export async function AppShell({ children, activePath, mode = "member" }: { chil
         </div>
       </aside>
       <main className="app-main">
-        <div className="mobile-app-bar"><Link className="brand" href={mode === "admin" ? "/admin" : "/dashboard"}><span className="brand-mark"><BookIcon /></span>{siteConfig.name}</Link></div>
+        <div className="mobile-app-bar">
+          <Link className="brand" href={mode === "admin" ? "/admin" : "/dashboard"}><span className="brand-mark"><BookIcon /></span>{siteConfig.name}</Link>
+          <span>{mode === "admin" ? "管理中心" : accountName}</span>
+        </div>
         {children}
+        <nav className="mobile-bottom-nav" aria-label={mode === "admin" ? "手機管理導覽" : "手機會員導覽"}>
+          {navigation.map(({ href, label, icon: Icon }) => (
+            <Link className={activePath === href ? "active" : ""} href={href} key={`mobile-${href}-${label}`}>
+              <Icon />
+              <span>{label}</span>
+            </Link>
+          ))}
+        </nav>
       </main>
     </div>
   );

@@ -9,6 +9,14 @@ function mapAccess(access: PaperAccess): PaperSummary["access"] {
   return "member";
 }
 
+const subjectIdMap: Record<string, PaperSummary["subjectId"]> = {
+  中文: "chinese",
+  英文: "english",
+  數學: "math",
+  人文: "humanities",
+  科學: "science",
+};
+
 function mapPaperSummary(paper: {
   id: string;
   title: string;
@@ -27,7 +35,7 @@ function mapPaperSummary(paper: {
     title: paper.title,
     grade: paper.grade,
     subject: paper.subject,
-    subjectId: paper.subject === "數學" ? "math" : paper.subject,
+    subjectId: subjectIdMap[paper.subject] ?? "science",
     academicYear: paper.academicYear ?? "未設定學年",
     questionCount: paper._count.questions,
     pageCount: paper.pageCount,
