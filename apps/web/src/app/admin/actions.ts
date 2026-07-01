@@ -32,6 +32,10 @@ const paperStatusSchema = z.object({
   status: z.enum(["DRAFT", "REVIEW", "PUBLISHED", "ARCHIVED"]),
 });
 
+const deletePaperSchema = z.object({
+  paperId: z.string().min(1),
+});
+
 const updatePaperSchema = newPaperSchema.extend({
   paperId: z.string().min(1),
   durationMinutes: z.coerce.number().int().min(1).max(300),
@@ -214,6 +218,57 @@ export async function updatePaperAction(formData: FormData) {
   revalidatePath("/admin/papers");
   revalidatePath(`/papers/${parsedPaper.data.paperId}`);
   redirect("/admin/papers?updated=1");
+}
+
+export async function deletePaperAction(formData: FormData) {
+  const admin = await requireAdmin();
+  const parsedPaper = deletePaperSchema.safeParse(Object.fromEntries(formData));
+  if (!parsedPaper.success) throw new Error("無效的試卷刪除要求");
+
+  const paper = await db.paper.findUnique({
+    where: { id: parsedPaper.data.paperId },
+    select: {
+      id: true,
+      code: true,
+      title: true,
+      _count: { select: { questions: true, attempts: true, entitlements: true, printJobs: true } },
+    },
+  });
+
+  if (!paper) redirect("/admin/papers?deleteBlocked=1&reason=not-found");
+
+  const blockers: string[] = [];
+  if (paper._count.attempts > 0) blockers.push(`${paper._count.attempts} 個練習紀錄`);
+  if (paper._count.printJobs > 0) blockers.push(`${paper._count.printJobs} 個列印紀錄`);
+  if (paper._count.entitlements > 0) blockers.push(`${paper._count.entitlements} 個會員權限`);
+
+  if (blockers.length) {
+    const params = new URLSearchParams({
+      deleteBlocked: "1",
+      paper: paper.code,
+      reason: blockers.join("、"),
+    });
+    redirect(`/admin/papers?${params.toString()}`);
+  }
+
+  await db.$transaction(async (tx) => {
+    await tx.paper.delete({ where: { id: paper.id } });
+    await tx.adminAuditLog.create({
+      data: {
+        adminId: admin.id,
+        action: "paper.deleted",
+        entityType: "Paper",
+        entityId: paper.id,
+        metadata: { code: paper.code, title: paper.title, questionCount: paper._count.questions },
+      },
+    });
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/papers");
+  revalidatePath("/admin/questions");
+  revalidatePath("/admin/database");
+  redirect("/admin/papers?deleted=1");
 }
 
 function buildAnswerRule(canonicalAnswer: string) {

@@ -42,7 +42,7 @@ export function listAdminPapers(filters: { query?: string; status?: PaperStatus 
     where,
     orderBy: [{ updatedAt: "desc" }, { title: "asc" }],
     include: {
-      _count: { select: { questions: true } },
+      _count: { select: { questions: true, attempts: true, entitlements: true, printJobs: true } },
       questions: { select: { onlineEligible: true, reviewStatus: true } },
     },
   });

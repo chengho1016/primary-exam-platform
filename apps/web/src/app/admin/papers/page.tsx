@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { ButtonLink } from "@/components/ui";
-import { updatePaperStatusAction } from "@/app/admin/actions";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
+import { deletePaperAction, updatePaperStatusAction } from "@/app/admin/actions";
 import type { PaperStatus } from "@/generated/prisma/client";
 import { listAdminPapers } from "@/lib/admin/admin-repository";
 import { formatPaperAccess, formatPaperStatus } from "@/lib/admin/presentation";
@@ -60,7 +61,15 @@ function StatusPill({ label, tone }: { label: string; tone: "good" | "warn" | "b
   return <span className={`admin-status-pill admin-status-${tone}`}>{label}</span>;
 }
 
-export default async function AdminPapersPage({ searchParams }: { searchParams: Promise<{ query?: string; status?: string; created?: string; updated?: string }> }) {
+function getDeleteBlockReason(paper: AdminPaper) {
+  const blockers: string[] = [];
+  if (paper._count.attempts > 0) blockers.push(`${paper._count.attempts} 個練習紀錄`);
+  if (paper._count.printJobs > 0) blockers.push(`${paper._count.printJobs} 個列印紀錄`);
+  if (paper._count.entitlements > 0) blockers.push(`${paper._count.entitlements} 個會員權限`);
+  return blockers.length ? blockers.join("、") : null;
+}
+
+export default async function AdminPapersPage({ searchParams }: { searchParams: Promise<{ query?: string; status?: string; created?: string; updated?: string; deleted?: string; deleteBlocked?: string; paper?: string; reason?: string }> }) {
   const filters = await searchParams;
   const status = filters.status && validStatuses.has(filters.status as PaperStatus) ? filters.status as PaperStatus : undefined;
   const papers = await listAdminPapers({ query: filters.query?.trim(), status });
@@ -76,7 +85,12 @@ export default async function AdminPapersPage({ searchParams }: { searchParams: 
           <ButtonLink href="/admin/papers/new">＋ 上傳試卷</ButtonLink>
         </header>
 
-        {filters.created === "1" ? <p className="success-banner">試卷已安全上傳並儲存為草稿。</p> : filters.updated === "1" ? <p className="success-banner">試卷資料已更新。</p> : null}
+        {filters.created === "1" ? <p className="success-banner">試卷已安全上傳並儲存為草稿。</p> : filters.updated === "1" ? <p className="success-banner">試卷資料已更新。</p> : filters.deleted === "1" ? <p className="success-banner">試卷已刪除，相關題目亦已從題庫移除。</p> : null}
+        {filters.deleteBlocked === "1" ? (
+          <p className="warning-banner">
+            {filters.paper ? `${filters.paper} 暫時不可刪除` : "試卷暫時不可刪除"}：{filters.reason === "not-found" ? "找不到試卷" : filters.reason || "已有使用紀錄"}。如要隱藏前台，請先改為「下架」。
+          </p>
+        ) : null}
 
         <form className="filter-bar" method="get">
           <div className="field"><label htmlFor="admin-search">搜尋</label><input defaultValue={filters.query} id="admin-search" name="query" placeholder="試卷名稱或編號" /></div>
@@ -104,6 +118,7 @@ export default async function AdminPapersPage({ searchParams }: { searchParams: 
                 const assetState = getAssetState(paper);
                 const printState = getPrintState(paper);
                 const practiceState = getPracticeState(paper);
+                const deleteBlockReason = getDeleteBlockReason(paper);
 
                 return (
                   <tr key={paper.id}>
@@ -121,12 +136,25 @@ export default async function AdminPapersPage({ searchParams }: { searchParams: 
                       <div className="row-actions">
                         {paper.status === "PUBLISHED" ? <Link href={`/papers/${paper.id}`}>前台</Link> : <span className="row-muted">未發布</span>}
                         <Link href={`/admin/papers/${paper.id}/edit`}>編輯</Link>
-                        <Link href={`/admin/questions?paper=${paper.code}`}>題目</Link>
+                        <Link href={`/admin/questions?subject=${encodeURIComponent(paper.subject)}&paper=${encodeURIComponent(paper.code)}`}>題目</Link>
                         <form action={updatePaperStatusAction}>
                           <input name="paperId" type="hidden" value={paper.id} />
                           <input name="status" type="hidden" value={nextStatus.value} />
                           <button type="submit">{nextStatus.label}</button>
                         </form>
+                        {deleteBlockReason ? (
+                          <span className="row-muted" title={`已有${deleteBlockReason}，不可直接刪除`}>不可刪除</span>
+                        ) : (
+                          <form action={deletePaperAction}>
+                            <input name="paperId" type="hidden" value={paper.id} />
+                            <ConfirmSubmitButton
+                              className="danger-action"
+                              confirmMessage={`確定要刪除「${paper.title}」（${paper.code}）？這會同時刪除 ${paper._count.questions} 條題目，而且不能復原。`}
+                            >
+                              刪除
+                            </ConfirmSubmitButton>
+                          </form>
+                        )}
                       </div>
                     </td>
                   </tr>
