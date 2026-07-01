@@ -46,6 +46,24 @@ const updateQuestionSchema = z.object({
   explanation: z.string().trim().max(1000),
 });
 
+const questionTypeSchema = z.enum(["MULTIPLE_CHOICE", "NUMBER", "TEXT", "WORKED_RESPONSE"]);
+
+const createQuestionSchema = z.object({
+  paperId: z.string().min(1, "請選擇試卷"),
+  number: z.coerce.number().int().min(1).max(999),
+  section: z.string().trim().min(1).max(40),
+  marks: z.coerce.number().int().min(0).max(100),
+  sourcePage: z.coerce.number().int().min(0).max(999).optional().default(0),
+  type: questionTypeSchema,
+  stem: z.string().trim().min(2, "請輸入題目").max(2000),
+  optionsText: z.string().trim().max(1000),
+  canonicalAnswer: z.string().trim().min(1, "請輸入標準答案").max(200),
+  topic: z.string().trim().min(1, "請輸入課題").max(80),
+  subtopic: z.string().trim().max(100),
+  difficulty: z.enum(["easy", "medium", "hard"]),
+  explanation: z.string().trim().max(1000),
+});
+
 const adminUserSchema = z.object({
   userId: z.string().min(1),
   displayName: z.string().trim().min(1, "請輸入會員名稱").max(80),
@@ -189,6 +207,95 @@ export async function updatePaperAction(formData: FormData) {
   revalidatePath("/admin/papers");
   revalidatePath(`/papers/${parsedPaper.data.paperId}`);
   redirect("/admin/papers?updated=1");
+}
+
+function buildAnswerRule(canonicalAnswer: string) {
+  return { canonical: canonicalAnswer };
+}
+
+function parseMultipleChoiceOptions(optionsText: string) {
+  const optionKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lines = optionsText.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const options: Record<string, string> = {};
+
+  lines.forEach((line, index) => {
+    const labelled = line.match(/^([A-ZＡ-Ｚ])\s*[\.)．、:：）]\s*(.+)$/i);
+    if (labelled) {
+      const key = labelled[1].toUpperCase().replace(/[Ａ-Ｚ]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0xfee0));
+      options[key] = labelled[2].trim();
+      return;
+    }
+
+    options[optionKeys[index]] = line;
+  });
+
+  return options;
+}
+
+export async function createQuestionAction(formData: FormData) {
+  const admin = await requireAdmin();
+  const parsedQuestion = createQuestionSchema.safeParse(Object.fromEntries(formData));
+  if (!parsedQuestion.success) throw new Error(parsedQuestion.error.issues[0]?.message ?? "題目資料不正確");
+
+  const paper = await db.paper.findUnique({ where: { id: parsedQuestion.data.paperId }, select: { id: true, code: true } });
+  if (!paper) throw new Error("找不到試卷");
+
+  const options = parsedQuestion.data.type === "MULTIPLE_CHOICE" ? parseMultipleChoiceOptions(parsedQuestion.data.optionsText) : null;
+  if (parsedQuestion.data.type === "MULTIPLE_CHOICE" && Object.keys(options ?? {}).length < 2) {
+    throw new Error("選擇題至少需要兩個選項，每行一個，例如 A. 12cm");
+  }
+
+  const onlineEligible = formData.get("onlineEligible") === "on";
+
+  try {
+    const createdQuestion = await db.$transaction(async (tx) => {
+      const question = await tx.question.create({
+        data: {
+          paperId: parsedQuestion.data.paperId,
+          number: parsedQuestion.data.number,
+          section: parsedQuestion.data.section,
+          marks: parsedQuestion.data.marks,
+          sourcePage: parsedQuestion.data.sourcePage || null,
+          type: parsedQuestion.data.type,
+          stem: parsedQuestion.data.stem,
+          options: options ?? undefined,
+          answerRule: buildAnswerRule(parsedQuestion.data.canonicalAnswer),
+          explanation: parsedQuestion.data.explanation || null,
+          topic: parsedQuestion.data.topic,
+          subtopic: parsedQuestion.data.subtopic || null,
+          difficulty: parsedQuestion.data.difficulty,
+          onlineEligible,
+          reviewStatus: "verified_admin",
+        },
+      });
+
+      await tx.paper.update({
+        where: { id: parsedQuestion.data.paperId },
+        data: { totalMarks: { increment: parsedQuestion.data.marks } },
+      });
+
+      await tx.adminAuditLog.create({
+        data: {
+          adminId: admin.id,
+          action: "question.created",
+          entityType: "Question",
+          entityId: question.id,
+          metadata: { paperCode: paper.code, number: parsedQuestion.data.number, topic: parsedQuestion.data.topic },
+        },
+      });
+
+      return question;
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/questions");
+    revalidatePath("/admin/database");
+    revalidatePath(`/papers/${parsedQuestion.data.paperId}`);
+    redirect(`/admin/questions?paper=${encodeURIComponent(paper.code)}&created=1#question-${createdQuestion.id}`);
+  } catch (error) {
+    if (isUniqueConstraintError(error)) throw new Error("同一份試卷已經有相同題號，請改用另一個題號");
+    throw error;
+  }
 }
 
 export async function updateQuestionAction(formData: FormData) {

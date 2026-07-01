@@ -440,6 +440,13 @@ svg { display: block; }
 .form-error { margin: 0; padding: 10px 12px; border-radius: 10px; color: #9b2d20; background: var(--coral-soft); font-size: 11px; font-weight: 750; }
 .edit-form { max-width: 820px; display: grid; gap: 18px; }
 .admin-user-edit-form { max-width: 980px; }
+.admin-question-form { max-width: 980px; }
+.admin-header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.admin-guidance-panel { margin-bottom: 16px; }
+.admin-guidance-panel h3 { margin: 0 0 8px; }
+.admin-guidance-panel p { margin: 0 0 12px; color: var(--ink-soft); font-size: 13px; line-height: 1.7; }
+.admin-status-stack.horizontal { flex-direction: row; flex-wrap: wrap; }
+.field-help { margin: 6px 0 0; color: var(--ink-soft); font-size: 11px; line-height: 1.6; }
 .readonly-box { min-height: 48px; display: flex; align-items: center; gap: 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink-soft); background: #f8fafc; font-size: 12px; }
 .admin-related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .admin-related-grid h3 { margin: 0 0 10px; font-size: 14px; }

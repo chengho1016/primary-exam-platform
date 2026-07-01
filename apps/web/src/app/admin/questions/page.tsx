@@ -38,7 +38,7 @@ function getMetrics(questions: AdminQuestion[]) {
   return { verified, needsReview, printOnly, topicCount };
 }
 
-export default async function AdminQuestionsPage({ searchParams }: { searchParams: Promise<{ paper?: string; topic?: string; review?: string; updated?: string }> }) {
+export default async function AdminQuestionsPage({ searchParams }: { searchParams: Promise<{ paper?: string; topic?: string; review?: string; updated?: string; created?: string }> }) {
   const filters = await searchParams;
   const review = filters.review && validReviewFilters.has(filters.review as ReviewFilter) ? filters.review as ReviewFilter : undefined;
   const questions = await listAdminQuestions({ paperCode: filters.paper?.trim(), topic: filters.topic?.trim(), review });
@@ -53,10 +53,14 @@ export default async function AdminQuestionsPage({ searchParams }: { searchParam
             <h1>題庫管理</h1>
             <p>{filters.paper ? `${filters.paper} · ` : ""}管理題幹、答案、解析、難度、覆核狀態及將來自動組卷資格。</p>
           </div>
-          <span className="badge badge-blue">共 {questions.length} 題</span>
+          <div className="admin-header-actions">
+            <span className="badge badge-blue">共 {questions.length} 題</span>
+            <Link className="button button-primary button-small" href={`/admin/questions/new${filters.paper ? `?paper=${encodeURIComponent(filters.paper)}` : ""}`}>＋ 新增題目</Link>
+          </div>
         </header>
 
         {filters.updated === "1" ? <p className="success-banner">題目及答案已更新。</p> : null}
+        {filters.created === "1" ? <p className="success-banner">新題目已加入題庫。</p> : null}
 
         <section className="admin-grid admin-question-metrics" aria-label="題庫概覽">
           <div className="admin-stat tone-mint"><span>已覆核可練習</span><strong>{metrics.verified}</strong><small>可作網上練習／未來組卷基礎</small></div>
@@ -109,7 +113,7 @@ export default async function AdminQuestionsPage({ searchParams }: { searchParam
                 const readiness = getWorksheetReadiness(question);
 
                 return (
-                  <tr key={question.id}>
+                  <tr id={`question-${question.id}`} key={question.id}>
                     <td className="admin-source-cell">
                       <small>{question.paper.code}</small>
                       <strong>Q{question.number}</strong>
