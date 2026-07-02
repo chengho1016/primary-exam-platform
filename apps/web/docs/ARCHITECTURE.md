@@ -48,6 +48,7 @@ PostgreSQL + 私有檔案儲存
 | `/parent` | 家長學習報告 |
 | `/membership` | 免費、月費及逐份購買 |
 | `/admin/*` | 試卷、題庫、會員及上傳管理 |
+| `/admin/curriculum` | Subject / Curriculum / Topic / KnowledgePoint 正規化狀態與課程管理 |
 
 ## 主要資料
 

@@ -186,6 +186,27 @@ Relations:
 
 ---
 
+## `Subject`, `Curriculum`, `Topic`, `KnowledgePoint`
+
+Phase 1 normalized taxonomy foundation for data-driven content and future AI recommendations.
+
+Important fields:
+
+| Model | Purpose |
+|---|---|
+| `Subject` | Controlled subject list, currently 中文 / 英文 / 數學 / 人文 / 科學 |
+| `Curriculum` | Regional curriculum, currently `hk-primary` |
+| `Topic` | Controlled topic under a subject; supports parent/child hierarchy |
+| `KnowledgePoint` | Fine-grained skill/knowledge point under a topic |
+
+Operational notes:
+
+- `/admin/curriculum` shows taxonomy and backfill status.
+- `scripts/backfill-curriculum.ts` links legacy Paper/Question rows to normalized IDs.
+- Legacy fields are intentionally preserved until repository reads/writes are fully migrated.
+
+---
+
 ## `Paper`
 
 Represents a paper/exam source. A paper can be uploaded by Admin, published, practiced online, and printed.
@@ -197,7 +218,8 @@ Important fields:
 | `code` | Unique paper code shown to Admin/users |
 | `title` | Paper title |
 | `grade` | Primary grade number |
-| `subject` | Subject text, e.g. `數學` |
+| `subject` | Legacy subject text, e.g. `數學`; keep until all reads use `subjectId` |
+| `subjectId` | Nullable normalized reference to `Subject` |
 | `academicYear` | Optional school year |
 | `status` | Draft/review/published/archive workflow |
 | `access` | Free/membership/purchase access rule |
@@ -243,8 +265,12 @@ Important fields:
 | `options` | JSON options for multiple-choice questions |
 | `answerRule` | JSON answer definition/validator |
 | `explanation` | Optional explanation |
-| `topic` | Free-text topic, pending normalization |
-| `subtopic` | Free-text subtopic, pending normalization |
+| `topic` | Legacy free-text topic; keep until all reads use `topicId` |
+| `subtopic` | Legacy free-text subtopic; keep until all reads use `knowledgePointId` |
+| `curriculumId` | Nullable normalized reference to `Curriculum` |
+| `subjectId` | Nullable normalized reference to `Subject` |
+| `topicId` | Nullable normalized reference to `Topic` |
+| `knowledgePointId` | Nullable normalized reference to `KnowledgePoint` |
 | `difficulty` | String difficulty, pending enum normalization |
 | `assetPath` | Optional image for this question |
 | `stimulusPath` | Optional shared image/chart/table |
@@ -263,7 +289,8 @@ where: {
 
 Known cleanup needed:
 
-- Normalize `topic` into `Topic` / `QuestionTopic`.
+- Migrate repositories and Admin forms from legacy text fields to normalized `subjectId` / `topicId` / `knowledgePointId`.
+- Consider a future `QuestionTopic` join table only if one canonical question truly needs multiple topic tags.
 - Normalize `difficulty` into enum.
 - Normalize `reviewStatus` into enum.
 - Introduce an `autoWorksheetEligible` flag when custom worksheets are implemented.
@@ -414,40 +441,29 @@ Current caveat:
 
 # Proposed future schema additions
 
-## `Topic`
+## `PaperQuestion`
 
-For controlled topic taxonomy.
+For the future canonical question-bank migration. Current `Question.paperId` remains until all paper, practice, print, and attempt flows are migrated.
 
 ```prisma
-model Topic {
-  id        String   @id @default(cuid())
-  subject   String
-  grade     Int?
-  name      String
-  slug      String   @unique
-  parentId  String?
-  parent    Topic?   @relation("TopicTree", fields: [parentId], references: [id])
-  children  Topic[]  @relation("TopicTree")
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model PaperQuestion {
+  paperId    String
+  questionId String
+  number     Int
+  section    String
+  marks      Int
+  sourcePage Int?
+  order      Int
+
+  @@id([paperId, questionId])
+  @@unique([paperId, number])
+  @@index([questionId])
 }
 ```
 
 ## `QuestionTopic`
 
-Allows one question to belong to multiple topics.
-
-```prisma
-model QuestionTopic {
-  questionId String
-  topicId    String
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  topic      Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
-
-  @@id([questionId, topicId])
-}
-```
+Optional later addition if one canonical question needs multiple topic tags. Phase 1 already has a direct `Question.topicId`; do not add this until the one-to-many requirement is real.
 
 ## `Asset`
 
@@ -514,7 +530,7 @@ model GeneratedWorksheetQuestion {
 
 # Refactor order recommendation
 
-1. Add documentation and Admin status visibility first.
-2. Add `Topic` / `QuestionTopic` while keeping legacy `Question.topic` for migration.
-3. Add `Asset` while keeping legacy file fields until all routes are migrated.
-4. Add custom worksheet generation only after topics and assets are stable.
+1. Keep Phase 1 taxonomy (`Subject` / `Curriculum` / `Topic` / `KnowledgePoint`) side-by-side with legacy fields until all reads/writes are migrated.
+2. Add `Asset` while keeping legacy file fields until all routes are migrated.
+3. Add `PaperQuestion` / canonical question-bank migration only after historical attempt snapshots/versioning are designed.
+4. Add custom worksheet generation only after topics, knowledge points, assets, and question-bank reuse are stable.

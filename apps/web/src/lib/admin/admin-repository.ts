@@ -229,3 +229,59 @@ export async function getAdminDatabaseOverview() {
     recentAuditLogs,
   };
 }
+
+export async function getAdminCurriculumOverview() {
+  const [
+    curricula,
+    subjects,
+    topics,
+    legacySubjectGroups,
+    totalKnowledgePoints,
+    papersMissingSubject,
+    questionsMissingCurriculum,
+    questionsMissingSubject,
+    questionsMissingTopic,
+    questionsMissingKnowledgePoint,
+  ] = await Promise.all([
+    db.curriculum.findMany({ orderBy: [{ isActive: "desc" }, { code: "asc" }] }),
+    db.subject.findMany({
+      orderBy: [{ displayOrder: "asc" }, { nameZh: "asc" }],
+      include: { _count: { select: { papers: true, questions: true, topics: true } } },
+    }),
+    db.topic.findMany({
+      orderBy: [{ subject: { displayOrder: "asc" } }, { displayOrder: "asc" }, { nameZh: "asc" }],
+      take: 80,
+      include: {
+        subject: { select: { code: true, nameZh: true } },
+        _count: { select: { questions: true, knowledgePoints: true } },
+        knowledgePoints: { orderBy: [{ displayOrder: "asc" }, { nameZh: "asc" }], take: 5, include: { _count: { select: { questions: true } } } },
+      },
+    }),
+    db.paper.groupBy({ by: ["subject"], _count: { _all: true }, orderBy: { _count: { subject: "desc" } } }),
+    db.knowledgePoint.count(),
+    db.paper.count({ where: { subjectId: null } }),
+    db.question.count({ where: { curriculumId: null } }),
+    db.question.count({ where: { subjectId: null } }),
+    db.question.count({ where: { topicId: null } }),
+    db.question.count({ where: { knowledgePointId: null, subtopic: { not: null } } }),
+  ]);
+
+  return {
+    curricula,
+    subjects,
+    topics,
+    legacySubjectGroups,
+    counts: {
+      totalCurricula: curricula.length,
+      totalSubjects: subjects.length,
+      activeSubjects: subjects.filter((subject) => subject.isActive).length,
+      totalTopics: topics.length,
+      totalKnowledgePoints,
+      papersMissingSubject,
+      questionsMissingCurriculum,
+      questionsMissingSubject,
+      questionsMissingTopic,
+      questionsMissingKnowledgePoint,
+    },
+  };
+}

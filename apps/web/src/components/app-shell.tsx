@@ -18,6 +18,7 @@ const adminNavigation = [
   { href: "/admin/papers", label: "試卷", desktopLabel: "試卷管理", icon: PaperIcon },
   { href: "/admin/questions", label: "題庫", desktopLabel: "題庫管理", icon: BookIcon },
   { href: "/admin/topics", label: "課題", desktopLabel: "數學課題", icon: SparklesIcon },
+  { href: "/admin/curriculum", label: "課程", desktopLabel: "課程管理", icon: BookIcon },
   { href: "/admin/papers/new", label: "上傳", desktopLabel: "上傳試卷", icon: UploadIcon },
   { href: "/admin/users", label: "會員", desktopLabel: "會員管理", icon: UsersIcon },
   { href: "/admin/database", label: "資料庫", desktopLabel: "資料庫概覽", icon: SettingsIcon },

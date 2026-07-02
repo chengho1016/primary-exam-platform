@@ -15,7 +15,8 @@
     "start": "next start -p 3001",
     "lint": "eslint",
     "test": "vitest run",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:backfill:curriculum": "tsx scripts/backfill-curriculum.ts"
   },
   "overrides": {
     "@hono/node-server": "1.19.14",

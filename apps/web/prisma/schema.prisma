@@ -93,12 +93,84 @@ model ChildProfile {
   @@index([parentId])
 }
 
+model Subject {
+  id           String     @id @default(cuid())
+  code         String     @unique
+  nameZh       String
+  nameEn       String?
+  displayOrder Int        @default(0)
+  isActive     Boolean    @default(true)
+  papers       Paper[]
+  questions    Question[]
+  topics       Topic[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([isActive, displayOrder])
+}
+
+model Curriculum {
+  id         String     @id @default(cuid())
+  code       String     @unique
+  nameZh     String
+  nameEn     String?
+  regionCode String?
+  isActive   Boolean    @default(true)
+  questions  Question[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([isActive, code])
+}
+
+model Topic {
+  id              String           @id @default(cuid())
+  subjectId       String
+  subject         Subject          @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  parentTopicId   String?
+  parentTopic     Topic?           @relation("TopicHierarchy", fields: [parentTopicId], references: [id], onDelete: SetNull)
+  childTopics     Topic[]          @relation("TopicHierarchy")
+  code            String
+  nameZh          String
+  nameEn          String?
+  displayOrder    Int              @default(0)
+  isActive        Boolean          @default(true)
+  questions       Question[]
+  knowledgePoints KnowledgePoint[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@unique([subjectId, code])
+  @@index([subjectId, isActive, displayOrder])
+  @@index([parentTopicId])
+}
+
+model KnowledgePoint {
+  id           String     @id @default(cuid())
+  topicId      String
+  topic        Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  code         String
+  nameZh       String
+  nameEn       String?
+  description  String?
+  displayOrder Int        @default(0)
+  isActive     Boolean    @default(true)
+  questions    Question[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([topicId, code])
+  @@index([topicId, isActive, displayOrder])
+}
+
 model Paper {
   id               String             @id @default(cuid())
   code             String             @unique
   title            String
   grade            Int
   subject          String
+  subjectId        String?
+  subjectRef       Subject?           @relation(fields: [subjectId], references: [id], onDelete: SetNull)
   academicYear     String?
   status           PaperStatus        @default(DRAFT)
   access           PaperAccess        @default(MEMBERSHIP)
@@ -118,12 +190,21 @@ model Paper {
   updatedAt        DateTime           @updatedAt
 
   @@index([grade, subject, status])
+  @@index([subjectId, status])
 }
 
 model Question {
   id             String          @id @default(cuid())
   paperId        String
   paper          Paper           @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  subjectId      String?
+  subjectRef     Subject?        @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  curriculumId   String?
+  curriculum     Curriculum?     @relation(fields: [curriculumId], references: [id], onDelete: SetNull)
+  topicId        String?
+  topicRef       Topic?          @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  knowledgePointId String?
+  knowledgePoint KnowledgePoint? @relation(fields: [knowledgePointId], references: [id], onDelete: SetNull)
   number         Int
   section        String
   marks          Int
@@ -147,6 +228,9 @@ model Question {
 
   @@unique([paperId, number])
   @@index([paperId, onlineEligible, topic, difficulty])
+  @@index([subjectId, topicId, difficulty, onlineEligible])
+  @@index([curriculumId])
+  @@index([knowledgePointId])
 }
 
 model Attempt {

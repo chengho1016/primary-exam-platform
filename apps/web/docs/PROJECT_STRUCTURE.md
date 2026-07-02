@@ -55,7 +55,7 @@ Current major areas:
 | `app/parent` | parent learning report |
 | `app/membership` | logged-in membership/access page |
 | `app/pricing`, `app/contact`, `app/privacy`, `app/terms` | public commercial, support, and legal pages |
-| `app/admin` | admin dashboard, papers, questions, math topics, users |
+| `app/admin` | admin dashboard, papers, questions, curriculum, math topics, users |
 | `app/api/*` | route handlers for upload, admin user upsert, print source/pages, practice completion, question images |
 
 ## App Router conventions
@@ -142,6 +142,7 @@ Current folders:
 |---|---|
 | `lib/admin` | Admin repositories, presentation helpers, and math topic insight helpers |
 | `lib/auth` | session, password, permissions, entitlements |
+| `lib/curriculum` | default taxonomy and legacy subject/topic mapping helpers |
 | `lib/db` | Prisma client wrapper |
 | `lib/domain` | shared domain types |
 | `lib/learning` | parent/dashboard learning data |
@@ -190,11 +191,21 @@ Schema documentation:
 docs/DATABASE_MAP.md
 ```
 
-Current schema is functional but not fully normalized for future topic-based worksheets.
+Phase 1 taxonomy implementation:
+
+```text
+src/app/admin/curriculum/page.tsx
+src/lib/curriculum/default-taxonomy.ts
+src/lib/curriculum/legacy-mapping.ts
+scripts/backfill-curriculum.ts
+vercel.json
+```
+
+Current schema is functional and now has a side-by-side normalized taxonomy foundation. Legacy fields remain for compatibility while reads/writes migrate gradually. Vercel production deploy runs `npx prisma db push && npm run db:backfill:curriculum && npm run build` so the normalized tables and links are created before the new Admin page is served.
 
 Near-term DB cleanup direction:
 
-1. Add `Topic` and `QuestionTopic`.
+1. Migrate paper/question reads and Admin forms from legacy strings to normalized `Subject` / `Topic` / `KnowledgePoint` IDs.
 2. Add `Asset`.
 3. Add generated worksheet models.
 4. Later migrate old string/file fields.

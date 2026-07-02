@@ -1,0 +1,6 @@
+{
+  "buildCommand": "npx prisma db push && npm run db:backfill:curriculum && npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "framework": "nextjs"
+}
