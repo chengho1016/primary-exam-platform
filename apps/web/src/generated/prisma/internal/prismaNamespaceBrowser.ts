@@ -60,6 +60,7 @@ export const ModelName = {
   KnowledgePoint: 'KnowledgePoint',
   Paper: 'Paper',
   Question: 'Question',
+  QuestionVersion: 'QuestionVersion',
   Attempt: 'Attempt',
   AttemptAnswer: 'AttemptAnswer',
   WrongBookItem: 'WrongBookItem',
@@ -212,6 +213,7 @@ export const QuestionScalarFieldEnum = {
   curriculumId: 'curriculumId',
   topicId: 'topicId',
   knowledgePointId: 'knowledgePointId',
+  contentVersion: 'contentVersion',
   number: 'number',
   section: 'section',
   marks: 'marks',
@@ -235,6 +237,18 @@ export const QuestionScalarFieldEnum = {
 export type QuestionScalarFieldEnum = (typeof QuestionScalarFieldEnum)[keyof typeof QuestionScalarFieldEnum]
 
 
+export const QuestionVersionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  version: 'version',
+  snapshot: 'snapshot',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type QuestionVersionScalarFieldEnum = (typeof QuestionVersionScalarFieldEnum)[keyof typeof QuestionVersionScalarFieldEnum]
+
+
 export const AttemptScalarFieldEnum = {
   id: 'id',
   childId: 'childId',
@@ -253,6 +267,8 @@ export const AttemptAnswerScalarFieldEnum = {
   id: 'id',
   attemptId: 'attemptId',
   questionId: 'questionId',
+  questionVersion: 'questionVersion',
+  questionSnapshot: 'questionSnapshot',
   response: 'response',
   isCorrect: 'isCorrect',
   awardedMark: 'awardedMark',

@@ -27,12 +27,14 @@ export type AggregateQuestion = {
 }
 
 export type QuestionAvgAggregateOutputType = {
+  contentVersion: number | null
   number: number | null
   marks: number | null
   sourcePage: number | null
 }
 
 export type QuestionSumAggregateOutputType = {
+  contentVersion: number | null
   number: number | null
   marks: number | null
   sourcePage: number | null
@@ -45,6 +47,7 @@ export type QuestionMinAggregateOutputType = {
   curriculumId: string | null
   topicId: string | null
   knowledgePointId: string | null
+  contentVersion: number | null
   number: number | null
   section: string | null
   marks: number | null
@@ -70,6 +73,7 @@ export type QuestionMaxAggregateOutputType = {
   curriculumId: string | null
   topicId: string | null
   knowledgePointId: string | null
+  contentVersion: number | null
   number: number | null
   section: string | null
   marks: number | null
@@ -95,6 +99,7 @@ export type QuestionCountAggregateOutputType = {
   curriculumId: number
   topicId: number
   knowledgePointId: number
+  contentVersion: number
   number: number
   section: number
   marks: number
@@ -118,12 +123,14 @@ export type QuestionCountAggregateOutputType = {
 
 
 export type QuestionAvgAggregateInputType = {
+  contentVersion?: true
   number?: true
   marks?: true
   sourcePage?: true
 }
 
 export type QuestionSumAggregateInputType = {
+  contentVersion?: true
   number?: true
   marks?: true
   sourcePage?: true
@@ -136,6 +143,7 @@ export type QuestionMinAggregateInputType = {
   curriculumId?: true
   topicId?: true
   knowledgePointId?: true
+  contentVersion?: true
   number?: true
   section?: true
   marks?: true
@@ -161,6 +169,7 @@ export type QuestionMaxAggregateInputType = {
   curriculumId?: true
   topicId?: true
   knowledgePointId?: true
+  contentVersion?: true
   number?: true
   section?: true
   marks?: true
@@ -186,6 +195,7 @@ export type QuestionCountAggregateInputType = {
   curriculumId?: true
   topicId?: true
   knowledgePointId?: true
+  contentVersion?: true
   number?: true
   section?: true
   marks?: true
@@ -300,6 +310,7 @@ export type QuestionGroupByOutputType = {
   curriculumId: string | null
   topicId: string | null
   knowledgePointId: string | null
+  contentVersion: number
   number: number
   section: string
   marks: number
@@ -350,6 +361,7 @@ export type QuestionWhereInput = {
   curriculumId?: Prisma.StringNullableFilter<"Question"> | string | null
   topicId?: Prisma.StringNullableFilter<"Question"> | string | null
   knowledgePointId?: Prisma.StringNullableFilter<"Question"> | string | null
+  contentVersion?: Prisma.IntFilter<"Question"> | number
   number?: Prisma.IntFilter<"Question"> | number
   section?: Prisma.StringFilter<"Question"> | string
   marks?: Prisma.IntFilter<"Question"> | number
@@ -373,6 +385,7 @@ export type QuestionWhereInput = {
   curriculum?: Prisma.XOR<Prisma.CurriculumNullableScalarRelationFilter, Prisma.CurriculumWhereInput> | null
   topicRef?: Prisma.XOR<Prisma.TopicNullableScalarRelationFilter, Prisma.TopicWhereInput> | null
   knowledgePoint?: Prisma.XOR<Prisma.KnowledgePointNullableScalarRelationFilter, Prisma.KnowledgePointWhereInput> | null
+  versions?: Prisma.QuestionVersionListRelationFilter
   attemptAnswers?: Prisma.AttemptAnswerListRelationFilter
   wrongBookItems?: Prisma.WrongBookItemListRelationFilter
 }
@@ -384,6 +397,7 @@ export type QuestionOrderByWithRelationInput = {
   curriculumId?: Prisma.SortOrderInput | Prisma.SortOrder
   topicId?: Prisma.SortOrderInput | Prisma.SortOrder
   knowledgePointId?: Prisma.SortOrderInput | Prisma.SortOrder
+  contentVersion?: Prisma.SortOrder
   number?: Prisma.SortOrder
   section?: Prisma.SortOrder
   marks?: Prisma.SortOrder
@@ -407,6 +421,7 @@ export type QuestionOrderByWithRelationInput = {
   curriculum?: Prisma.CurriculumOrderByWithRelationInput
   topicRef?: Prisma.TopicOrderByWithRelationInput
   knowledgePoint?: Prisma.KnowledgePointOrderByWithRelationInput
+  versions?: Prisma.QuestionVersionOrderByRelationAggregateInput
   attemptAnswers?: Prisma.AttemptAnswerOrderByRelationAggregateInput
   wrongBookItems?: Prisma.WrongBookItemOrderByRelationAggregateInput
 }
@@ -422,6 +437,7 @@ export type QuestionWhereUniqueInput = Prisma.AtLeast<{
   curriculumId?: Prisma.StringNullableFilter<"Question"> | string | null
   topicId?: Prisma.StringNullableFilter<"Question"> | string | null
   knowledgePointId?: Prisma.StringNullableFilter<"Question"> | string | null
+  contentVersion?: Prisma.IntFilter<"Question"> | number
   number?: Prisma.IntFilter<"Question"> | number
   section?: Prisma.StringFilter<"Question"> | string
   marks?: Prisma.IntFilter<"Question"> | number
@@ -445,6 +461,7 @@ export type QuestionWhereUniqueInput = Prisma.AtLeast<{
   curriculum?: Prisma.XOR<Prisma.CurriculumNullableScalarRelationFilter, Prisma.CurriculumWhereInput> | null
   topicRef?: Prisma.XOR<Prisma.TopicNullableScalarRelationFilter, Prisma.TopicWhereInput> | null
   knowledgePoint?: Prisma.XOR<Prisma.KnowledgePointNullableScalarRelationFilter, Prisma.KnowledgePointWhereInput> | null
+  versions?: Prisma.QuestionVersionListRelationFilter
   attemptAnswers?: Prisma.AttemptAnswerListRelationFilter
   wrongBookItems?: Prisma.WrongBookItemListRelationFilter
 }, "id" | "paperId_number">
@@ -456,6 +473,7 @@ export type QuestionOrderByWithAggregationInput = {
   curriculumId?: Prisma.SortOrderInput | Prisma.SortOrder
   topicId?: Prisma.SortOrderInput | Prisma.SortOrder
   knowledgePointId?: Prisma.SortOrderInput | Prisma.SortOrder
+  contentVersion?: Prisma.SortOrder
   number?: Prisma.SortOrder
   section?: Prisma.SortOrder
   marks?: Prisma.SortOrder
@@ -491,6 +509,7 @@ export type QuestionScalarWhereWithAggregatesInput = {
   curriculumId?: Prisma.StringNullableWithAggregatesFilter<"Question"> | string | null
   topicId?: Prisma.StringNullableWithAggregatesFilter<"Question"> | string | null
   knowledgePointId?: Prisma.StringNullableWithAggregatesFilter<"Question"> | string | null
+  contentVersion?: Prisma.IntWithAggregatesFilter<"Question"> | number
   number?: Prisma.IntWithAggregatesFilter<"Question"> | number
   section?: Prisma.StringWithAggregatesFilter<"Question"> | string
   marks?: Prisma.IntWithAggregatesFilter<"Question"> | number
@@ -513,6 +532,7 @@ export type QuestionScalarWhereWithAggregatesInput = {
 
 export type QuestionCreateInput = {
   id?: string
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -536,6 +556,7 @@ export type QuestionCreateInput = {
   curriculum?: Prisma.CurriculumCreateNestedOneWithoutQuestionsInput
   topicRef?: Prisma.TopicCreateNestedOneWithoutQuestionsInput
   knowledgePoint?: Prisma.KnowledgePointCreateNestedOneWithoutQuestionsInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemCreateNestedManyWithoutQuestionInput
 }
@@ -547,6 +568,7 @@ export type QuestionUncheckedCreateInput = {
   curriculumId?: string | null
   topicId?: string | null
   knowledgePointId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -565,12 +587,14 @@ export type QuestionUncheckedCreateInput = {
   reviewStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerUncheckedCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -594,6 +618,7 @@ export type QuestionUpdateInput = {
   curriculum?: Prisma.CurriculumUpdateOneWithoutQuestionsNestedInput
   topicRef?: Prisma.TopicUpdateOneWithoutQuestionsNestedInput
   knowledgePoint?: Prisma.KnowledgePointUpdateOneWithoutQuestionsNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
   attemptAnswers?: Prisma.AttemptAnswerUpdateManyWithoutQuestionNestedInput
   wrongBookItems?: Prisma.WrongBookItemUpdateManyWithoutQuestionNestedInput
 }
@@ -605,6 +630,7 @@ export type QuestionUncheckedUpdateInput = {
   curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -623,6 +649,7 @@ export type QuestionUncheckedUpdateInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
   attemptAnswers?: Prisma.AttemptAnswerUncheckedUpdateManyWithoutQuestionNestedInput
   wrongBookItems?: Prisma.WrongBookItemUncheckedUpdateManyWithoutQuestionNestedInput
 }
@@ -634,6 +661,7 @@ export type QuestionCreateManyInput = {
   curriculumId?: string | null
   topicId?: string | null
   knowledgePointId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -656,6 +684,7 @@ export type QuestionCreateManyInput = {
 
 export type QuestionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -683,6 +712,7 @@ export type QuestionUncheckedUpdateManyInput = {
   curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -725,6 +755,7 @@ export type QuestionCountOrderByAggregateInput = {
   curriculumId?: Prisma.SortOrder
   topicId?: Prisma.SortOrder
   knowledgePointId?: Prisma.SortOrder
+  contentVersion?: Prisma.SortOrder
   number?: Prisma.SortOrder
   section?: Prisma.SortOrder
   marks?: Prisma.SortOrder
@@ -746,6 +777,7 @@ export type QuestionCountOrderByAggregateInput = {
 }
 
 export type QuestionAvgOrderByAggregateInput = {
+  contentVersion?: Prisma.SortOrder
   number?: Prisma.SortOrder
   marks?: Prisma.SortOrder
   sourcePage?: Prisma.SortOrder
@@ -758,6 +790,7 @@ export type QuestionMaxOrderByAggregateInput = {
   curriculumId?: Prisma.SortOrder
   topicId?: Prisma.SortOrder
   knowledgePointId?: Prisma.SortOrder
+  contentVersion?: Prisma.SortOrder
   number?: Prisma.SortOrder
   section?: Prisma.SortOrder
   marks?: Prisma.SortOrder
@@ -783,6 +816,7 @@ export type QuestionMinOrderByAggregateInput = {
   curriculumId?: Prisma.SortOrder
   topicId?: Prisma.SortOrder
   knowledgePointId?: Prisma.SortOrder
+  contentVersion?: Prisma.SortOrder
   number?: Prisma.SortOrder
   section?: Prisma.SortOrder
   marks?: Prisma.SortOrder
@@ -802,6 +836,7 @@ export type QuestionMinOrderByAggregateInput = {
 }
 
 export type QuestionSumOrderByAggregateInput = {
+  contentVersion?: Prisma.SortOrder
   number?: Prisma.SortOrder
   marks?: Prisma.SortOrder
   sourcePage?: Prisma.SortOrder
@@ -1026,6 +1061,20 @@ export type EnumQuestionTypeFieldUpdateOperationsInput = {
   set?: $Enums.QuestionType
 }
 
+export type QuestionCreateNestedOneWithoutVersionsInput = {
+  create?: Prisma.XOR<Prisma.QuestionCreateWithoutVersionsInput, Prisma.QuestionUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.QuestionCreateOrConnectWithoutVersionsInput
+  connect?: Prisma.QuestionWhereUniqueInput
+}
+
+export type QuestionUpdateOneRequiredWithoutVersionsNestedInput = {
+  create?: Prisma.XOR<Prisma.QuestionCreateWithoutVersionsInput, Prisma.QuestionUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.QuestionCreateOrConnectWithoutVersionsInput
+  upsert?: Prisma.QuestionUpsertWithoutVersionsInput
+  connect?: Prisma.QuestionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.QuestionUpdateToOneWithWhereWithoutVersionsInput, Prisma.QuestionUpdateWithoutVersionsInput>, Prisma.QuestionUncheckedUpdateWithoutVersionsInput>
+}
+
 export type QuestionCreateNestedOneWithoutAttemptAnswersInput = {
   create?: Prisma.XOR<Prisma.QuestionCreateWithoutAttemptAnswersInput, Prisma.QuestionUncheckedCreateWithoutAttemptAnswersInput>
   connectOrCreate?: Prisma.QuestionCreateOrConnectWithoutAttemptAnswersInput
@@ -1056,6 +1105,7 @@ export type QuestionUpdateOneRequiredWithoutWrongBookItemsNestedInput = {
 
 export type QuestionCreateWithoutSubjectRefInput = {
   id?: string
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1078,6 +1128,7 @@ export type QuestionCreateWithoutSubjectRefInput = {
   curriculum?: Prisma.CurriculumCreateNestedOneWithoutQuestionsInput
   topicRef?: Prisma.TopicCreateNestedOneWithoutQuestionsInput
   knowledgePoint?: Prisma.KnowledgePointCreateNestedOneWithoutQuestionsInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemCreateNestedManyWithoutQuestionInput
 }
@@ -1088,6 +1139,7 @@ export type QuestionUncheckedCreateWithoutSubjectRefInput = {
   curriculumId?: string | null
   topicId?: string | null
   knowledgePointId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1106,6 +1158,7 @@ export type QuestionUncheckedCreateWithoutSubjectRefInput = {
   reviewStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerUncheckedCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemUncheckedCreateNestedManyWithoutQuestionInput
 }
@@ -1146,6 +1199,7 @@ export type QuestionScalarWhereInput = {
   curriculumId?: Prisma.StringNullableFilter<"Question"> | string | null
   topicId?: Prisma.StringNullableFilter<"Question"> | string | null
   knowledgePointId?: Prisma.StringNullableFilter<"Question"> | string | null
+  contentVersion?: Prisma.IntFilter<"Question"> | number
   number?: Prisma.IntFilter<"Question"> | number
   section?: Prisma.StringFilter<"Question"> | string
   marks?: Prisma.IntFilter<"Question"> | number
@@ -1168,6 +1222,7 @@ export type QuestionScalarWhereInput = {
 
 export type QuestionCreateWithoutCurriculumInput = {
   id?: string
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1190,6 +1245,7 @@ export type QuestionCreateWithoutCurriculumInput = {
   subjectRef?: Prisma.SubjectCreateNestedOneWithoutQuestionsInput
   topicRef?: Prisma.TopicCreateNestedOneWithoutQuestionsInput
   knowledgePoint?: Prisma.KnowledgePointCreateNestedOneWithoutQuestionsInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemCreateNestedManyWithoutQuestionInput
 }
@@ -1200,6 +1256,7 @@ export type QuestionUncheckedCreateWithoutCurriculumInput = {
   subjectId?: string | null
   topicId?: string | null
   knowledgePointId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1218,6 +1275,7 @@ export type QuestionUncheckedCreateWithoutCurriculumInput = {
   reviewStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerUncheckedCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemUncheckedCreateNestedManyWithoutQuestionInput
 }
@@ -1250,6 +1308,7 @@ export type QuestionUpdateManyWithWhereWithoutCurriculumInput = {
 
 export type QuestionCreateWithoutTopicRefInput = {
   id?: string
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1272,6 +1331,7 @@ export type QuestionCreateWithoutTopicRefInput = {
   subjectRef?: Prisma.SubjectCreateNestedOneWithoutQuestionsInput
   curriculum?: Prisma.CurriculumCreateNestedOneWithoutQuestionsInput
   knowledgePoint?: Prisma.KnowledgePointCreateNestedOneWithoutQuestionsInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemCreateNestedManyWithoutQuestionInput
 }
@@ -1282,6 +1342,7 @@ export type QuestionUncheckedCreateWithoutTopicRefInput = {
   subjectId?: string | null
   curriculumId?: string | null
   knowledgePointId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1300,6 +1361,7 @@ export type QuestionUncheckedCreateWithoutTopicRefInput = {
   reviewStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerUncheckedCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemUncheckedCreateNestedManyWithoutQuestionInput
 }
@@ -1332,6 +1394,7 @@ export type QuestionUpdateManyWithWhereWithoutTopicRefInput = {
 
 export type QuestionCreateWithoutKnowledgePointInput = {
   id?: string
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1354,6 +1417,7 @@ export type QuestionCreateWithoutKnowledgePointInput = {
   subjectRef?: Prisma.SubjectCreateNestedOneWithoutQuestionsInput
   curriculum?: Prisma.CurriculumCreateNestedOneWithoutQuestionsInput
   topicRef?: Prisma.TopicCreateNestedOneWithoutQuestionsInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemCreateNestedManyWithoutQuestionInput
 }
@@ -1364,6 +1428,7 @@ export type QuestionUncheckedCreateWithoutKnowledgePointInput = {
   subjectId?: string | null
   curriculumId?: string | null
   topicId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1382,6 +1447,7 @@ export type QuestionUncheckedCreateWithoutKnowledgePointInput = {
   reviewStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerUncheckedCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemUncheckedCreateNestedManyWithoutQuestionInput
 }
@@ -1414,6 +1480,7 @@ export type QuestionUpdateManyWithWhereWithoutKnowledgePointInput = {
 
 export type QuestionCreateWithoutPaperInput = {
   id?: string
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1436,6 +1503,7 @@ export type QuestionCreateWithoutPaperInput = {
   curriculum?: Prisma.CurriculumCreateNestedOneWithoutQuestionsInput
   topicRef?: Prisma.TopicCreateNestedOneWithoutQuestionsInput
   knowledgePoint?: Prisma.KnowledgePointCreateNestedOneWithoutQuestionsInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemCreateNestedManyWithoutQuestionInput
 }
@@ -1446,6 +1514,7 @@ export type QuestionUncheckedCreateWithoutPaperInput = {
   curriculumId?: string | null
   topicId?: string | null
   knowledgePointId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1464,6 +1533,7 @@ export type QuestionUncheckedCreateWithoutPaperInput = {
   reviewStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
   attemptAnswers?: Prisma.AttemptAnswerUncheckedCreateNestedManyWithoutQuestionInput
   wrongBookItems?: Prisma.WrongBookItemUncheckedCreateNestedManyWithoutQuestionInput
 }
@@ -1494,136 +1564,9 @@ export type QuestionUpdateManyWithWhereWithoutPaperInput = {
   data: Prisma.XOR<Prisma.QuestionUpdateManyMutationInput, Prisma.QuestionUncheckedUpdateManyWithoutPaperInput>
 }
 
-export type QuestionCreateWithoutAttemptAnswersInput = {
+export type QuestionCreateWithoutVersionsInput = {
   id?: string
-  number: number
-  section: string
-  marks: number
-  sourcePage?: number | null
-  type: $Enums.QuestionType
-  stem: string
-  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  answerRule: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  explanation?: string | null
-  topic: string
-  subtopic?: string | null
-  difficulty: string
-  assetPath?: string | null
-  stimulusPath?: string | null
-  onlineEligible?: boolean
-  reviewStatus?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  paper: Prisma.PaperCreateNestedOneWithoutQuestionsInput
-  subjectRef?: Prisma.SubjectCreateNestedOneWithoutQuestionsInput
-  curriculum?: Prisma.CurriculumCreateNestedOneWithoutQuestionsInput
-  topicRef?: Prisma.TopicCreateNestedOneWithoutQuestionsInput
-  knowledgePoint?: Prisma.KnowledgePointCreateNestedOneWithoutQuestionsInput
-  wrongBookItems?: Prisma.WrongBookItemCreateNestedManyWithoutQuestionInput
-}
-
-export type QuestionUncheckedCreateWithoutAttemptAnswersInput = {
-  id?: string
-  paperId: string
-  subjectId?: string | null
-  curriculumId?: string | null
-  topicId?: string | null
-  knowledgePointId?: string | null
-  number: number
-  section: string
-  marks: number
-  sourcePage?: number | null
-  type: $Enums.QuestionType
-  stem: string
-  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  answerRule: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  explanation?: string | null
-  topic: string
-  subtopic?: string | null
-  difficulty: string
-  assetPath?: string | null
-  stimulusPath?: string | null
-  onlineEligible?: boolean
-  reviewStatus?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  wrongBookItems?: Prisma.WrongBookItemUncheckedCreateNestedManyWithoutQuestionInput
-}
-
-export type QuestionCreateOrConnectWithoutAttemptAnswersInput = {
-  where: Prisma.QuestionWhereUniqueInput
-  create: Prisma.XOR<Prisma.QuestionCreateWithoutAttemptAnswersInput, Prisma.QuestionUncheckedCreateWithoutAttemptAnswersInput>
-}
-
-export type QuestionUpsertWithoutAttemptAnswersInput = {
-  update: Prisma.XOR<Prisma.QuestionUpdateWithoutAttemptAnswersInput, Prisma.QuestionUncheckedUpdateWithoutAttemptAnswersInput>
-  create: Prisma.XOR<Prisma.QuestionCreateWithoutAttemptAnswersInput, Prisma.QuestionUncheckedCreateWithoutAttemptAnswersInput>
-  where?: Prisma.QuestionWhereInput
-}
-
-export type QuestionUpdateToOneWithWhereWithoutAttemptAnswersInput = {
-  where?: Prisma.QuestionWhereInput
-  data: Prisma.XOR<Prisma.QuestionUpdateWithoutAttemptAnswersInput, Prisma.QuestionUncheckedUpdateWithoutAttemptAnswersInput>
-}
-
-export type QuestionUpdateWithoutAttemptAnswersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  number?: Prisma.IntFieldUpdateOperationsInput | number
-  section?: Prisma.StringFieldUpdateOperationsInput | string
-  marks?: Prisma.IntFieldUpdateOperationsInput | number
-  sourcePage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-  stem?: Prisma.StringFieldUpdateOperationsInput | string
-  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  answerRule?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  topic?: Prisma.StringFieldUpdateOperationsInput | string
-  subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
-  assetPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stimulusPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  onlineEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  paper?: Prisma.PaperUpdateOneRequiredWithoutQuestionsNestedInput
-  subjectRef?: Prisma.SubjectUpdateOneWithoutQuestionsNestedInput
-  curriculum?: Prisma.CurriculumUpdateOneWithoutQuestionsNestedInput
-  topicRef?: Prisma.TopicUpdateOneWithoutQuestionsNestedInput
-  knowledgePoint?: Prisma.KnowledgePointUpdateOneWithoutQuestionsNestedInput
-  wrongBookItems?: Prisma.WrongBookItemUpdateManyWithoutQuestionNestedInput
-}
-
-export type QuestionUncheckedUpdateWithoutAttemptAnswersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  paperId?: Prisma.StringFieldUpdateOperationsInput | string
-  subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  number?: Prisma.IntFieldUpdateOperationsInput | number
-  section?: Prisma.StringFieldUpdateOperationsInput | string
-  marks?: Prisma.IntFieldUpdateOperationsInput | number
-  sourcePage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-  stem?: Prisma.StringFieldUpdateOperationsInput | string
-  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  answerRule?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  topic?: Prisma.StringFieldUpdateOperationsInput | string
-  subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
-  assetPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stimulusPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  onlineEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  wrongBookItems?: Prisma.WrongBookItemUncheckedUpdateManyWithoutQuestionNestedInput
-}
-
-export type QuestionCreateWithoutWrongBookItemsInput = {
-  id?: string
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1648,15 +1591,17 @@ export type QuestionCreateWithoutWrongBookItemsInput = {
   topicRef?: Prisma.TopicCreateNestedOneWithoutQuestionsInput
   knowledgePoint?: Prisma.KnowledgePointCreateNestedOneWithoutQuestionsInput
   attemptAnswers?: Prisma.AttemptAnswerCreateNestedManyWithoutQuestionInput
+  wrongBookItems?: Prisma.WrongBookItemCreateNestedManyWithoutQuestionInput
 }
 
-export type QuestionUncheckedCreateWithoutWrongBookItemsInput = {
+export type QuestionUncheckedCreateWithoutVersionsInput = {
   id?: string
   paperId: string
   subjectId?: string | null
   curriculumId?: string | null
   topicId?: string | null
   knowledgePointId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1676,26 +1621,28 @@ export type QuestionUncheckedCreateWithoutWrongBookItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   attemptAnswers?: Prisma.AttemptAnswerUncheckedCreateNestedManyWithoutQuestionInput
+  wrongBookItems?: Prisma.WrongBookItemUncheckedCreateNestedManyWithoutQuestionInput
 }
 
-export type QuestionCreateOrConnectWithoutWrongBookItemsInput = {
+export type QuestionCreateOrConnectWithoutVersionsInput = {
   where: Prisma.QuestionWhereUniqueInput
-  create: Prisma.XOR<Prisma.QuestionCreateWithoutWrongBookItemsInput, Prisma.QuestionUncheckedCreateWithoutWrongBookItemsInput>
+  create: Prisma.XOR<Prisma.QuestionCreateWithoutVersionsInput, Prisma.QuestionUncheckedCreateWithoutVersionsInput>
 }
 
-export type QuestionUpsertWithoutWrongBookItemsInput = {
-  update: Prisma.XOR<Prisma.QuestionUpdateWithoutWrongBookItemsInput, Prisma.QuestionUncheckedUpdateWithoutWrongBookItemsInput>
-  create: Prisma.XOR<Prisma.QuestionCreateWithoutWrongBookItemsInput, Prisma.QuestionUncheckedCreateWithoutWrongBookItemsInput>
+export type QuestionUpsertWithoutVersionsInput = {
+  update: Prisma.XOR<Prisma.QuestionUpdateWithoutVersionsInput, Prisma.QuestionUncheckedUpdateWithoutVersionsInput>
+  create: Prisma.XOR<Prisma.QuestionCreateWithoutVersionsInput, Prisma.QuestionUncheckedCreateWithoutVersionsInput>
   where?: Prisma.QuestionWhereInput
 }
 
-export type QuestionUpdateToOneWithWhereWithoutWrongBookItemsInput = {
+export type QuestionUpdateToOneWithWhereWithoutVersionsInput = {
   where?: Prisma.QuestionWhereInput
-  data: Prisma.XOR<Prisma.QuestionUpdateWithoutWrongBookItemsInput, Prisma.QuestionUncheckedUpdateWithoutWrongBookItemsInput>
+  data: Prisma.XOR<Prisma.QuestionUpdateWithoutVersionsInput, Prisma.QuestionUncheckedUpdateWithoutVersionsInput>
 }
 
-export type QuestionUpdateWithoutWrongBookItemsInput = {
+export type QuestionUpdateWithoutVersionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1720,96 +1667,17 @@ export type QuestionUpdateWithoutWrongBookItemsInput = {
   topicRef?: Prisma.TopicUpdateOneWithoutQuestionsNestedInput
   knowledgePoint?: Prisma.KnowledgePointUpdateOneWithoutQuestionsNestedInput
   attemptAnswers?: Prisma.AttemptAnswerUpdateManyWithoutQuestionNestedInput
+  wrongBookItems?: Prisma.WrongBookItemUpdateManyWithoutQuestionNestedInput
 }
 
-export type QuestionUncheckedUpdateWithoutWrongBookItemsInput = {
+export type QuestionUncheckedUpdateWithoutVersionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   paperId?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  number?: Prisma.IntFieldUpdateOperationsInput | number
-  section?: Prisma.StringFieldUpdateOperationsInput | string
-  marks?: Prisma.IntFieldUpdateOperationsInput | number
-  sourcePage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-  stem?: Prisma.StringFieldUpdateOperationsInput | string
-  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  answerRule?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  topic?: Prisma.StringFieldUpdateOperationsInput | string
-  subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
-  assetPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stimulusPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  onlineEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  attemptAnswers?: Prisma.AttemptAnswerUncheckedUpdateManyWithoutQuestionNestedInput
-}
-
-export type QuestionCreateManySubjectRefInput = {
-  id?: string
-  paperId: string
-  curriculumId?: string | null
-  topicId?: string | null
-  knowledgePointId?: string | null
-  number: number
-  section: string
-  marks: number
-  sourcePage?: number | null
-  type: $Enums.QuestionType
-  stem: string
-  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  answerRule: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  explanation?: string | null
-  topic: string
-  subtopic?: string | null
-  difficulty: string
-  assetPath?: string | null
-  stimulusPath?: string | null
-  onlineEligible?: boolean
-  reviewStatus?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type QuestionUpdateWithoutSubjectRefInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  number?: Prisma.IntFieldUpdateOperationsInput | number
-  section?: Prisma.StringFieldUpdateOperationsInput | string
-  marks?: Prisma.IntFieldUpdateOperationsInput | number
-  sourcePage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-  stem?: Prisma.StringFieldUpdateOperationsInput | string
-  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  answerRule?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  topic?: Prisma.StringFieldUpdateOperationsInput | string
-  subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
-  assetPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stimulusPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  onlineEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  paper?: Prisma.PaperUpdateOneRequiredWithoutQuestionsNestedInput
-  curriculum?: Prisma.CurriculumUpdateOneWithoutQuestionsNestedInput
-  topicRef?: Prisma.TopicUpdateOneWithoutQuestionsNestedInput
-  knowledgePoint?: Prisma.KnowledgePointUpdateOneWithoutQuestionsNestedInput
-  attemptAnswers?: Prisma.AttemptAnswerUpdateManyWithoutQuestionNestedInput
-  wrongBookItems?: Prisma.WrongBookItemUpdateManyWithoutQuestionNestedInput
-}
-
-export type QuestionUncheckedUpdateWithoutSubjectRefInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  paperId?: Prisma.StringFieldUpdateOperationsInput | string
-  curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1832,12 +1700,372 @@ export type QuestionUncheckedUpdateWithoutSubjectRefInput = {
   wrongBookItems?: Prisma.WrongBookItemUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
+export type QuestionCreateWithoutAttemptAnswersInput = {
+  id?: string
+  contentVersion?: number
+  number: number
+  section: string
+  marks: number
+  sourcePage?: number | null
+  type: $Enums.QuestionType
+  stem: string
+  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  answerRule: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  explanation?: string | null
+  topic: string
+  subtopic?: string | null
+  difficulty: string
+  assetPath?: string | null
+  stimulusPath?: string | null
+  onlineEligible?: boolean
+  reviewStatus?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  paper: Prisma.PaperCreateNestedOneWithoutQuestionsInput
+  subjectRef?: Prisma.SubjectCreateNestedOneWithoutQuestionsInput
+  curriculum?: Prisma.CurriculumCreateNestedOneWithoutQuestionsInput
+  topicRef?: Prisma.TopicCreateNestedOneWithoutQuestionsInput
+  knowledgePoint?: Prisma.KnowledgePointCreateNestedOneWithoutQuestionsInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
+  wrongBookItems?: Prisma.WrongBookItemCreateNestedManyWithoutQuestionInput
+}
+
+export type QuestionUncheckedCreateWithoutAttemptAnswersInput = {
+  id?: string
+  paperId: string
+  subjectId?: string | null
+  curriculumId?: string | null
+  topicId?: string | null
+  knowledgePointId?: string | null
+  contentVersion?: number
+  number: number
+  section: string
+  marks: number
+  sourcePage?: number | null
+  type: $Enums.QuestionType
+  stem: string
+  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  answerRule: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  explanation?: string | null
+  topic: string
+  subtopic?: string | null
+  difficulty: string
+  assetPath?: string | null
+  stimulusPath?: string | null
+  onlineEligible?: boolean
+  reviewStatus?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
+  wrongBookItems?: Prisma.WrongBookItemUncheckedCreateNestedManyWithoutQuestionInput
+}
+
+export type QuestionCreateOrConnectWithoutAttemptAnswersInput = {
+  where: Prisma.QuestionWhereUniqueInput
+  create: Prisma.XOR<Prisma.QuestionCreateWithoutAttemptAnswersInput, Prisma.QuestionUncheckedCreateWithoutAttemptAnswersInput>
+}
+
+export type QuestionUpsertWithoutAttemptAnswersInput = {
+  update: Prisma.XOR<Prisma.QuestionUpdateWithoutAttemptAnswersInput, Prisma.QuestionUncheckedUpdateWithoutAttemptAnswersInput>
+  create: Prisma.XOR<Prisma.QuestionCreateWithoutAttemptAnswersInput, Prisma.QuestionUncheckedCreateWithoutAttemptAnswersInput>
+  where?: Prisma.QuestionWhereInput
+}
+
+export type QuestionUpdateToOneWithWhereWithoutAttemptAnswersInput = {
+  where?: Prisma.QuestionWhereInput
+  data: Prisma.XOR<Prisma.QuestionUpdateWithoutAttemptAnswersInput, Prisma.QuestionUncheckedUpdateWithoutAttemptAnswersInput>
+}
+
+export type QuestionUpdateWithoutAttemptAnswersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  section?: Prisma.StringFieldUpdateOperationsInput | string
+  marks?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+  stem?: Prisma.StringFieldUpdateOperationsInput | string
+  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  answerRule?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
+  assetPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stimulusPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onlineEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paper?: Prisma.PaperUpdateOneRequiredWithoutQuestionsNestedInput
+  subjectRef?: Prisma.SubjectUpdateOneWithoutQuestionsNestedInput
+  curriculum?: Prisma.CurriculumUpdateOneWithoutQuestionsNestedInput
+  topicRef?: Prisma.TopicUpdateOneWithoutQuestionsNestedInput
+  knowledgePoint?: Prisma.KnowledgePointUpdateOneWithoutQuestionsNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
+  wrongBookItems?: Prisma.WrongBookItemUpdateManyWithoutQuestionNestedInput
+}
+
+export type QuestionUncheckedUpdateWithoutAttemptAnswersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  paperId?: Prisma.StringFieldUpdateOperationsInput | string
+  subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  section?: Prisma.StringFieldUpdateOperationsInput | string
+  marks?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+  stem?: Prisma.StringFieldUpdateOperationsInput | string
+  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  answerRule?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
+  assetPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stimulusPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onlineEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
+  wrongBookItems?: Prisma.WrongBookItemUncheckedUpdateManyWithoutQuestionNestedInput
+}
+
+export type QuestionCreateWithoutWrongBookItemsInput = {
+  id?: string
+  contentVersion?: number
+  number: number
+  section: string
+  marks: number
+  sourcePage?: number | null
+  type: $Enums.QuestionType
+  stem: string
+  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  answerRule: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  explanation?: string | null
+  topic: string
+  subtopic?: string | null
+  difficulty: string
+  assetPath?: string | null
+  stimulusPath?: string | null
+  onlineEligible?: boolean
+  reviewStatus?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  paper: Prisma.PaperCreateNestedOneWithoutQuestionsInput
+  subjectRef?: Prisma.SubjectCreateNestedOneWithoutQuestionsInput
+  curriculum?: Prisma.CurriculumCreateNestedOneWithoutQuestionsInput
+  topicRef?: Prisma.TopicCreateNestedOneWithoutQuestionsInput
+  knowledgePoint?: Prisma.KnowledgePointCreateNestedOneWithoutQuestionsInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
+  attemptAnswers?: Prisma.AttemptAnswerCreateNestedManyWithoutQuestionInput
+}
+
+export type QuestionUncheckedCreateWithoutWrongBookItemsInput = {
+  id?: string
+  paperId: string
+  subjectId?: string | null
+  curriculumId?: string | null
+  topicId?: string | null
+  knowledgePointId?: string | null
+  contentVersion?: number
+  number: number
+  section: string
+  marks: number
+  sourcePage?: number | null
+  type: $Enums.QuestionType
+  stem: string
+  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  answerRule: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  explanation?: string | null
+  topic: string
+  subtopic?: string | null
+  difficulty: string
+  assetPath?: string | null
+  stimulusPath?: string | null
+  onlineEligible?: boolean
+  reviewStatus?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
+  attemptAnswers?: Prisma.AttemptAnswerUncheckedCreateNestedManyWithoutQuestionInput
+}
+
+export type QuestionCreateOrConnectWithoutWrongBookItemsInput = {
+  where: Prisma.QuestionWhereUniqueInput
+  create: Prisma.XOR<Prisma.QuestionCreateWithoutWrongBookItemsInput, Prisma.QuestionUncheckedCreateWithoutWrongBookItemsInput>
+}
+
+export type QuestionUpsertWithoutWrongBookItemsInput = {
+  update: Prisma.XOR<Prisma.QuestionUpdateWithoutWrongBookItemsInput, Prisma.QuestionUncheckedUpdateWithoutWrongBookItemsInput>
+  create: Prisma.XOR<Prisma.QuestionCreateWithoutWrongBookItemsInput, Prisma.QuestionUncheckedCreateWithoutWrongBookItemsInput>
+  where?: Prisma.QuestionWhereInput
+}
+
+export type QuestionUpdateToOneWithWhereWithoutWrongBookItemsInput = {
+  where?: Prisma.QuestionWhereInput
+  data: Prisma.XOR<Prisma.QuestionUpdateWithoutWrongBookItemsInput, Prisma.QuestionUncheckedUpdateWithoutWrongBookItemsInput>
+}
+
+export type QuestionUpdateWithoutWrongBookItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  section?: Prisma.StringFieldUpdateOperationsInput | string
+  marks?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+  stem?: Prisma.StringFieldUpdateOperationsInput | string
+  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  answerRule?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
+  assetPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stimulusPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onlineEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paper?: Prisma.PaperUpdateOneRequiredWithoutQuestionsNestedInput
+  subjectRef?: Prisma.SubjectUpdateOneWithoutQuestionsNestedInput
+  curriculum?: Prisma.CurriculumUpdateOneWithoutQuestionsNestedInput
+  topicRef?: Prisma.TopicUpdateOneWithoutQuestionsNestedInput
+  knowledgePoint?: Prisma.KnowledgePointUpdateOneWithoutQuestionsNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
+  attemptAnswers?: Prisma.AttemptAnswerUpdateManyWithoutQuestionNestedInput
+}
+
+export type QuestionUncheckedUpdateWithoutWrongBookItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  paperId?: Prisma.StringFieldUpdateOperationsInput | string
+  subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  section?: Prisma.StringFieldUpdateOperationsInput | string
+  marks?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+  stem?: Prisma.StringFieldUpdateOperationsInput | string
+  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  answerRule?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
+  assetPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stimulusPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onlineEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
+  attemptAnswers?: Prisma.AttemptAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+}
+
+export type QuestionCreateManySubjectRefInput = {
+  id?: string
+  paperId: string
+  curriculumId?: string | null
+  topicId?: string | null
+  knowledgePointId?: string | null
+  contentVersion?: number
+  number: number
+  section: string
+  marks: number
+  sourcePage?: number | null
+  type: $Enums.QuestionType
+  stem: string
+  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  answerRule: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  explanation?: string | null
+  topic: string
+  subtopic?: string | null
+  difficulty: string
+  assetPath?: string | null
+  stimulusPath?: string | null
+  onlineEligible?: boolean
+  reviewStatus?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type QuestionUpdateWithoutSubjectRefInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  section?: Prisma.StringFieldUpdateOperationsInput | string
+  marks?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+  stem?: Prisma.StringFieldUpdateOperationsInput | string
+  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  answerRule?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
+  assetPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stimulusPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onlineEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paper?: Prisma.PaperUpdateOneRequiredWithoutQuestionsNestedInput
+  curriculum?: Prisma.CurriculumUpdateOneWithoutQuestionsNestedInput
+  topicRef?: Prisma.TopicUpdateOneWithoutQuestionsNestedInput
+  knowledgePoint?: Prisma.KnowledgePointUpdateOneWithoutQuestionsNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
+  attemptAnswers?: Prisma.AttemptAnswerUpdateManyWithoutQuestionNestedInput
+  wrongBookItems?: Prisma.WrongBookItemUpdateManyWithoutQuestionNestedInput
+}
+
+export type QuestionUncheckedUpdateWithoutSubjectRefInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  paperId?: Prisma.StringFieldUpdateOperationsInput | string
+  curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  section?: Prisma.StringFieldUpdateOperationsInput | string
+  marks?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+  stem?: Prisma.StringFieldUpdateOperationsInput | string
+  options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  answerRule?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
+  assetPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stimulusPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onlineEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
+  attemptAnswers?: Prisma.AttemptAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  wrongBookItems?: Prisma.WrongBookItemUncheckedUpdateManyWithoutQuestionNestedInput
+}
+
 export type QuestionUncheckedUpdateManyWithoutSubjectRefInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   paperId?: Prisma.StringFieldUpdateOperationsInput | string
   curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1864,6 +2092,7 @@ export type QuestionCreateManyCurriculumInput = {
   subjectId?: string | null
   topicId?: string | null
   knowledgePointId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1886,6 +2115,7 @@ export type QuestionCreateManyCurriculumInput = {
 
 export type QuestionUpdateWithoutCurriculumInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1908,6 +2138,7 @@ export type QuestionUpdateWithoutCurriculumInput = {
   subjectRef?: Prisma.SubjectUpdateOneWithoutQuestionsNestedInput
   topicRef?: Prisma.TopicUpdateOneWithoutQuestionsNestedInput
   knowledgePoint?: Prisma.KnowledgePointUpdateOneWithoutQuestionsNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
   attemptAnswers?: Prisma.AttemptAnswerUpdateManyWithoutQuestionNestedInput
   wrongBookItems?: Prisma.WrongBookItemUpdateManyWithoutQuestionNestedInput
 }
@@ -1918,6 +2149,7 @@ export type QuestionUncheckedUpdateWithoutCurriculumInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1936,6 +2168,7 @@ export type QuestionUncheckedUpdateWithoutCurriculumInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
   attemptAnswers?: Prisma.AttemptAnswerUncheckedUpdateManyWithoutQuestionNestedInput
   wrongBookItems?: Prisma.WrongBookItemUncheckedUpdateManyWithoutQuestionNestedInput
 }
@@ -1946,6 +2179,7 @@ export type QuestionUncheckedUpdateManyWithoutCurriculumInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1972,6 +2206,7 @@ export type QuestionCreateManyTopicRefInput = {
   subjectId?: string | null
   curriculumId?: string | null
   knowledgePointId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -1994,6 +2229,7 @@ export type QuestionCreateManyTopicRefInput = {
 
 export type QuestionUpdateWithoutTopicRefInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2016,6 +2252,7 @@ export type QuestionUpdateWithoutTopicRefInput = {
   subjectRef?: Prisma.SubjectUpdateOneWithoutQuestionsNestedInput
   curriculum?: Prisma.CurriculumUpdateOneWithoutQuestionsNestedInput
   knowledgePoint?: Prisma.KnowledgePointUpdateOneWithoutQuestionsNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
   attemptAnswers?: Prisma.AttemptAnswerUpdateManyWithoutQuestionNestedInput
   wrongBookItems?: Prisma.WrongBookItemUpdateManyWithoutQuestionNestedInput
 }
@@ -2026,6 +2263,7 @@ export type QuestionUncheckedUpdateWithoutTopicRefInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2044,6 +2282,7 @@ export type QuestionUncheckedUpdateWithoutTopicRefInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
   attemptAnswers?: Prisma.AttemptAnswerUncheckedUpdateManyWithoutQuestionNestedInput
   wrongBookItems?: Prisma.WrongBookItemUncheckedUpdateManyWithoutQuestionNestedInput
 }
@@ -2054,6 +2293,7 @@ export type QuestionUncheckedUpdateManyWithoutTopicRefInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2080,6 +2320,7 @@ export type QuestionCreateManyKnowledgePointInput = {
   subjectId?: string | null
   curriculumId?: string | null
   topicId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -2102,6 +2343,7 @@ export type QuestionCreateManyKnowledgePointInput = {
 
 export type QuestionUpdateWithoutKnowledgePointInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2124,6 +2366,7 @@ export type QuestionUpdateWithoutKnowledgePointInput = {
   subjectRef?: Prisma.SubjectUpdateOneWithoutQuestionsNestedInput
   curriculum?: Prisma.CurriculumUpdateOneWithoutQuestionsNestedInput
   topicRef?: Prisma.TopicUpdateOneWithoutQuestionsNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
   attemptAnswers?: Prisma.AttemptAnswerUpdateManyWithoutQuestionNestedInput
   wrongBookItems?: Prisma.WrongBookItemUpdateManyWithoutQuestionNestedInput
 }
@@ -2134,6 +2377,7 @@ export type QuestionUncheckedUpdateWithoutKnowledgePointInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2152,6 +2396,7 @@ export type QuestionUncheckedUpdateWithoutKnowledgePointInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
   attemptAnswers?: Prisma.AttemptAnswerUncheckedUpdateManyWithoutQuestionNestedInput
   wrongBookItems?: Prisma.WrongBookItemUncheckedUpdateManyWithoutQuestionNestedInput
 }
@@ -2162,6 +2407,7 @@ export type QuestionUncheckedUpdateManyWithoutKnowledgePointInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2188,6 +2434,7 @@ export type QuestionCreateManyPaperInput = {
   curriculumId?: string | null
   topicId?: string | null
   knowledgePointId?: string | null
+  contentVersion?: number
   number: number
   section: string
   marks: number
@@ -2210,6 +2457,7 @@ export type QuestionCreateManyPaperInput = {
 
 export type QuestionUpdateWithoutPaperInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2232,6 +2480,7 @@ export type QuestionUpdateWithoutPaperInput = {
   curriculum?: Prisma.CurriculumUpdateOneWithoutQuestionsNestedInput
   topicRef?: Prisma.TopicUpdateOneWithoutQuestionsNestedInput
   knowledgePoint?: Prisma.KnowledgePointUpdateOneWithoutQuestionsNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
   attemptAnswers?: Prisma.AttemptAnswerUpdateManyWithoutQuestionNestedInput
   wrongBookItems?: Prisma.WrongBookItemUpdateManyWithoutQuestionNestedInput
 }
@@ -2242,6 +2491,7 @@ export type QuestionUncheckedUpdateWithoutPaperInput = {
   curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2260,6 +2510,7 @@ export type QuestionUncheckedUpdateWithoutPaperInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
   attemptAnswers?: Prisma.AttemptAnswerUncheckedUpdateManyWithoutQuestionNestedInput
   wrongBookItems?: Prisma.WrongBookItemUncheckedUpdateManyWithoutQuestionNestedInput
 }
@@ -2270,6 +2521,7 @@ export type QuestionUncheckedUpdateManyWithoutPaperInput = {
   curriculumId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgePointId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentVersion?: Prisma.IntFieldUpdateOperationsInput | number
   number?: Prisma.IntFieldUpdateOperationsInput | number
   section?: Prisma.StringFieldUpdateOperationsInput | string
   marks?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2296,11 +2548,13 @@ export type QuestionUncheckedUpdateManyWithoutPaperInput = {
  */
 
 export type QuestionCountOutputType = {
+  versions: number
   attemptAnswers: number
   wrongBookItems: number
 }
 
 export type QuestionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  versions?: boolean | QuestionCountOutputTypeCountVersionsArgs
   attemptAnswers?: boolean | QuestionCountOutputTypeCountAttemptAnswersArgs
   wrongBookItems?: boolean | QuestionCountOutputTypeCountWrongBookItemsArgs
 }
@@ -2313,6 +2567,13 @@ export type QuestionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
    * Select specific fields to fetch from the QuestionCountOutputType
    */
   select?: Prisma.QuestionCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * QuestionCountOutputType without action
+ */
+export type QuestionCountOutputTypeCountVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.QuestionVersionWhereInput
 }
 
 /**
@@ -2337,6 +2598,7 @@ export type QuestionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   curriculumId?: boolean
   topicId?: boolean
   knowledgePointId?: boolean
+  contentVersion?: boolean
   number?: boolean
   section?: boolean
   marks?: boolean
@@ -2360,6 +2622,7 @@ export type QuestionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   curriculum?: boolean | Prisma.Question$curriculumArgs<ExtArgs>
   topicRef?: boolean | Prisma.Question$topicRefArgs<ExtArgs>
   knowledgePoint?: boolean | Prisma.Question$knowledgePointArgs<ExtArgs>
+  versions?: boolean | Prisma.Question$versionsArgs<ExtArgs>
   attemptAnswers?: boolean | Prisma.Question$attemptAnswersArgs<ExtArgs>
   wrongBookItems?: boolean | Prisma.Question$wrongBookItemsArgs<ExtArgs>
   _count?: boolean | Prisma.QuestionCountOutputTypeDefaultArgs<ExtArgs>
@@ -2372,6 +2635,7 @@ export type QuestionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   curriculumId?: boolean
   topicId?: boolean
   knowledgePointId?: boolean
+  contentVersion?: boolean
   number?: boolean
   section?: boolean
   marks?: boolean
@@ -2404,6 +2668,7 @@ export type QuestionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   curriculumId?: boolean
   topicId?: boolean
   knowledgePointId?: boolean
+  contentVersion?: boolean
   number?: boolean
   section?: boolean
   marks?: boolean
@@ -2436,6 +2701,7 @@ export type QuestionSelectScalar = {
   curriculumId?: boolean
   topicId?: boolean
   knowledgePointId?: boolean
+  contentVersion?: boolean
   number?: boolean
   section?: boolean
   marks?: boolean
@@ -2456,13 +2722,14 @@ export type QuestionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type QuestionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "paperId" | "subjectId" | "curriculumId" | "topicId" | "knowledgePointId" | "number" | "section" | "marks" | "sourcePage" | "type" | "stem" | "options" | "answerRule" | "explanation" | "topic" | "subtopic" | "difficulty" | "assetPath" | "stimulusPath" | "onlineEligible" | "reviewStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["question"]>
+export type QuestionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "paperId" | "subjectId" | "curriculumId" | "topicId" | "knowledgePointId" | "contentVersion" | "number" | "section" | "marks" | "sourcePage" | "type" | "stem" | "options" | "answerRule" | "explanation" | "topic" | "subtopic" | "difficulty" | "assetPath" | "stimulusPath" | "onlineEligible" | "reviewStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["question"]>
 export type QuestionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   paper?: boolean | Prisma.PaperDefaultArgs<ExtArgs>
   subjectRef?: boolean | Prisma.Question$subjectRefArgs<ExtArgs>
   curriculum?: boolean | Prisma.Question$curriculumArgs<ExtArgs>
   topicRef?: boolean | Prisma.Question$topicRefArgs<ExtArgs>
   knowledgePoint?: boolean | Prisma.Question$knowledgePointArgs<ExtArgs>
+  versions?: boolean | Prisma.Question$versionsArgs<ExtArgs>
   attemptAnswers?: boolean | Prisma.Question$attemptAnswersArgs<ExtArgs>
   wrongBookItems?: boolean | Prisma.Question$wrongBookItemsArgs<ExtArgs>
   _count?: boolean | Prisma.QuestionCountOutputTypeDefaultArgs<ExtArgs>
@@ -2490,6 +2757,7 @@ export type $QuestionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     curriculum: Prisma.$CurriculumPayload<ExtArgs> | null
     topicRef: Prisma.$TopicPayload<ExtArgs> | null
     knowledgePoint: Prisma.$KnowledgePointPayload<ExtArgs> | null
+    versions: Prisma.$QuestionVersionPayload<ExtArgs>[]
     attemptAnswers: Prisma.$AttemptAnswerPayload<ExtArgs>[]
     wrongBookItems: Prisma.$WrongBookItemPayload<ExtArgs>[]
   }
@@ -2500,6 +2768,7 @@ export type $QuestionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     curriculumId: string | null
     topicId: string | null
     knowledgePointId: string | null
+    contentVersion: number
     number: number
     section: string
     marks: number
@@ -2917,6 +3186,7 @@ export interface Prisma__QuestionClient<T, Null = never, ExtArgs extends runtime
   curriculum<T extends Prisma.Question$curriculumArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Question$curriculumArgs<ExtArgs>>): Prisma.Prisma__CurriculumClient<runtime.Types.Result.GetResult<Prisma.$CurriculumPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   topicRef<T extends Prisma.Question$topicRefArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Question$topicRefArgs<ExtArgs>>): Prisma.Prisma__TopicClient<runtime.Types.Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   knowledgePoint<T extends Prisma.Question$knowledgePointArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Question$knowledgePointArgs<ExtArgs>>): Prisma.Prisma__KnowledgePointClient<runtime.Types.Result.GetResult<Prisma.$KnowledgePointPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  versions<T extends Prisma.Question$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Question$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuestionVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   attemptAnswers<T extends Prisma.Question$attemptAnswersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Question$attemptAnswersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttemptAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   wrongBookItems<T extends Prisma.Question$wrongBookItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Question$wrongBookItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WrongBookItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2954,6 +3224,7 @@ export interface QuestionFieldRefs {
   readonly curriculumId: Prisma.FieldRef<"Question", 'String'>
   readonly topicId: Prisma.FieldRef<"Question", 'String'>
   readonly knowledgePointId: Prisma.FieldRef<"Question", 'String'>
+  readonly contentVersion: Prisma.FieldRef<"Question", 'Int'>
   readonly number: Prisma.FieldRef<"Question", 'Int'>
   readonly section: Prisma.FieldRef<"Question", 'String'>
   readonly marks: Prisma.FieldRef<"Question", 'Int'>
@@ -3446,6 +3717,30 @@ export type Question$knowledgePointArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.KnowledgePointInclude<ExtArgs> | null
   where?: Prisma.KnowledgePointWhereInput
+}
+
+/**
+ * Question.versions
+ */
+export type Question$versionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the QuestionVersion
+   */
+  select?: Prisma.QuestionVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the QuestionVersion
+   */
+  omit?: Prisma.QuestionVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.QuestionVersionInclude<ExtArgs> | null
+  where?: Prisma.QuestionVersionWhereInput
+  orderBy?: Prisma.QuestionVersionOrderByWithRelationInput | Prisma.QuestionVersionOrderByWithRelationInput[]
+  cursor?: Prisma.QuestionVersionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.QuestionVersionScalarFieldEnum | Prisma.QuestionVersionScalarFieldEnum[]
 }
 
 /**

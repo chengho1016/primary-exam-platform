@@ -148,6 +148,7 @@ Current folders:
 | `lib/learning` | parent/dashboard learning data |
 | `lib/papers` | paper listing/detail repository |
 | `lib/practice` | practice question selection, grading, question type mapping |
+| `lib/questions` | question content snapshot/versioning helpers |
 | `lib/site-config.ts` | site constants |
 
 ## Rules of thumb
@@ -204,7 +205,21 @@ scripts/backfill-curriculum.ts
 vercel.json
 ```
 
-Current schema is functional and now has a side-by-side normalized taxonomy foundation. Legacy fields remain for compatibility while reads/writes migrate gradually. Vercel production deploy runs `npx prisma db push && npm run db:backfill:curriculum && npm run build` so the normalized tables and links are created before the new Admin page is served.
+Question versioning and historical attempt snapshots:
+
+```text
+src/lib/questions/question-snapshot.ts
+src/lib/questions/version-backfill.ts
+scripts/backfill-question-versions.ts
+src/app/api/admin/questions/backfill-versions/route.ts
+src/app/api/practice/complete/route.ts
+src/app/admin/actions.ts
+src/app/admin/questions/[questionId]/edit/page.tsx
+src/app/admin/database/question-version-backfill-button.tsx
+prisma/migrations/20260702010000_add_question_versioning/migration.sql
+```
+
+Current schema is functional and now has a side-by-side normalized taxonomy foundation plus immutable snapshots for new completed attempts. Legacy fields remain for compatibility while reads/writes migrate gradually. Vercel production deploy runs `npx prisma db push && npm run db:backfill:curriculum && npm run db:backfill:question-versions && npm run build` so the normalized tables, taxonomy links, and question version snapshots are created before the new Admin pages are served.
 
 Near-term DB cleanup direction:
 

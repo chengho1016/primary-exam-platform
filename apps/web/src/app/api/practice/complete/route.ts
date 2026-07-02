@@ -4,6 +4,7 @@ import { hasPaperAccess } from "@/lib/auth/entitlements";
 import { getCurrentUser } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
 import { gradeAnswer, type AnswerRule } from "@/lib/practice/grading";
+import { buildQuestionContentSnapshot } from "@/lib/questions/question-snapshot";
 
 const submissionSchema = z.object({
   paperId: z.string().min(1),
@@ -13,6 +14,8 @@ const submissionSchema = z.object({
 
 interface GradedAnswer {
   questionId: string;
+  questionVersion: number;
+  questionSnapshot: Prisma.InputJsonObject;
   response: string;
   isCorrect: boolean;
 }
@@ -59,7 +62,32 @@ export async function POST(request: Request) {
       onlineEligible: true,
       reviewStatus: { startsWith: "verified" },
     },
-    select: { id: true, answerRule: true, options: true },
+    select: {
+      id: true,
+      paperId: true,
+      contentVersion: true,
+      number: true,
+      section: true,
+      marks: true,
+      sourcePage: true,
+      type: true,
+      stem: true,
+      options: true,
+      answerRule: true,
+      explanation: true,
+      topic: true,
+      subtopic: true,
+      difficulty: true,
+      assetPath: true,
+      stimulusPath: true,
+      onlineEligible: true,
+      reviewStatus: true,
+      curriculumId: true,
+      subjectId: true,
+      topicId: true,
+      knowledgePointId: true,
+      paper: { select: { id: true, code: true, title: true, subject: true, grade: true } },
+    },
   });
   if (questions.length !== 15) return Response.json({ error: "部分題目未獲網上練習授權" }, { status: 400 });
 
@@ -67,6 +95,8 @@ export async function POST(request: Request) {
     const response = submission.data.answers[question.id] ?? "";
     return {
       questionId: question.id,
+      questionVersion: question.contentVersion,
+      questionSnapshot: buildQuestionContentSnapshot(question),
       response,
       isCorrect: gradeAnswer(
         question.answerRule as AnswerRule,
@@ -89,6 +119,8 @@ export async function POST(request: Request) {
         answers: {
           create: gradedAnswers.map((answer) => ({
             questionId: answer.questionId,
+            questionVersion: answer.questionVersion,
+            questionSnapshot: answer.questionSnapshot,
             response: { value: answer.response },
             isCorrect: answer.isCorrect,
             awardedMark: answer.isCorrect ? 1 : 0,

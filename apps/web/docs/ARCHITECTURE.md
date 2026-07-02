@@ -55,8 +55,8 @@ PostgreSQL + 私有檔案儲存
 - `User`：家長或管理員帳戶
 - `ChildProfile`：一個家長可管理多個孩子
 - `Paper`：完整試卷、分類、狀態和存取方式
-- `Question`：可供抽題及批改的結構化題目
-- `Attempt` / `AttemptAnswer`：每次15題練習及作答
+- `Question` / `QuestionVersion`：可供抽題及批改的結構化題目與版本 trail
+- `Attempt` / `AttemptAnswer`：每次15題練習及作答；新作答保存當時題目 snapshot
 - `WrongBookItem`：孩子與錯題的唯一關係及錯誤次數
 - `Subscription` / `PaperEntitlement`：月費或逐份購買權限
 - `PrintJob`：列印授權、短效期限和水印文字
@@ -76,6 +76,17 @@ PostgreSQL + 私有檔案儲存
 
 - `docs/ARCHITECTURE_ROADMAP.md`
 - `docs/plans/2026-07-02-phase-1-data-normalization.md`
+
+## 歷史作答與題目版本
+
+Admin 可以繼續修正題目內容、答案、分數、課題或 taxonomy refs，但已完成的學生練習不可因此改變歷史語境。
+
+現行規則：
+
+1. `Question.contentVersion` 表示 live 題目目前版本。
+2. Admin 新增題目會建立 `QuestionVersion` v1；每次編輯或 math topic rename/merge 會 version +1 並寫入新 `QuestionVersion.snapshot`。
+3. `/api/practice/complete` 在提交時把當時題目內容、答案規則、paper metadata、taxonomy refs 寫入 `AttemptAnswer.questionSnapshot` 和 `questionVersion`。
+4. 往後報表、AI learning report 或成績回看如要顯示歷史題目，應優先使用 `AttemptAnswer.questionSnapshot`，舊 rows 才 fallback live `Question`。
 
 ## 15題抽題
 

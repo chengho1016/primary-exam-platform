@@ -3,6 +3,7 @@ import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui";
 import { getAdminDatabaseOverview } from "@/lib/admin/admin-repository";
 import { formatPaperStatus } from "@/lib/admin/presentation";
+import { QuestionVersionBackfillButton } from "./question-version-backfill-button";
 
 export const metadata = { title: "資料庫概覽" };
 export const dynamic = "force-dynamic";
@@ -48,6 +49,7 @@ export default async function AdminDatabasePage() {
     { label: "會員帳戶", value: counts.totalUsers, detail: `${counts.parentUsers} 家長 · ${counts.adminUsers} 管理員`, tone: "blue" },
     { label: "試卷", value: counts.totalPapers, detail: `${counts.publishedPapers} 已發布 · ${counts.draftPapers} 草稿`, tone: "mint" },
     { label: "題目", value: counts.totalQuestions, detail: `${counts.onlineQuestions} 可練習 · ${counts.verifiedQuestions} 已覆核`, tone: "sun" },
+    { label: "題目版本", value: counts.totalQuestionVersions, detail: `${counts.questionsWithCurrentVersion}/${counts.totalQuestions} 已有當前 snapshot`, tone: counts.questionsMissingCurrentVersion ? "coral" : "mint" },
     { label: "列印紀錄", value: counts.totalPrintJobs, detail: `${counts.printJobs24h} 筆最近24小時`, tone: "coral" },
   ] as const;
 
@@ -79,7 +81,9 @@ export default async function AdminDatabasePage() {
             <div><strong>資料備份</strong><span>已加入 `scripts/backup-database.sh`；正式收費前每日最少備份一次。</span></div>
             <div><strong>收費 MVP</strong><span>可先用人工開通：會員狀態 ACTIVE + 方案 ID + 列印額度。</span></div>
             <div><strong>題庫品質</strong><span>{counts.verifiedQuestions} 題已覆核；未覆核題不應放入主推練習池。</span></div>
+            <div><strong>歷史作答保護</strong><span>新 AttemptAnswer 會保存題目 snapshot；目前 {counts.questionsWithCurrentVersion}/{counts.totalQuestions} 題已有當前版本，缺失 {counts.questionsMissingCurrentVersion} 題可用下方按鈕修補。</span></div>
           </div>
+          <QuestionVersionBackfillButton />
         </section>
 
         <div className="dashboard-grid database-grid">
@@ -91,6 +95,7 @@ export default async function AdminDatabasePage() {
               <div><span>Subscription</span><strong>{counts.totalSubscriptions}</strong><small>{counts.activeSubscriptions} active</small></div>
               <div><span>Paper</span><strong>{counts.totalPapers}</strong><small>{counts.publishedPapers} published</small></div>
               <div><span>Question</span><strong>{counts.totalQuestions}</strong><small>{percent(counts.onlineQuestions, counts.totalQuestions)} 可練習</small></div>
+              <div><span>QuestionVersion</span><strong>{counts.totalQuestionVersions}</strong><small>{counts.questionsMissingCurrentVersion ? `${counts.questionsMissingCurrentVersion} 題缺當前 snapshot` : "當前版本已齊"}</small></div>
               <div><span>PrintJob</span><strong>{counts.totalPrintJobs}</strong><small>{counts.printJobs24h} / 24h</small></div>
               <div><span>PaperEntitlement</span><strong>{counts.totalEntitlements}</strong><small>逐份試卷權限</small></div>
               <div><span>AdminAuditLog</span><strong>{counts.totalAuditLogs}</strong><small>後台操作記錄</small></div>

@@ -158,6 +158,8 @@ export async function getAdminDatabaseOverview() {
     totalQuestions,
     onlineQuestions,
     verifiedQuestions,
+    totalQuestionVersions,
+    questionVersionCoverageRows,
     totalPrintJobs,
     printJobs24h,
     totalEntitlements,
@@ -183,6 +185,8 @@ export async function getAdminDatabaseOverview() {
     db.question.count(),
     db.question.count({ where: { onlineEligible: true } }),
     db.question.count({ where: { reviewStatus: { startsWith: "verified" } } }),
+    db.questionVersion.count(),
+    db.question.findMany({ select: { contentVersion: true, versions: { select: { version: true } } } }),
     db.printJob.count(),
     db.printJob.count({ where: { createdAt: { gte: since24Hours } } }),
     db.paperEntitlement.count(),
@@ -198,6 +202,10 @@ export async function getAdminDatabaseOverview() {
   const sourceStats = sourceAssetStats[0];
   const uploadedSourceCount = toSafeNumber(sourceStats?.uploaded_count);
   const sourceAssetBytes = toSafeNumber(sourceStats?.source_bytes);
+  const questionsWithCurrentVersion = questionVersionCoverageRows.filter((question) =>
+    question.versions.some((version) => version.version === question.contentVersion),
+  ).length;
+  const questionsMissingCurrentVersion = Math.max(totalQuestions - questionsWithCurrentVersion, 0);
 
   return {
     counts: {
@@ -215,6 +223,9 @@ export async function getAdminDatabaseOverview() {
       totalQuestions,
       onlineQuestions,
       verifiedQuestions,
+      totalQuestionVersions,
+      questionsWithCurrentVersion,
+      questionsMissingCurrentVersion,
       totalPrintJobs,
       printJobs24h,
       totalEntitlements,

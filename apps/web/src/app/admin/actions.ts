@@ -10,6 +10,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db/prisma";
 import { normalizeTopicName } from "@/lib/admin/topic-insights";
 import { ensureQuestionTaxonomyRefs, ensureSubjectRef } from "@/lib/curriculum/backfill";
+import { buildQuestionContentSnapshot } from "@/lib/questions/question-snapshot";
 import type { NewPaperActionState } from "@/app/admin/action-types";
 
 const ADMIN_EMAIL = "admin@local.exam";
@@ -331,7 +332,10 @@ export async function createQuestionAction(formData: FormData) {
   const parsedQuestion = createQuestionSchema.safeParse(Object.fromEntries(formData));
   if (!parsedQuestion.success) throw new Error(parsedQuestion.error.issues[0]?.message ?? "題目資料不正確");
 
-  const paper = await db.paper.findUnique({ where: { id: parsedQuestion.data.paperId }, select: { id: true, code: true, subject: true } });
+  const paper = await db.paper.findUnique({
+    where: { id: parsedQuestion.data.paperId },
+    select: { id: true, code: true, title: true, subject: true, grade: true },
+  });
   if (!paper) throw new Error("找不到試卷");
 
   const options = parsedQuestion.data.type === "MULTIPLE_CHOICE" ? parseMultipleChoiceOptions(parsedQuestion.data.optionsText) : null;
@@ -365,6 +369,15 @@ export async function createQuestionAction(formData: FormData) {
           difficulty: parsedQuestion.data.difficulty,
           onlineEligible,
           reviewStatus: "verified_admin",
+        },
+      });
+
+      await tx.questionVersion.create({
+        data: {
+          questionId: question.id,
+          version: question.contentVersion,
+          snapshot: buildQuestionContentSnapshot({ ...question, paper }),
+          createdById: admin.id,
         },
       });
 
@@ -404,7 +417,13 @@ export async function updateQuestionAction(formData: FormData) {
 
   const existingQuestion = await db.question.findUnique({
     where: { id: parsedQuestion.data.questionId },
-    select: { id: true, paperId: true, marks: true, answerRule: true, paper: { select: { code: true, subject: true } } },
+    select: {
+      id: true,
+      paperId: true,
+      marks: true,
+      answerRule: true,
+      paper: { select: { id: true, code: true, title: true, subject: true, grade: true } },
+    },
   });
   if (!existingQuestion) throw new Error("找不到題目");
 
@@ -418,7 +437,7 @@ export async function updateQuestionAction(formData: FormData) {
 
   try {
     await db.$transaction(async (tx) => {
-      await tx.question.update({
+      const updatedQuestion = await tx.question.update({
         where: { id: parsedQuestion.data.questionId },
         data: {
           curriculumId: taxonomyRefs.curriculumId,
@@ -439,6 +458,16 @@ export async function updateQuestionAction(formData: FormData) {
           explanation: parsedQuestion.data.explanation || null,
           onlineEligible: formData.get("onlineEligible") === "on",
           reviewStatus: "verified_admin",
+          contentVersion: { increment: 1 },
+        },
+      });
+
+      await tx.questionVersion.create({
+        data: {
+          questionId: updatedQuestion.id,
+          version: updatedQuestion.contentVersion,
+          snapshot: buildQuestionContentSnapshot({ ...updatedQuestion, paper: existingQuestion.paper }),
+          createdById: admin.id,
         },
       });
 
@@ -455,7 +484,12 @@ export async function updateQuestionAction(formData: FormData) {
           action: "question.updated",
           entityType: "Question",
           entityId: parsedQuestion.data.questionId,
-          metadata: { number: parsedQuestion.data.number, topic: parsedQuestion.data.topic, type: parsedQuestion.data.type },
+          metadata: {
+            number: parsedQuestion.data.number,
+            topic: parsedQuestion.data.topic,
+            type: parsedQuestion.data.type,
+            contentVersion: updatedQuestion.contentVersion,
+          },
         },
       });
     });
@@ -488,15 +522,42 @@ export async function renameMathTopicAction(formData: FormData) {
 
   const matchingQuestions = await db.question.findMany({
     where: { paper: { subject: "數學" } },
-    select: { id: true, topic: true },
+    include: { paper: { select: { id: true, code: true, title: true, subject: true, grade: true } } },
   });
-  const questionIds = matchingQuestions
-    .filter((question) => normalizeTopicName(question.topic) === currentTopic)
-    .map((question) => question.id);
+  const questionsToRename = matchingQuestions
+    .filter((question) => normalizeTopicName(question.topic) === currentTopic);
+  const preparedUpdates = await Promise.all(questionsToRename.map(async (question) => ({
+    question,
+    taxonomyRefs: await ensureQuestionTaxonomyRefs({
+      subject: question.paper.subject,
+      topic: nextTopic,
+      subtopic: question.subtopic,
+    }),
+  })));
 
-  const result = await db.question.updateMany({
-    where: { id: { in: questionIds } },
-    data: { topic: nextTopic },
+  await db.$transaction(async (tx) => {
+    for (const { question, taxonomyRefs } of preparedUpdates) {
+      const updatedQuestion = await tx.question.update({
+        where: { id: question.id },
+        data: {
+          curriculumId: taxonomyRefs.curriculumId,
+          subjectId: taxonomyRefs.subjectId,
+          topicId: taxonomyRefs.topicId,
+          knowledgePointId: taxonomyRefs.knowledgePointId,
+          topic: nextTopic,
+          contentVersion: { increment: 1 },
+        },
+      });
+
+      await tx.questionVersion.create({
+        data: {
+          questionId: updatedQuestion.id,
+          version: updatedQuestion.contentVersion,
+          snapshot: buildQuestionContentSnapshot({ ...updatedQuestion, paper: question.paper }),
+          createdById: admin.id,
+        },
+      });
+    }
   });
 
   await db.adminAuditLog.create({
@@ -505,7 +566,7 @@ export async function renameMathTopicAction(formData: FormData) {
       action: "math_topic.renamed",
       entityType: "QuestionTopic",
       entityId: currentTopic,
-      metadata: { from: currentTopic, to: nextTopic, questionCount: result.count },
+      metadata: { from: currentTopic, to: nextTopic, questionCount: preparedUpdates.length },
     },
   });
 
@@ -517,7 +578,7 @@ export async function renameMathTopicAction(formData: FormData) {
   params.set("renamed", "1");
   params.set("from", currentTopic);
   params.set("to", nextTopic);
-  params.set("count", String(result.count));
+  params.set("count", String(preparedUpdates.length));
   redirect(`/admin/topics?${params.toString()}`);
 }
 

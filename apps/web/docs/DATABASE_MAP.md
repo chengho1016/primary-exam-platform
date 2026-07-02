@@ -25,26 +25,30 @@ The current schema stores several file-related concepts directly on `Paper` / `Q
 
 Long-term direction: introduce an `Asset` / `FileAsset` table and migrate these fields gradually. Do not add more permanent file fields to `Paper` unless there is a short-term reason.
 
-### Important caveat: topic fields are not normalized yet
+### Important caveat: topic fields remain legacy-compatible
 
-`Question.topic` and `Question.subtopic` are currently plain strings. This is fast for seed data but fragile for a large topic-based question bank.
+`Question.topic` and `Question.subtopic` are still present as legacy free-text fields so existing production flows remain stable. Phase 1 now also writes nullable normalized references:
 
-Examples that would currently become different topics:
+- `Paper.subjectId`
+- `Question.curriculumId`
+- `Question.subjectId`
+- `Question.topicId`
+- `Question.knowledgePointId`
+
+Examples that previously became different free-text topics:
 
 - `分數`
 - `分 數`
 - `分數計算`
 - `Fraction`
 
-Current Admin mitigation before adding a real topic schema:
+Current Admin controls:
 
-- `/admin/topics` is the first-version **math-only** topic management page.
-- It reads all `Question.topic` / `Question.subtopic` values for papers where `Paper.subject = "數學"`.
-- It normalizes obvious spacing issues for display (for example `分 數` → `分數`).
-- Admin can rename a topic; renaming to an existing topic intentionally merges those questions.
-- The page shows 30-question worksheet readiness, but it does **not** create generated worksheets yet.
+- `/admin/curriculum` shows the normalized Subject / Curriculum / Topic / KnowledgePoint tables and backfill status.
+- `/api/admin/curriculum/backfill` is an Admin-only repair endpoint for production backfill.
+- `/admin/topics` remains the first-version **math-only** topic management page and now updates normalized refs/version snapshots when renaming topics.
 
-Long-term direction: introduce `Subject`, `Curriculum`, `Topic`, and `KnowledgePoint` tables so Admin users choose controlled taxonomy instead of free-typing. Keep the current string fields until existing production data has been migrated. The full long-term architecture charter lives in `docs/ARCHITECTURE_ROADMAP.md`; the first implementation plan is `docs/plans/2026-07-02-phase-1-data-normalization.md`.
+Long-term direction: keep the current string fields until all existing production reads/writes have fully migrated to `Subject`, `Curriculum`, `Topic`, and `KnowledgePoint` IDs. The full long-term architecture charter lives in `docs/ARCHITECTURE_ROADMAP.md`; the first implementation plan is `docs/plans/2026-07-02-phase-1-data-normalization.md`.
 
 ---
 
@@ -272,6 +276,7 @@ Important fields:
 | `subjectId` | Nullable normalized reference to `Subject` |
 | `topicId` | Nullable normalized reference to `Topic` |
 | `knowledgePointId` | Nullable normalized reference to `KnowledgePoint` |
+| `contentVersion` | Current mutable question content version; Admin saves increment this |
 | `difficulty` | String difficulty, pending enum normalization |
 | `assetPath` | Optional image for this question |
 | `stimulusPath` | Optional shared image/chart/table |
@@ -295,6 +300,34 @@ Known cleanup needed:
 - Normalize `difficulty` into enum.
 - Normalize `reviewStatus` into enum.
 - Introduce an `autoWorksheetEligible` flag when custom worksheets are implemented.
+
+---
+
+## `QuestionVersion`
+
+Immutable version trail for Admin-created/edited question content.
+
+Important fields:
+
+| Field | Meaning |
+|---|---|
+| `questionId` | Source mutable `Question` |
+| `version` | Version number matching `Question.contentVersion` at save time |
+| `snapshot` | JSON copy of the question content, answer rule, paper metadata, and taxonomy refs |
+| `createdById` | Admin ID that created the version, stored as an audit reference |
+| `createdAt` | Version creation time |
+
+Constraint:
+
+- Unique `(questionId, version)` prevents duplicate version numbers for the same question.
+
+Operational notes:
+
+- Creating a question writes version 1.
+- Editing a question increments `Question.contentVersion` and writes a new `QuestionVersion` row.
+- Math topic rename/merge also increments affected questions and writes versions.
+- Existing questions can be repaired idempotently with `npm run db:backfill:question-versions` or Admin-only `POST /api/admin/questions/backfill-versions` exposed on `/admin/database`.
+- Historical `AttemptAnswer` rows do not depend on this table alone; they also store their own `questionSnapshot` for immutable reporting.
 
 ---
 
@@ -325,7 +358,9 @@ Important fields:
 | Field | Meaning |
 |---|---|
 | `attemptId` | Practice session |
-| `questionId` | Answered question |
+| `questionId` | Answered live question reference |
+| `questionVersion` | Version number of the question at submission time |
+| `questionSnapshot` | Immutable JSON snapshot of the question content and grading rule at submission time |
 | `response` | JSON response payload |
 | `isCorrect` | Boolean result if graded |
 | `awardedMark` | Awarded marks if graded |
@@ -334,6 +369,12 @@ Important fields:
 Constraint:
 
 - Unique `(attemptId, questionId)` prevents duplicate answers for the same attempt/question.
+
+Operational notes:
+
+- Existing historical rows may have `questionSnapshot = null` until a dedicated backfill is written.
+- New `/api/practice/complete` submissions write `questionVersion` and `questionSnapshot` side-by-side with the live `questionId`.
+- Reports that need immutable historical wording should prefer `questionSnapshot` when present, then fall back to the live question relation for old rows.
 
 ---
 

@@ -194,43 +194,58 @@ model Paper {
 }
 
 model Question {
-  id             String          @id @default(cuid())
-  paperId        String
-  paper          Paper           @relation(fields: [paperId], references: [id], onDelete: Cascade)
-  subjectId      String?
-  subjectRef     Subject?        @relation(fields: [subjectId], references: [id], onDelete: SetNull)
-  curriculumId   String?
-  curriculum     Curriculum?     @relation(fields: [curriculumId], references: [id], onDelete: SetNull)
-  topicId        String?
-  topicRef       Topic?          @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  id               String            @id @default(cuid())
+  paperId          String
+  paper            Paper             @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  subjectId        String?
+  subjectRef       Subject?          @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  curriculumId     String?
+  curriculum       Curriculum?       @relation(fields: [curriculumId], references: [id], onDelete: SetNull)
+  topicId          String?
+  topicRef         Topic?            @relation(fields: [topicId], references: [id], onDelete: SetNull)
   knowledgePointId String?
-  knowledgePoint KnowledgePoint? @relation(fields: [knowledgePointId], references: [id], onDelete: SetNull)
-  number         Int
-  section        String
-  marks          Int
-  sourcePage     Int?
-  type           QuestionType
-  stem           String
-  options        Json?
-  answerRule     Json
-  explanation    String?
-  topic          String
-  subtopic       String?
-  difficulty     String
-  assetPath      String?
-  stimulusPath   String?
-  onlineEligible Boolean         @default(true)
-  reviewStatus   String          @default("pending")
-  attemptAnswers AttemptAnswer[]
-  wrongBookItems WrongBookItem[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  knowledgePoint   KnowledgePoint?   @relation(fields: [knowledgePointId], references: [id], onDelete: SetNull)
+  contentVersion   Int               @default(1)
+  number           Int
+  section          String
+  marks            Int
+  sourcePage       Int?
+  type             QuestionType
+  stem             String
+  options          Json?
+  answerRule       Json
+  explanation      String?
+  topic            String
+  subtopic         String?
+  difficulty       String
+  assetPath        String?
+  stimulusPath     String?
+  onlineEligible   Boolean           @default(true)
+  reviewStatus     String            @default("pending")
+  versions         QuestionVersion[]
+  attemptAnswers   AttemptAnswer[]
+  wrongBookItems   WrongBookItem[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   @@unique([paperId, number])
   @@index([paperId, onlineEligible, topic, difficulty])
   @@index([subjectId, topicId, difficulty, onlineEligible])
   @@index([curriculumId])
   @@index([knowledgePointId])
+}
+
+model QuestionVersion {
+  id          String   @id @default(cuid())
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  version     Int
+  snapshot    Json
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  @@unique([questionId, version])
+  @@index([questionId, createdAt])
 }
 
 model Attempt {
@@ -250,17 +265,20 @@ model Attempt {
 }
 
 model AttemptAnswer {
-  id          String   @id @default(cuid())
-  attemptId   String
-  attempt     Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  questionId  String
-  question    Question @relation(fields: [questionId], references: [id])
-  response    Json
-  isCorrect   Boolean?
-  awardedMark Int?
-  answeredAt  DateTime @default(now())
+  id              String   @id @default(cuid())
+  attemptId       String
+  attempt         Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId      String
+  question        Question @relation(fields: [questionId], references: [id])
+  questionVersion Int?
+  questionSnapshot Json?
+  response        Json
+  isCorrect       Boolean?
+  awardedMark     Int?
+  answeredAt      DateTime @default(now())
 
   @@unique([attemptId, questionId])
+  @@index([questionId, questionVersion])
 }
 
 model WrongBookItem {

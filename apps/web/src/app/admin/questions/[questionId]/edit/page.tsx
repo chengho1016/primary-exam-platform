@@ -54,6 +54,7 @@ export default async function EditQuestionPage({ params }: { params: Promise<{ q
             <p>{question.paper.subject} · {question.paper.code} · {question.paper.title}</p>
           </div>
           <div className="admin-header-actions">
+            <Badge tone="blue">V{question.contentVersion}</Badge>
             <Badge tone={question.paper.status === "PUBLISHED" ? "mint" : "gray"}>{question.paper.status}</Badge>
             <Link className="button button-secondary button-small" href={`/admin/questions?subject=${encodeURIComponent(question.paper.subject)}&paper=${encodeURIComponent(question.paper.code)}`}>返回題庫</Link>
           </div>
@@ -61,8 +62,9 @@ export default async function EditQuestionPage({ params }: { params: Promise<{ q
 
         <section className="panel admin-guidance-panel">
           <h3>完整題目資料</h3>
-          <p>呢頁而家同「新增題目」用同一套欄位。改題號時會檢查同一試卷不可重複；改分數時會同步更新試卷總分。</p>
+          <p>呢頁而家同「新增題目」用同一套欄位。改題號時會檢查同一試卷不可重複；改分數時會同步更新試卷總分。每次儲存會建立新版本；學生已完成的 AttemptAnswer 會保留當時題目 snapshot，不會被今次修改污染。</p>
           <div className="admin-status-stack horizontal">
+            <Badge tone="blue">目前版本 V{question.contentVersion}</Badge>
             <Badge tone="blue">可改題型 / 選項</Badge>
             <Badge tone="mint">儲存後標記已覆核</Badge>
             {specialRule ? <Badge tone="sun">特殊批改規則會保留</Badge> : null}

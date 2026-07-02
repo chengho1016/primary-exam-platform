@@ -393,6 +393,7 @@ export const ModelName = {
   KnowledgePoint: 'KnowledgePoint',
   Paper: 'Paper',
   Question: 'Question',
+  QuestionVersion: 'QuestionVersion',
   Attempt: 'Attempt',
   AttemptAnswer: 'AttemptAnswer',
   WrongBookItem: 'WrongBookItem',
@@ -415,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "childProfile" | "subject" | "curriculum" | "topic" | "knowledgePoint" | "paper" | "question" | "attempt" | "attemptAnswer" | "wrongBookItem" | "subscription" | "paperEntitlement" | "printJob" | "adminAuditLog"
+    modelProps: "user" | "session" | "childProfile" | "subject" | "curriculum" | "topic" | "knowledgePoint" | "paper" | "question" | "questionVersion" | "attempt" | "attemptAnswer" | "wrongBookItem" | "subscription" | "paperEntitlement" | "printJob" | "adminAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1082,6 +1083,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.QuestionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.QuestionCountAggregateOutputType> | number
+        }
+      }
+    }
+    QuestionVersion: {
+      payload: Prisma.$QuestionVersionPayload<ExtArgs>
+      fields: Prisma.QuestionVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.QuestionVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.QuestionVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.QuestionVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.QuestionVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        findMany: {
+          args: Prisma.QuestionVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>[]
+        }
+        create: {
+          args: Prisma.QuestionVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        createMany: {
+          args: Prisma.QuestionVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.QuestionVersionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>[]
+        }
+        delete: {
+          args: Prisma.QuestionVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        update: {
+          args: Prisma.QuestionVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.QuestionVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.QuestionVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.QuestionVersionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>[]
+        }
+        upsert: {
+          args: Prisma.QuestionVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.QuestionVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQuestionVersion>
+        }
+        groupBy: {
+          args: Prisma.QuestionVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuestionVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.QuestionVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuestionVersionCountAggregateOutputType> | number
         }
       }
     }
@@ -1769,6 +1844,7 @@ export const QuestionScalarFieldEnum = {
   curriculumId: 'curriculumId',
   topicId: 'topicId',
   knowledgePointId: 'knowledgePointId',
+  contentVersion: 'contentVersion',
   number: 'number',
   section: 'section',
   marks: 'marks',
@@ -1792,6 +1868,18 @@ export const QuestionScalarFieldEnum = {
 export type QuestionScalarFieldEnum = (typeof QuestionScalarFieldEnum)[keyof typeof QuestionScalarFieldEnum]
 
 
+export const QuestionVersionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  version: 'version',
+  snapshot: 'snapshot',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type QuestionVersionScalarFieldEnum = (typeof QuestionVersionScalarFieldEnum)[keyof typeof QuestionVersionScalarFieldEnum]
+
+
 export const AttemptScalarFieldEnum = {
   id: 'id',
   childId: 'childId',
@@ -1810,6 +1898,8 @@ export const AttemptAnswerScalarFieldEnum = {
   id: 'id',
   attemptId: 'attemptId',
   questionId: 'questionId',
+  questionVersion: 'questionVersion',
+  questionSnapshot: 'questionSnapshot',
   response: 'response',
   isCorrect: 'isCorrect',
   awardedMark: 'awardedMark',
@@ -2234,6 +2324,7 @@ export type GlobalOmitConfig = {
   knowledgePoint?: Prisma.KnowledgePointOmit
   paper?: Prisma.PaperOmit
   question?: Prisma.QuestionOmit
+  questionVersion?: Prisma.QuestionVersionOmit
   attempt?: Prisma.AttemptOmit
   attemptAnswer?: Prisma.AttemptAnswerOmit
   wrongBookItem?: Prisma.WrongBookItemOmit

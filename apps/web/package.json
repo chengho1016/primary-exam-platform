@@ -16,7 +16,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "postinstall": "prisma generate",
-    "db:backfill:curriculum": "tsx scripts/backfill-curriculum.ts"
+    "db:backfill:curriculum": "tsx scripts/backfill-curriculum.ts",
+    "db:backfill:question-versions": "tsx scripts/backfill-question-versions.ts"
   },
   "overrides": {
     "@hono/node-server": "1.19.14",

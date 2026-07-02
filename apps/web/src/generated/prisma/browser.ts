@@ -63,6 +63,11 @@ export type Paper = Prisma.PaperModel
  */
 export type Question = Prisma.QuestionModel
 /**
+ * Model QuestionVersion
+ *
+ */
+export type QuestionVersion = Prisma.QuestionVersionModel
+/**
  * Model Attempt
  *
  */
