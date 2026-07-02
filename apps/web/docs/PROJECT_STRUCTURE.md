@@ -195,8 +195,11 @@ Phase 1 taxonomy implementation:
 
 ```text
 src/app/admin/curriculum/page.tsx
+src/app/admin/curriculum/backfill-button.tsx
+src/app/api/admin/curriculum/backfill/route.ts
 src/lib/curriculum/default-taxonomy.ts
 src/lib/curriculum/legacy-mapping.ts
+src/lib/curriculum/taxonomy-backfill.ts
 scripts/backfill-curriculum.ts
 vercel.json
 ```

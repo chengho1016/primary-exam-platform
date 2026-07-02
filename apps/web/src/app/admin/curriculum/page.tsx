@@ -1,6 +1,7 @@
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui";
 import { getAdminCurriculumOverview } from "@/lib/admin/admin-repository";
+import { CurriculumBackfillButton } from "./backfill-button";
 
 export const metadata = { title: "課程管理" };
 export const dynamic = "force-dynamic";
@@ -26,6 +27,7 @@ export default async function AdminCurriculumPage() {
     { label: "Topic", value: counts.totalTopics, detail: "正規化課題", tone: "sun" },
     { label: "Knowledge Point", value: counts.totalKnowledgePoints, detail: "知識點", tone: "coral" },
   ] as const;
+  const missingBackfillCount = counts.papersMissingSubject + counts.questionsMissingCurriculum + counts.questionsMissingSubject + counts.questionsMissingTopic + counts.questionsMissingKnowledgePoint;
 
   return (
     <AppShell activePath="/admin/curriculum" mode="admin">
@@ -57,6 +59,7 @@ export default async function AdminCurriculumPage() {
             <div><span>Question.topicId</span><strong>{readinessText(counts.questionsMissingTopic)}</strong><small>Practice Template / 抽題地基</small></div>
             <div><span>Question.knowledgePointId</span><strong>{readinessText(counts.questionsMissingKnowledgePoint)}</strong><small>有 subtopic 但未連知識點</small></div>
           </div>
+          <CurriculumBackfillButton needsBackfill={missingBackfillCount > 0} />
         </section>
 
         <div className="dashboard-grid database-grid">

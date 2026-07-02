@@ -202,7 +202,8 @@ Important fields:
 Operational notes:
 
 - `/admin/curriculum` shows taxonomy and backfill status.
-- `scripts/backfill-curriculum.ts` links legacy Paper/Question rows to normalized IDs.
+- `/api/admin/curriculum/backfill` is an Admin-only runtime backfill endpoint; the Admin page exposes it as a button for production repair when build-time backfill is skipped.
+- `scripts/backfill-curriculum.ts` links legacy Paper/Question rows to normalized IDs for local/CLI use.
 - Legacy fields are intentionally preserved until repository reads/writes are fully migrated.
 
 ---
