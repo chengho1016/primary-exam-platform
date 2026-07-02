@@ -9,7 +9,6 @@ import { requireAdmin } from "@/lib/auth/session";
 import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db/prisma";
 import { normalizeTopicName } from "@/lib/admin/topic-insights";
-import { backfillCurriculumTaxonomy } from "@/lib/curriculum/backfill";
 import type { NewPaperActionState } from "@/app/admin/action-types";
 
 const ADMIN_EMAIL = "admin@local.exam";
@@ -654,24 +653,4 @@ export async function updateAdminUserAction(formData: FormData) {
   revalidatePath("/admin/users");
   revalidatePath(`/admin/users/${parsedUser.data.userId}/edit`);
   redirect("/admin/users?updated=1");
-}
-
-
-export async function backfillCurriculumAction() {
-  const admin = await requireAdmin();
-  const stats = await backfillCurriculumTaxonomy();
-
-  await db.adminAuditLog.create({
-    data: {
-      adminId: admin.id,
-      action: "curriculum.backfilled",
-      entityType: "Curriculum",
-      entityId: "hk-primary",
-      metadata: stats,
-    },
-  });
-
-  revalidatePath("/admin");
-  revalidatePath("/admin/curriculum");
-  revalidatePath("/admin/database");
 }
