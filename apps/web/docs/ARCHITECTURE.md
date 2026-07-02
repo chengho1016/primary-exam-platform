@@ -1,8 +1,12 @@
 # 小學堂網站架構
 
+> Long-term architecture source of truth: see `ARCHITECTURE_ROADMAP.md`. This file describes the current deployed architecture; the roadmap defines the 5-10 year platform direction and required safe migration path.
+
 ## 目標
 
 網站已完成核心使用流程並接駁本機PostgreSQL。公開試卷、練習、錯題本、家長報告、列印及Admin頁面均使用資料庫即時資料。
+
+Primary Exam 的長期定位不是單純做題網站，而是香港小學生學習平台：家長、學生、後台與 AI 學習系統都必須以可維護、可擴充、可商業化為最高原則。新增科目、課程、Topic、題目及教材應盡量透過資料與後台流程擴充，而不是 hard-code。
 
 ## 技術選擇
 
@@ -56,6 +60,21 @@ PostgreSQL + 私有檔案儲存
 - `Subscription` / `PaperEntitlement`：月費或逐份購買權限
 - `PrintJob`：列印授權、短效期限和水印文字
 - `AdminAuditLog`：管理員修改內容的審計紀錄
+
+## 長期資料正規化方向
+
+目前 schema 可支援 MVP 與早期商業化，但 Subject / Topic / 教材資產仍有 legacy string/path 欄位。下一階段必須採用 side-by-side 安全正規化，而不是一次過大改：
+
+1. 新增 `Subject`、`Curriculum`、`Topic`、`KnowledgePoint`。
+2. 在 `Paper` / `Question` 加 nullable references，同時保留 `subject`、`topic`、`subtopic`。
+3. backfill 現有 production data。
+4. 增加 Admin 管理頁。
+5. 再逐步把查詢、表單、AI 推薦及題庫抽題改用 normalized IDs。
+
+詳細原則與 phase plan 見：
+
+- `docs/ARCHITECTURE_ROADMAP.md`
+- `docs/plans/2026-07-02-phase-1-data-normalization.md`
 
 ## 15題抽題
 

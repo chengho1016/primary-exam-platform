@@ -44,7 +44,7 @@ Current Admin mitigation before adding a real topic schema:
 - Admin can rename a topic; renaming to an existing topic intentionally merges those questions.
 - The page shows 30-question worksheet readiness, but it does **not** create generated worksheets yet.
 
-Long-term direction: introduce `Topic` and `QuestionTopic` tables so Admin users choose controlled topics instead of free-typing. Keep the current string fields until existing production data has been migrated.
+Long-term direction: introduce `Subject`, `Curriculum`, `Topic`, and `KnowledgePoint` tables so Admin users choose controlled taxonomy instead of free-typing. Keep the current string fields until existing production data has been migrated. The full long-term architecture charter lives in `docs/ARCHITECTURE_ROADMAP.md`; the first implementation plan is `docs/plans/2026-07-02-phase-1-data-normalization.md`.
 
 ---
 

@@ -209,7 +209,9 @@ Current docs:
 
 | File | Purpose |
 |---|---|
-| `ARCHITECTURE.md` | high-level app architecture |
+| `ARCHITECTURE.md` | high-level current app architecture |
+| `ARCHITECTURE_ROADMAP.md` | long-term platform architecture charter and 5-10 year roadmap |
+| `plans/2026-07-02-phase-1-data-normalization.md` | bite-sized implementation plan for Subject/Curriculum/Topic/KnowledgePoint normalization |
 | `DATABASE_MAP.md` | table/field map and future schema direction |
 | `UPLOAD_AND_PRINT_FLOW.md` | Admin upload, print authorization, PDF/image delivery flow |
 | `PROJECT_STRUCTURE.md` | code layout and contribution rules |
