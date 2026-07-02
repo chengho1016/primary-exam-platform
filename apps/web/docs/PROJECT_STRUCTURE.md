@@ -1,6 +1,6 @@
 # Project Structure
 
-Last updated: 2026-07-01
+Last updated: 2026-07-02
 
 This document explains where code lives and how to add new features without making the project harder to navigate.
 
@@ -54,7 +54,7 @@ Current major areas:
 | `app/wrong-book` | wrong-book page |
 | `app/parent` | parent learning report |
 | `app/membership` | membership/access page |
-| `app/admin` | admin dashboard, papers, questions, users |
+| `app/admin` | admin dashboard, papers, questions, math topics, users |
 | `app/api/*` | route handlers for upload, print source/pages, practice completion, question images |
 
 ## App Router conventions
@@ -139,7 +139,7 @@ Current folders:
 
 | Path | Purpose |
 |---|---|
-| `lib/admin` | Admin repositories and presentation helpers |
+| `lib/admin` | Admin repositories, presentation helpers, and math topic insight helpers |
 | `lib/auth` | session, password, permissions, entitlements |
 | `lib/db` | Prisma client wrapper |
 | `lib/domain` | shared domain types |
@@ -154,6 +154,15 @@ Current folders:
 - Pure logic should be kept testable and not import `server-only`.
 - If a helper is needed by UI and tests, keep it in a pure module.
 - Avoid importing route files into tests unless route behavior is being tested directly.
+
+Example of good split from recent admin topic-management work:
+
+```text
+src/app/admin/topics/page.tsx        # route UI for math topic management
+src/lib/admin/topic-insights.ts      # pure topic normalization/readiness logic
+src/lib/admin/topic-insights.test.ts # regression tests for grouping/readiness
+src/app/admin/actions.ts             # server action for math topic rename/merge
+```
 
 Example of good split from recent mobile-answer fix:
 

@@ -87,6 +87,7 @@ export default async function AdminQuestionsPage({ searchParams }: { searchParam
           </div>
           <div className="admin-header-actions">
             <span className="badge badge-blue">{selectedSubject === "all" ? "全部" : selectedSubjectLabel} · 共 {questions.length} 題</span>
+            {selectedSubject === "數學" ? <Link className="button button-secondary button-small" href="/admin/topics">數學課題管理</Link> : null}
             <Link className="button button-primary button-small" href={`/admin/questions/new?subject=${encodeURIComponent(selectedSubject)}${filters.paper ? `&paper=${encodeURIComponent(filters.paper)}` : ""}`}>＋ 新增題目</Link>
           </div>
         </header>

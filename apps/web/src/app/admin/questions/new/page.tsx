@@ -29,7 +29,7 @@ function getDefaultPaper(papers: PaperOption[], paperCode?: string) {
   return papers.find((paper) => paper.code === paperCode || paper.id === paperCode) ?? papers[0];
 }
 
-export default async function NewQuestionPage({ searchParams }: { searchParams: Promise<{ paper?: string; subject?: string }> }) {
+export default async function NewQuestionPage({ searchParams }: { searchParams: Promise<{ paper?: string; subject?: string; topic?: string }> }) {
   const filters = await searchParams;
   const selectedSubject = filters.subject && validSubjectFilters.has(filters.subject as SubjectFilter) ? filters.subject as SubjectFilter : "數學";
   const subjectFilter = selectedSubject === "all" ? undefined : selectedSubject;
@@ -142,7 +142,7 @@ export default async function NewQuestionPage({ searchParams }: { searchParams: 
             </div>
             <div className="field">
               <label htmlFor="topic">課題</label>
-              <input id="topic" list="topic-options" name="topic" placeholder="例如 分數 / 面積 / 周界" required />
+              <input defaultValue={filters.topic ?? ""} id="topic" list="topic-options" name="topic" placeholder="例如 分數 / 面積 / 周界" required />
               <datalist id="topic-options">
                 {topics.map((topic) => <option key={topic.topic} value={topic.topic} />)}
               </datalist>

@@ -453,6 +453,19 @@ svg { display: block; }
 .admin-source-cell small, .admin-source-cell span { color: var(--ink-soft); font-size: 10px; }
 .admin-source-cell strong { margin: 4px 0; }
 .admin-answer-cell { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.admin-topic-table th, .admin-topic-table td { vertical-align: top; }
+.topic-name-cell strong, .topic-name-cell small { display: block; }
+.topic-name-cell strong { font-size: 14px; }
+.topic-name-cell small, .topic-readiness-cell small { margin-top: 6px; color: var(--ink-soft); font-size: 10px; line-height: 1.5; }
+.topic-readiness-cell { min-width: 220px; }
+.topic-readiness-cell .progress-wrap { min-width: 190px; margin-top: 9px; }
+.topic-mini-meta { color: var(--ink-soft); font-size: 10px; font-weight: 850; }
+.topic-list-cell, .topic-paper-cell { max-width: 240px; white-space: normal; }
+.topic-list-cell span, .topic-paper-cell span { display: inline-flex; align-items: center; gap: 5px; margin: 0 5px 6px 0; padding: 5px 8px; border-radius: 999px; color: var(--ink-soft); background: #f3f6f9; font-size: 10px; font-weight: 850; }
+.topic-list-cell em, .topic-paper-cell em { color: var(--blue); font-style: normal; }
+.topic-paper-cell small { display: block; color: var(--ink-soft); font-size: 10px; }
+.topic-rename-form { min-width: 250px; display: flex; gap: 8px; }
+.topic-rename-form input { min-width: 145px; flex: 1; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 11px; }
 .database-grid { align-items: start; }
 .database-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .database-list > div { display: grid; gap: 3px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #f8fafc; }

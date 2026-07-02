@@ -1,6 +1,6 @@
 # Database Map
 
-Last updated: 2026-07-01
+Last updated: 2026-07-02
 
 This document explains the current Prisma schema in plain language. It is intentionally written as an operator/developer map, not as an ORM reference.
 
@@ -36,7 +36,15 @@ Examples that would currently become different topics:
 - `分數計算`
 - `Fraction`
 
-Long-term direction: introduce `Topic` and `QuestionTopic` tables so Admin users choose controlled topics instead of free-typing.
+Current Admin mitigation before adding a real topic schema:
+
+- `/admin/topics` is the first-version **math-only** topic management page.
+- It reads all `Question.topic` / `Question.subtopic` values for papers where `Paper.subject = "數學"`.
+- It normalizes obvious spacing issues for display (for example `分 數` → `分數`).
+- Admin can rename a topic; renaming to an existing topic intentionally merges those questions.
+- The page shows 30-question worksheet readiness, but it does **not** create generated worksheets yet.
+
+Long-term direction: introduce `Topic` and `QuestionTopic` tables so Admin users choose controlled topics instead of free-typing. Keep the current string fields until existing production data has been migrated.
 
 ---
 

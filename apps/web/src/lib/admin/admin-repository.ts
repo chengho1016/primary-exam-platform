@@ -1,6 +1,7 @@
 import "server-only";
 import type { PaperStatus, Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db/prisma";
+import { buildTopicInsights, normalizeTopicName } from "@/lib/admin/topic-insights";
 
 export async function getAdminOverview() {
   const [publishedPaperCount, questionCount, parentCount, printJobCount, reviewQuestionCount, recentPapers] = await Promise.all([
@@ -48,13 +49,13 @@ export function listAdminPapers(filters: { query?: string; status?: PaperStatus 
   });
 }
 
-export function listAdminQuestions(filters: { paperCode?: string; subject?: string; topic?: string; review?: "verified" | "needs-review" | "print-only" } = {}) {
+export async function listAdminQuestions(filters: { paperCode?: string; subject?: string; topic?: string; review?: "verified" | "needs-review" | "print-only" } = {}) {
   const where: Prisma.QuestionWhereInput = {};
   const paperWhere: Prisma.PaperWhereInput = {};
   if (filters.paperCode) paperWhere.code = filters.paperCode;
   if (filters.subject) paperWhere.subject = filters.subject;
   if (Object.keys(paperWhere).length) where.paper = paperWhere;
-  if (filters.topic) where.topic = filters.topic;
+  const normalizedTopic = filters.topic ? normalizeTopicName(filters.topic) : undefined;
   if (filters.review === "verified") {
     where.onlineEligible = true;
     where.reviewStatus = { startsWith: "verified" };
@@ -65,12 +66,15 @@ export function listAdminQuestions(filters: { paperCode?: string; subject?: stri
     where.onlineEligible = false;
   }
 
-  return db.question.findMany({
+  const questions = await db.question.findMany({
     where,
     orderBy: [{ paper: { subject: "asc" } }, { paper: { code: "asc" } }, { number: "asc" }],
-    take: 200,
+    take: normalizedTopic ? 500 : 200,
     include: { paper: { select: { code: true, title: true, subject: true, status: true } } },
   });
+
+  if (!normalizedTopic) return questions;
+  return questions.filter((question) => normalizeTopicName(question.topic) === normalizedTopic).slice(0, 200);
 }
 
 export async function getAdminQuestionSubjectStats() {
@@ -87,6 +91,24 @@ export async function getAdminQuestionSubjectStats() {
   }
 
   return Array.from(stats.values()).sort((a, b) => a.subject.localeCompare(b.subject, "zh-Hant"));
+}
+
+export async function getMathTopicManagement() {
+  const questions = await db.question.findMany({
+    where: { paper: { subject: "數學" } },
+    orderBy: [{ topic: "asc" }, { paper: { code: "asc" } }, { number: "asc" }],
+    select: {
+      topic: true,
+      subtopic: true,
+      difficulty: true,
+      onlineEligible: true,
+      reviewStatus: true,
+      paperId: true,
+      paper: { select: { code: true, title: true, grade: true, status: true } },
+    },
+  });
+
+  return buildTopicInsights(questions);
 }
 
 export function listAdminUsers() {

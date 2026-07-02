@@ -7,6 +7,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/session";
 import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db/prisma";
+import { normalizeTopicName } from "@/lib/admin/topic-insights";
 import type { NewPaperActionState } from "@/app/admin/action-types";
 
 const ADMIN_EMAIL = "admin@local.exam";
@@ -34,6 +35,11 @@ const paperStatusSchema = z.object({
 
 const deletePaperSchema = z.object({
   paperId: z.string().min(1),
+});
+
+const renameMathTopicSchema = z.object({
+  currentTopic: z.string().trim().min(1, "請選擇原本課題").max(80),
+  nextTopic: z.string().trim().min(1, "請輸入新課題名稱").max(80),
 });
 
 const updatePaperSchema = newPaperSchema.extend({
@@ -434,6 +440,56 @@ export async function updateQuestionAction(formData: FormData) {
   revalidatePath("/admin/database");
   revalidatePath(`/papers/${existingQuestion.paperId}`);
   redirect(`/admin/questions?subject=${encodeURIComponent(existingQuestion.paper.subject)}&paper=${encodeURIComponent(existingQuestion.paper.code)}&updated=1#question-${existingQuestion.id}`);
+}
+
+export async function renameMathTopicAction(formData: FormData) {
+  const admin = await requireAdmin();
+  const parsedTopic = renameMathTopicSchema.safeParse(Object.fromEntries(formData));
+  if (!parsedTopic.success) throw new Error(parsedTopic.error.issues[0]?.message ?? "課題資料不正確");
+
+  const currentTopic = normalizeTopicName(parsedTopic.data.currentTopic);
+  const nextTopic = normalizeTopicName(parsedTopic.data.nextTopic);
+  if (!currentTopic || !nextTopic) throw new Error("課題名稱不可留空");
+
+  const params = new URLSearchParams();
+  if (currentTopic === nextTopic) {
+    params.set("unchanged", "1");
+    redirect(`/admin/topics?${params.toString()}`);
+  }
+
+  const matchingQuestions = await db.question.findMany({
+    where: { paper: { subject: "數學" } },
+    select: { id: true, topic: true },
+  });
+  const questionIds = matchingQuestions
+    .filter((question) => normalizeTopicName(question.topic) === currentTopic)
+    .map((question) => question.id);
+
+  const result = await db.question.updateMany({
+    where: { id: { in: questionIds } },
+    data: { topic: nextTopic },
+  });
+
+  await db.adminAuditLog.create({
+    data: {
+      adminId: admin.id,
+      action: "math_topic.renamed",
+      entityType: "QuestionTopic",
+      entityId: currentTopic,
+      metadata: { from: currentTopic, to: nextTopic, questionCount: result.count },
+    },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/topics");
+  revalidatePath("/admin/questions");
+  revalidatePath("/admin/database");
+
+  params.set("renamed", "1");
+  params.set("from", currentTopic);
+  params.set("to", nextTopic);
+  params.set("count", String(result.count));
+  redirect(`/admin/topics?${params.toString()}`);
 }
 
 function parseAdminDateTime(value: string, fallback: Date) {
