@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "小學堂",
   description: "為小一至小六學生而設的智能試卷及練習平台",
-  supportEmail: "hello@example.com",
+  supportEmail: "chenghokonghk@gmail.com",
 } as const;
 
 export const grades = [1, 2, 3, 4, 5, 6] as const;

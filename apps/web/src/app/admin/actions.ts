@@ -1,6 +1,7 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
+import { hash } from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -81,6 +82,18 @@ const createQuestionSchema = z.object({
   explanation: z.string().trim().max(1000),
 });
 
+const passwordSchema = z.string().trim().min(6, "密碼最少需要6個字元").max(128, "密碼不可超過128個字元");
+
+const createAdminUserSchema = z.object({
+  displayName: z.string().trim().min(1, "請輸入會員名稱").max(80),
+  email: z.string().trim().email("請輸入有效電郵").max(160),
+  password: passwordSchema,
+  role: z.enum(["PARENT", "ADMIN"]),
+  membershipStatus: z.enum(["NONE", "TRIAL", "ACTIVE"]),
+  providerPlanId: z.string().trim().max(80),
+  printAllowance: z.coerce.number().int().min(0).max(9999),
+});
+
 const adminUserSchema = z.object({
   userId: z.string().min(1),
   displayName: z.string().trim().min(1, "請輸入會員名稱").max(80),
@@ -91,6 +104,7 @@ const adminUserSchema = z.object({
   printAllowance: z.coerce.number().int().min(0).max(9999),
   periodStartsAt: z.string().trim().max(40),
   periodEndsAt: z.string().trim().max(40),
+  newPassword: z.string().trim().max(128).optional(),
 });
 
 function isUniqueConstraintError(error: unknown) {
@@ -492,6 +506,72 @@ export async function renameMathTopicAction(formData: FormData) {
   redirect(`/admin/topics?${params.toString()}`);
 }
 
+function buildDefaultMembershipWindow() {
+  const periodStartsAt = new Date();
+  const periodEndsAt = new Date(periodStartsAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+  return { periodStartsAt, periodEndsAt };
+}
+
+export async function createAdminUserAction(formData: FormData) {
+  const admin = await requireAdmin();
+  const parsedUser = createAdminUserSchema.safeParse(Object.fromEntries(formData));
+  if (!parsedUser.success) throw new Error(parsedUser.error.issues[0]?.message ?? "會員資料不正確");
+
+  const passwordHash = await hash(parsedUser.data.password, 12);
+  const { periodStartsAt, periodEndsAt } = buildDefaultMembershipWindow();
+
+  try {
+    const createdUser = await db.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: parsedUser.data.email.toLowerCase(),
+          displayName: parsedUser.data.displayName,
+          passwordHash,
+          role: parsedUser.data.role,
+        },
+      });
+
+      if (parsedUser.data.membershipStatus !== "NONE") {
+        await tx.subscription.create({
+          data: {
+            userId: user.id,
+            status: parsedUser.data.membershipStatus,
+            providerPlanId: parsedUser.data.providerPlanId || null,
+            printAllowance: parsedUser.data.printAllowance,
+            periodStartsAt,
+            periodEndsAt,
+          },
+        });
+      }
+
+      await tx.adminAuditLog.create({
+        data: {
+          adminId: admin.id,
+          action: "user.created",
+          entityType: "User",
+          entityId: user.id,
+          metadata: {
+            email: user.email,
+            role: user.role,
+            membershipStatus: parsedUser.data.membershipStatus,
+            printAllowance: parsedUser.data.printAllowance,
+          },
+        },
+      });
+
+      return user;
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/database");
+    redirect(`/admin/users?created=1#user-${createdUser.id}`);
+  } catch (error) {
+    if (isUniqueConstraintError(error)) throw new Error("此電郵地址已經存在，請改用編輯頁更新帳戶");
+    throw error;
+  }
+}
+
 function parseAdminDateTime(value: string, fallback: Date) {
   if (!value) return fallback;
   const parsed = new Date(value);
@@ -513,6 +593,8 @@ export async function updateAdminUserAction(formData: FormData) {
   const now = new Date();
   const periodStartsAt = parseAdminDateTime(parsedUser.data.periodStartsAt, user.subscriptions[0]?.periodStartsAt ?? now);
   const periodEndsAt = parseAdminDateTime(parsedUser.data.periodEndsAt, user.subscriptions[0]?.periodEndsAt ?? new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000));
+  const newPassword = parsedUser.data.newPassword?.trim();
+  const passwordHash = newPassword ? await hash(newPassword, 12) : undefined;
 
   await db.$transaction(async (tx) => {
     await tx.user.update({
@@ -521,6 +603,7 @@ export async function updateAdminUserAction(formData: FormData) {
         displayName: parsedUser.data.displayName,
         email: parsedUser.data.email.toLowerCase(),
         role: parsedUser.data.role,
+        ...(passwordHash ? { passwordHash } : {}),
       },
     });
 
@@ -561,6 +644,7 @@ export async function updateAdminUserAction(formData: FormData) {
           role: parsedUser.data.role,
           membershipStatus: parsedUser.data.membershipStatus,
           printAllowance: parsedUser.data.printAllowance,
+          passwordReset: Boolean(passwordHash),
         },
       },
     });

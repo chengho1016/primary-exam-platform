@@ -145,6 +145,7 @@ Operational notes:
 
 - Admin access must be checked server-side using session/role helpers.
 - Do not trust client-side route hiding for admin protection.
+- Admin users can now create accounts and reset passwords through `/admin/users`; passwords are bcrypt hashed and every change is audit-logged.
 
 ---
 

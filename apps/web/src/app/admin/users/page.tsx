@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui";
+import { createAdminUserAction } from "@/app/admin/actions";
 import { listAdminUsers } from "@/lib/admin/admin-repository";
 
 export const metadata = { title: "會員管理" };
@@ -19,7 +20,7 @@ function getSubscriptionTone(status?: keyof typeof subscriptionStatusLabels) {
   return "sun" as const;
 }
 
-export default async function AdminUsersPage({ searchParams }: { searchParams: Promise<{ updated?: string }> }) {
+export default async function AdminUsersPage({ searchParams }: { searchParams: Promise<{ updated?: string; created?: string }> }) {
   const filters = await searchParams;
   const users = await listAdminUsers();
   const activeMembers = users.filter((user) => user.subscriptions[0]?.status === "ACTIVE").length;
@@ -36,7 +37,27 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
           <span className="badge badge-blue">共 {users.length} 個帳戶</span>
         </header>
 
+        {filters.created === "1" ? <p className="success-banner">新帳戶已建立，可即時登入使用。</p> : null}
         {filters.updated === "1" ? <p className="success-banner">會員資料已更新。</p> : null}
+
+        <section className="form-panel admin-guidance-panel admin-user-create-panel">
+          <div className="panel-header"><h3>快速新增帳戶</h3><span>商業化必備：不用再靠工程師改密碼或開 Admin</span></div>
+          <p>可直接建立管理員或家長帳戶；密碼會即時 bcrypt hash 後儲存，並寫入 AdminAuditLog。新增後可在下方列表再編輯會籍、額度及角色。</p>
+          <form action={createAdminUserAction} className="admin-inline-form">
+            <div className="field-row three-columns">
+              <div className="field"><label htmlFor="newDisplayName">名稱</label><input id="newDisplayName" name="displayName" placeholder="例如 Sally" required /></div>
+              <div className="field"><label htmlFor="newEmail">登入 Email</label><input id="newEmail" name="email" placeholder="name@example.com" required type="email" /></div>
+              <div className="field"><label htmlFor="newPassword">初始密碼</label><input autoComplete="new-password" id="newPassword" minLength={6} name="password" required type="password" /></div>
+            </div>
+            <div className="field-row four-columns">
+              <div className="field"><label htmlFor="newRole">角色</label><select defaultValue="ADMIN" id="newRole" name="role"><option value="PARENT">家長</option><option value="ADMIN">管理員</option></select></div>
+              <div className="field"><label htmlFor="newMembershipStatus">會籍</label><select defaultValue="NONE" id="newMembershipStatus" name="membershipStatus"><option value="NONE">未訂閱</option><option value="TRIAL">免費試用</option><option value="ACTIVE">使用中</option></select></div>
+              <div className="field"><label htmlFor="newProviderPlanId">方案</label><input id="newProviderPlanId" name="providerPlanId" placeholder="monthly-basic / admin" /></div>
+              <div className="field"><label htmlFor="newPrintAllowance">列印額度</label><input defaultValue={0} id="newPrintAllowance" min={0} name="printAllowance" type="number" /></div>
+            </div>
+            <button className="button button-primary" type="submit">建立帳戶</button>
+          </form>
+        </section>
 
         <section className="admin-grid admin-question-metrics" aria-label="會員概覽">
           <div className="admin-stat tone-blue"><span>全部帳戶</span><strong>{users.length}</strong><small>包括家長及管理員</small></div>
@@ -65,7 +86,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                 const status = subscription ? subscriptionStatusLabels[subscription.status] : "未訂閱";
 
                 return (
-                  <tr key={user.id}>
+                  <tr id={`user-${user.id}`} key={user.id}>
                     <td className="admin-paper-title-cell">
                       <strong>{user.displayName}</strong>
                       <small>{user.email}</small>

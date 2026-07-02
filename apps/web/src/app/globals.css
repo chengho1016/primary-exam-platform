@@ -522,6 +522,35 @@ svg { display: block; }
 .admin-related-grid ul { margin: 0; padding-left: 18px; color: var(--ink-soft); font-size: 12px; line-height: 1.8; }
 .field textarea { width: 100%; resize: vertical; padding: 12px 13px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: #fff; font: inherit; line-height: 1.6; }
 
+.admin-user-create-panel { margin-bottom: 18px; }
+.admin-inline-form { display: grid; gap: 14px; }
+.three-columns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.four-columns { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.commercial-ops-panel { margin-bottom: 18px; }
+.commercial-checklist { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.commercial-checklist div { display: grid; gap: 6px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #f8fafc; }
+.commercial-checklist strong { color: var(--navy); font-size: 13px; }
+.commercial-checklist span { color: var(--ink-soft); font-size: 11px; line-height: 1.6; }
+.pricing-hero-section { background: linear-gradient(180deg, #f7faff, #fff); }
+.commercial-readiness-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.faq-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 36px; align-items: start; }
+.faq-list { display: grid; gap: 14px; }
+.faq-list article { padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: var(--shadow-soft); }
+.faq-list h3 { margin: 0 0 8px; color: var(--navy); font-size: 17px; }
+.faq-list p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.75; }
+.contact-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: start; }
+.contact-card { padding: 28px; border: 1px solid var(--line); border-radius: 22px; background: #fff; box-shadow: var(--shadow-sm); }
+.contact-card h3 { margin: 0 0 8px; }
+.contact-card p { margin: 0 0 18px; color: var(--blue); font-size: 22px; font-weight: 900; overflow-wrap: anywhere; }
+.contact-runbook ol { margin: 0 0 16px; padding-left: 22px; color: var(--ink-soft); line-height: 1.8; }
+.contact-runbook li { margin-bottom: 8px; }
+.legal-page { padding: 70px 0; background: var(--paper); }
+.legal-card { max-width: 860px; padding: 42px; border: 1px solid var(--line); border-radius: 26px; background: #fff; box-shadow: var(--shadow-sm); }
+.legal-card h1 { margin: 0 0 18px; color: var(--navy); font-size: 42px; letter-spacing: -.04em; }
+.legal-card h2 { margin: 28px 0 10px; color: var(--navy); font-size: 20px; }
+.legal-card p, .legal-card li { color: var(--ink-soft); line-height: 1.85; }
+.legal-card ul { padding-left: 22px; }
+
 .print-workspace { min-height: 100vh; background: #e9edf2; }
 .print-toolbar { position: sticky; z-index: 20; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 14px 24px; border-bottom: 1px solid #d7dde6; background: rgba(255,255,255,.94); backdrop-filter: blur(12px); }
 .print-toolbar h1 { margin: 0 0 3px; font-size: 15px; }
@@ -568,6 +597,8 @@ svg { display: block; }
   .hero-grid { grid-template-columns: 1fr; }
   .hero-visual { min-height: 460px; }
   .steps-grid, .pricing-grid { grid-template-columns: 1fr; }
+  .three-columns, .four-columns, .commercial-checklist, .commercial-readiness-grid, .faq-grid, .contact-layout { grid-template-columns: 1fr; }
+
   .pricing-card.featured { transform: none; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .auth-page { grid-template-columns: 1fr; }

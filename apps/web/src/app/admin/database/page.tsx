@@ -72,6 +72,16 @@ export default async function AdminDatabasePage() {
           ))}
         </section>
 
+        <section className="form-panel admin-guidance-panel commercial-ops-panel">
+          <div className="panel-header"><h3>商業化營運安全</h3><Link href="/admin/users">管理會員</Link></div>
+          <div className="commercial-checklist">
+            <div><strong>帳號權限</strong><span>{counts.adminUsers} 個管理員；所有新增/改密碼操作會寫入 AdminAuditLog。</span></div>
+            <div><strong>資料備份</strong><span>已加入 `scripts/backup-database.sh`；正式收費前每日最少備份一次。</span></div>
+            <div><strong>收費 MVP</strong><span>可先用人工開通：會員狀態 ACTIVE + 方案 ID + 列印額度。</span></div>
+            <div><strong>題庫品質</strong><span>{counts.verifiedQuestions} 題已覆核；未覆核題不應放入主推練習池。</span></div>
+          </div>
+        </section>
+
         <div className="dashboard-grid database-grid">
           <section className="panel">
             <div className="panel-header"><h3>資料表狀態</h3><Link href="/admin/papers">管理試卷</Link></div>

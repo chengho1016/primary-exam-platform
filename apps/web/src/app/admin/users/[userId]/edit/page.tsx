@@ -63,6 +63,17 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
                 <div className="readonly-box">{user.children.length} 個孩子 · {user.entitlements.length} 份試卷權限 · {user.printJobs.length} 筆近期列印</div>
               </div>
             </div>
+            <div className="field-row">
+              <div className="field">
+                <label htmlFor="newPassword">重設密碼</label>
+                <input autoComplete="new-password" id="newPassword" minLength={6} name="newPassword" placeholder="留空即不更改" type="password" />
+                <p className="field-help">如家長或管理員忘記密碼，可在此直接重設；留空會保留原密碼。</p>
+              </div>
+              <div className="field">
+                <label>安全記錄</label>
+                <div className="readonly-box">每次改角色、會籍或密碼都會寫入 AdminAuditLog。</div>
+              </div>
+            </div>
           </section>
 
           <section className="form-panel">

@@ -20,8 +20,8 @@ primary-exam-platform/
         ├── pnpm-lock.yaml        # local development lock
         ├── pnpm-workspace.yaml   # pnpm settings/overrides
         ├── prisma/
-        ├── scripts/
-        ├── docs/
+        ├── scripts/                    # operational scripts such as database backup
+        ├── docs/                       # project maps and commercial runbooks
         └── src/
 ```
 
@@ -53,9 +53,10 @@ Current major areas:
 | `app/print/[paperId]` | print preview page |
 | `app/wrong-book` | wrong-book page |
 | `app/parent` | parent learning report |
-| `app/membership` | membership/access page |
+| `app/membership` | logged-in membership/access page |
+| `app/pricing`, `app/contact`, `app/privacy`, `app/terms` | public commercial, support, and legal pages |
 | `app/admin` | admin dashboard, papers, questions, math topics, users |
-| `app/api/*` | route handlers for upload, print source/pages, practice completion, question images |
+| `app/api/*` | route handlers for upload, admin user upsert, print source/pages, practice completion, question images |
 
 ## App Router conventions
 
@@ -313,3 +314,10 @@ For user-reported production bugs:
 3. Fix the smallest root cause.
 4. Add regression test if possible.
 5. Update docs/skill if the bug reveals a reusable lesson.
+
+
+## Commercial operations
+
+- Commercial MVP runbook: `docs/COMMERCIAL_READINESS.md`
+- Database backup script: `scripts/backup-database.sh`
+- Admin account creation and password reset are available from `/admin/users`.
