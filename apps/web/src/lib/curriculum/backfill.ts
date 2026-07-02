@@ -13,7 +13,7 @@ export type CurriculumBackfillStats = {
   unmappedPapers: Array<{ id: string; code: string; subject: string }>;
 };
 
-async function upsertDefaultTaxonomy(client: BackfillClient) {
+export async function upsertDefaultTaxonomy(client: BackfillClient = db) {
   const curriculum = await client.curriculum.upsert({
     where: { code: DEFAULT_CURRICULUM.code },
     update: {
@@ -53,6 +53,45 @@ async function upsertDefaultTaxonomy(client: BackfillClient) {
   }
 
   return { curriculum, subjects };
+}
+
+
+export async function ensureSubjectRef(subjectLabel: string, client: BackfillClient = db) {
+  const taxonomy = await upsertDefaultTaxonomy(client);
+  const subjectCode = resolveLegacySubjectCode(subjectLabel);
+  const subject = subjectCode ? taxonomy.subjects.get(subjectCode) : null;
+  if (!subject) throw new Error(`Cannot resolve subject taxonomy for: ${subjectLabel}`);
+  return subject;
+}
+
+export async function ensureQuestionTaxonomyRefs(input: { subject: string; topic: string; subtopic?: string | null }, client: BackfillClient = db) {
+  const taxonomy = await upsertDefaultTaxonomy(client);
+  const subjectCode = resolveLegacySubjectCode(input.subject);
+  const subject = subjectCode ? taxonomy.subjects.get(subjectCode) : null;
+  if (!subject) throw new Error(`Cannot resolve subject taxonomy for: ${input.subject}`);
+
+  const topicName = normalizeTopicLabel(input.topic);
+  const topic = await client.topic.upsert({
+    where: { subjectId_code: { subjectId: subject.id, code: createTopicCode(topicName) } },
+    update: { nameZh: topicName, isActive: true },
+    create: { subjectId: subject.id, code: createTopicCode(topicName), nameZh: topicName, isActive: true },
+  });
+
+  const knowledgePointName = input.subtopic ? normalizeTopicLabel(input.subtopic) : null;
+  const knowledgePoint = knowledgePointName
+    ? await client.knowledgePoint.upsert({
+        where: { topicId_code: { topicId: topic.id, code: createKnowledgePointCode(knowledgePointName) } },
+        update: { nameZh: knowledgePointName, isActive: true },
+        create: { topicId: topic.id, code: createKnowledgePointCode(knowledgePointName), nameZh: knowledgePointName, isActive: true },
+      })
+    : null;
+
+  return {
+    curriculumId: taxonomy.curriculum.id,
+    subjectId: subject.id,
+    topicId: topic.id,
+    knowledgePointId: knowledgePoint?.id ?? null,
+  };
 }
 
 export async function backfillCurriculumTaxonomy(client: BackfillClient = db): Promise<CurriculumBackfillStats> {

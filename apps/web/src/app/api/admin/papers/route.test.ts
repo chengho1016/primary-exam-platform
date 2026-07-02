@@ -6,11 +6,16 @@ const mocks = vi.hoisted(() => ({
   userFindUnique: vi.fn(),
   paperCreate: vi.fn(),
   adminAuditLogCreate: vi.fn(),
+  ensureSubjectRef: vi.fn(),
   transaction: vi.fn(),
 }));
 
 vi.mock("@/lib/auth/session", () => ({
   requireAdmin: mocks.requireAdmin,
+}));
+
+vi.mock("@/lib/curriculum/backfill", () => ({
+  ensureSubjectRef: mocks.ensureSubjectRef,
 }));
 
 vi.mock("@/lib/db/prisma", () => ({
@@ -45,6 +50,7 @@ describe("POST /api/admin/papers", () => {
     mocks.userFindUnique.mockResolvedValue({ id: "seed-admin-id" });
     mocks.paperCreate.mockImplementation((args) => ({ model: "paper", args }));
     mocks.adminAuditLogCreate.mockImplementation((args) => ({ model: "adminAuditLog", args }));
+    mocks.ensureSubjectRef.mockResolvedValue({ id: "subject-math", nameZh: "數學" });
     mocks.transaction.mockResolvedValue([]);
   });
 
@@ -105,6 +111,7 @@ describe("POST /api/admin/papers", () => {
           title: "Uploaded PDF",
           grade: 4,
           subject: "數學",
+          subjectId: "subject-math",
           academicYear: "2025-2026",
           access: "MEMBERSHIP",
           status: "DRAFT",
@@ -113,6 +120,7 @@ describe("POST /api/admin/papers", () => {
         }),
       }),
     );
+    expect(mocks.ensureSubjectRef).toHaveBeenCalledWith("數學");
     expect(mocks.adminAuditLogCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({

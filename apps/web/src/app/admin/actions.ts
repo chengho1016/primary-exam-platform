@@ -9,6 +9,7 @@ import { requireAdmin } from "@/lib/auth/session";
 import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db/prisma";
 import { normalizeTopicName } from "@/lib/admin/topic-insights";
+import { ensureQuestionTaxonomyRefs, ensureSubjectRef } from "@/lib/curriculum/backfill";
 import type { NewPaperActionState } from "@/app/admin/action-types";
 
 const ADMIN_EMAIL = "admin@local.exam";
@@ -148,6 +149,7 @@ export async function createPaperAction(
 
   try {
     const adminId = await getAdminId();
+    const subjectRef = await ensureSubjectRef(parsedPaper.data.subject);
 
     await db.$transaction([
       db.paper.create({
@@ -157,6 +159,7 @@ export async function createPaperAction(
           title: parsedPaper.data.title,
           grade: parsedPaper.data.grade,
           subject: parsedPaper.data.subject,
+          subjectId: subjectRef.id,
           academicYear: parsedPaper.data.academicYear || undefined,
           access: parsedPaper.data.access,
           status: "DRAFT",
@@ -215,6 +218,7 @@ export async function updatePaperAction(formData: FormData) {
   const admin = await requireAdmin();
   const parsedPaper = updatePaperSchema.safeParse(Object.fromEntries(formData));
   if (!parsedPaper.success) throw new Error(parsedPaper.error.issues[0]?.message ?? "試卷資料不正確");
+  const subjectRef = await ensureSubjectRef(parsedPaper.data.subject);
 
   await db.$transaction([
     db.paper.update({
@@ -224,6 +228,7 @@ export async function updatePaperAction(formData: FormData) {
         title: parsedPaper.data.title,
         grade: parsedPaper.data.grade,
         subject: parsedPaper.data.subject,
+        subjectId: subjectRef.id,
         academicYear: parsedPaper.data.academicYear || null,
         access: parsedPaper.data.access,
         durationMinutes: parsedPaper.data.durationMinutes,
@@ -335,12 +340,17 @@ export async function createQuestionAction(formData: FormData) {
   }
 
   const onlineEligible = formData.get("onlineEligible") === "on";
+  const taxonomyRefs = await ensureQuestionTaxonomyRefs({ subject: paper.subject, topic: parsedQuestion.data.topic, subtopic: parsedQuestion.data.subtopic || null });
 
   try {
     const createdQuestion = await db.$transaction(async (tx) => {
       const question = await tx.question.create({
         data: {
           paperId: parsedQuestion.data.paperId,
+          curriculumId: taxonomyRefs.curriculumId,
+          subjectId: taxonomyRefs.subjectId,
+          topicId: taxonomyRefs.topicId,
+          knowledgePointId: taxonomyRefs.knowledgePointId,
           number: parsedQuestion.data.number,
           section: parsedQuestion.data.section,
           marks: parsedQuestion.data.marks,
@@ -404,12 +414,17 @@ export async function updateQuestionAction(formData: FormData) {
   }
 
   const marksDelta = parsedQuestion.data.marks - existingQuestion.marks;
+  const taxonomyRefs = await ensureQuestionTaxonomyRefs({ subject: existingQuestion.paper.subject, topic: parsedQuestion.data.topic, subtopic: parsedQuestion.data.subtopic || null });
 
   try {
     await db.$transaction(async (tx) => {
       await tx.question.update({
         where: { id: parsedQuestion.data.questionId },
         data: {
+          curriculumId: taxonomyRefs.curriculumId,
+          subjectId: taxonomyRefs.subjectId,
+          topicId: taxonomyRefs.topicId,
+          knowledgePointId: taxonomyRefs.knowledgePointId,
           number: parsedQuestion.data.number,
           section: parsedQuestion.data.section,
           marks: parsedQuestion.data.marks,

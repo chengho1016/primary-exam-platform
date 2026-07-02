@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/session";
+import { ensureSubjectRef } from "@/lib/curriculum/backfill";
 import { db } from "@/lib/db/prisma";
 
 const ADMIN_EMAIL = "admin@local.exam";
@@ -54,6 +55,7 @@ export async function POST(request: Request) {
   const paperId = randomUUID();
   const fileBuffer = Buffer.from(await file.arrayBuffer());
   const base64Data = `data:${file.type};base64,${fileBuffer.toString("base64")}`;
+  const subjectRef = await ensureSubjectRef(parsed.data.subject);
 
   try {
     await db.$transaction([
@@ -64,6 +66,7 @@ export async function POST(request: Request) {
           title: parsed.data.title,
           grade: parsed.data.grade,
           subject: parsed.data.subject,
+          subjectId: subjectRef.id,
           academicYear: parsed.data.academicYear || null,
           access: parsed.data.access,
           status: "DRAFT",
