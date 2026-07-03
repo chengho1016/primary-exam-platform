@@ -73,6 +73,9 @@ export default async function AdminPapersPage({ searchParams }: { searchParams: 
   const filters = await searchParams;
   const status = filters.status && validStatuses.has(filters.status as PaperStatus) ? filters.status as PaperStatus : undefined;
   const papers = await listAdminPapers({ query: filters.query?.trim(), status });
+  const publishedCount = papers.filter((paper) => paper.status === "PUBLISHED").length;
+  const printableCount = papers.filter((paper) => paper.printablePdfPath || paper.sourceAssetPath).length;
+  const practiceReadyCount = papers.filter((paper) => getPracticeState(paper).tone === "good").length;
 
   return (
     <AppShell activePath="/admin/papers" mode="admin">
@@ -91,6 +94,12 @@ export default async function AdminPapersPage({ searchParams }: { searchParams: 
             {filters.paper ? `${filters.paper} 暫時不可刪除` : "試卷暫時不可刪除"}：{filters.reason === "not-found" ? "找不到試卷" : filters.reason || "已有使用紀錄"}。如要隱藏前台，請先改為「下架」。
           </p>
         ) : null}
+
+        <section className="admin-ops-strip" aria-label="試卷營運狀態">
+          <div><span>已發布</span><strong>{publishedCount}</strong><small>前台可見試卷</small></div>
+          <div><span>可列印</span><strong>{printableCount}</strong><small>PDF 或來源檔可用</small></div>
+          <div><span>可練習</span><strong>{practiceReadyCount}</strong><small>15題以上已覆核</small></div>
+        </section>
 
         <form className="filter-bar" method="get">
           <div className="field"><label htmlFor="admin-search">搜尋</label><input defaultValue={filters.query} id="admin-search" name="query" placeholder="試卷名稱或編號" /></div>

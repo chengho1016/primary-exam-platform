@@ -95,6 +95,12 @@ export default async function AdminQuestionsPage({ searchParams }: { searchParam
         {filters.updated === "1" ? <p className="success-banner">題目及答案已更新。</p> : null}
         {filters.created === "1" ? <p className="success-banner">新題目已加入題庫。</p> : null}
 
+        <section className="admin-ops-strip admin-questions-strip" aria-label="題庫下一步">
+          <div><span>可入題庫池</span><strong>{metrics.verified}</strong><small>已覆核 + 可網上練習</small></div>
+          <div><span>待處理</span><strong>{metrics.needsReview}</strong><small>先核對答案與解析</small></div>
+          <div><span>課題覆蓋</span><strong>{metrics.topicCount}</strong><small>未來組卷基礎</small></div>
+        </section>
+
         <section className="admin-subject-tabs" aria-label="科目分類">
           {subjectTabs.map((tab) => {
             const stats = statForSubject(subjectStats, tab.value);
