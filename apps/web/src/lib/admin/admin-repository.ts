@@ -115,7 +115,16 @@ export function listAdminUsers() {
   return db.user.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      _count: { select: { children: true, entitlements: true, printJobs: true } },
+      _count: {
+        select: {
+          children: true,
+          entitlements: true,
+          printJobs: true,
+          authoredPapers: true,
+          auditLogs: true,
+          sessions: true,
+        },
+      },
       subscriptions: { orderBy: { createdAt: "desc" }, take: 1 },
     },
   });
@@ -129,6 +138,16 @@ export function getAdminUserDetail(userId: string) {
       entitlements: { include: { paper: { select: { code: true, title: true } } }, orderBy: { purchasedAt: "desc" } },
       printJobs: { orderBy: { createdAt: "desc" }, take: 10, include: { paper: { select: { code: true, title: true } } } },
       subscriptions: { orderBy: { createdAt: "desc" }, take: 1 },
+      _count: {
+        select: {
+          children: true,
+          entitlements: true,
+          printJobs: true,
+          authoredPapers: true,
+          auditLogs: true,
+          sessions: true,
+        },
+      },
     },
   });
 }

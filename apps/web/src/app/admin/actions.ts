@@ -11,6 +11,7 @@ import { db } from "@/lib/db/prisma";
 import { normalizeTopicName } from "@/lib/admin/topic-insights";
 import { ensureQuestionTaxonomyRefs, ensureSubjectRef } from "@/lib/curriculum/backfill";
 import { buildQuestionContentSnapshot } from "@/lib/questions/question-snapshot";
+import { getAdminUserDeleteBlockers } from "@/lib/admin/user-delete-policy";
 import type { NewPaperActionState } from "@/app/admin/action-types";
 
 const ADMIN_EMAIL = "admin@local.exam";
@@ -38,6 +39,10 @@ const paperStatusSchema = z.object({
 
 const deletePaperSchema = z.object({
   paperId: z.string().min(1),
+});
+
+const deleteAdminUserSchema = z.object({
+  userId: z.string().min(1),
 });
 
 const renameMathTopicSchema = z.object({
@@ -729,4 +734,74 @@ export async function updateAdminUserAction(formData: FormData) {
   revalidatePath("/admin/users");
   revalidatePath(`/admin/users/${parsedUser.data.userId}/edit`);
   redirect("/admin/users?updated=1");
+}
+
+export async function deleteAdminUserAction(formData: FormData) {
+  const admin = await requireAdmin();
+  const parsedUser = deleteAdminUserSchema.safeParse(Object.fromEntries(formData));
+  if (!parsedUser.success) throw new Error("無效的會員刪除要求");
+
+  const targetUser = await db.user.findUnique({
+    where: { id: parsedUser.data.userId },
+    include: {
+      subscriptions: { orderBy: { createdAt: "desc" }, take: 1 },
+      _count: {
+        select: {
+          children: true,
+          entitlements: true,
+          printJobs: true,
+          authoredPapers: true,
+          auditLogs: true,
+          sessions: true,
+        },
+      },
+    },
+  });
+
+  if (!targetUser) redirect("/admin/users?deleteBlocked=1&reason=not-found");
+
+  const blockers = getAdminUserDeleteBlockers({
+    targetUserId: targetUser.id,
+    currentAdminId: admin.id,
+    role: targetUser.role,
+    childrenCount: targetUser._count.children,
+    entitlementsCount: targetUser._count.entitlements,
+    printJobsCount: targetUser._count.printJobs,
+    authoredPapersCount: targetUser._count.authoredPapers,
+    auditLogsCount: targetUser._count.auditLogs,
+    latestSubscriptionStatus: targetUser.subscriptions[0]?.status,
+  });
+
+  if (blockers.length) {
+    const params = new URLSearchParams({
+      deleteBlocked: "1",
+      user: targetUser.displayName || targetUser.email,
+      reason: blockers.join("、"),
+    });
+    redirect(`/admin/users?${params.toString()}`);
+  }
+
+  await db.$transaction(async (tx) => {
+    await tx.user.delete({ where: { id: targetUser.id } });
+    await tx.adminAuditLog.create({
+      data: {
+        adminId: admin.id,
+        action: "user.deleted",
+        entityType: "User",
+        entityId: targetUser.id,
+        metadata: {
+          email: targetUser.email,
+          displayName: targetUser.displayName,
+          role: targetUser.role,
+          latestSubscriptionStatus: targetUser.subscriptions[0]?.status ?? null,
+          sessionsDeleted: targetUser._count.sessions,
+        },
+      },
+    });
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/users");
+  revalidatePath("/admin/database");
+  redirect("/admin/users?deleted=1");
 }

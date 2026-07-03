@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui";
-import { createAdminUserAction } from "@/app/admin/actions";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
+import { createAdminUserAction, deleteAdminUserAction } from "@/app/admin/actions";
+import { requireAdmin } from "@/lib/auth/session";
 import { listAdminUsers } from "@/lib/admin/admin-repository";
+import { getAdminUserDeleteBlockers } from "@/lib/admin/user-delete-policy";
 
 export const metadata = { title: "會員管理" };
 export const dynamic = "force-dynamic";
@@ -20,11 +23,40 @@ function getSubscriptionTone(status?: keyof typeof subscriptionStatusLabels) {
   return "sun" as const;
 }
 
-export default async function AdminUsersPage({ searchParams }: { searchParams: Promise<{ updated?: string; created?: string }> }) {
+type AdminUser = Awaited<ReturnType<typeof listAdminUsers>>[number];
+
+function getDeleteBlockers(user: AdminUser, currentAdminId: string) {
+  return getAdminUserDeleteBlockers({
+    targetUserId: user.id,
+    currentAdminId,
+    role: user.role,
+    childrenCount: user._count.children,
+    entitlementsCount: user._count.entitlements,
+    printJobsCount: user._count.printJobs,
+    authoredPapersCount: user._count.authoredPapers,
+    auditLogsCount: user._count.auditLogs,
+    latestSubscriptionStatus: user.subscriptions[0]?.status,
+  });
+}
+
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    updated?: string;
+    created?: string;
+    deleted?: string;
+    deleteBlocked?: string;
+    user?: string;
+    reason?: string;
+  }>;
+}) {
   const filters = await searchParams;
+  const admin = await requireAdmin();
   const users = await listAdminUsers();
   const activeMembers = users.filter((user) => user.subscriptions[0]?.status === "ACTIVE").length;
   const admins = users.filter((user) => user.role === "ADMIN").length;
+  const safeDeleteCandidates = users.filter((user) => getDeleteBlockers(user, admin.id).length === 0).length;
 
   return (
     <AppShell activePath="/admin/users" mode="admin">
@@ -32,13 +64,19 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
         <header className="app-page-header">
           <div>
             <h1>會員管理</h1>
-            <p>查看及編輯會員資料、角色、會籍狀態、方案及列印額度。</p>
+            <p>查看及編輯會員資料、角色、會籍狀態、方案、列印額度；亦可安全刪除未使用帳戶。</p>
           </div>
           <span className="badge badge-blue">共 {users.length} 個帳戶</span>
         </header>
 
         {filters.created === "1" ? <p className="success-banner">新帳戶已建立，可即時登入使用。</p> : null}
         {filters.updated === "1" ? <p className="success-banner">會員資料已更新。</p> : null}
+        {filters.deleted === "1" ? <p className="success-banner">會員帳戶已刪除，並已寫入 AdminAuditLog。</p> : null}
+        {filters.deleteBlocked === "1" ? (
+          <p className="warning-banner">
+            {filters.user ? `${filters.user} 暫時不可刪除` : "會員帳戶暫時不可刪除"}：{filters.reason === "not-found" ? "找不到會員" : filters.reason || "已有使用紀錄"}。
+          </p>
+        ) : null}
 
         <section className="form-panel admin-guidance-panel admin-user-create-panel">
           <div className="panel-header"><h3>快速新增帳戶</h3><span>商業化必備：不用再靠工程師改密碼或開 Admin</span></div>
@@ -63,7 +101,12 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
           <div className="admin-stat tone-blue"><span>全部帳戶</span><strong>{users.length}</strong><small>包括家長及管理員</small></div>
           <div className="admin-stat tone-mint"><span>Active 會員</span><strong>{activeMembers}</strong><small>目前使用中會籍</small></div>
           <div className="admin-stat tone-sun"><span>管理員</span><strong>{admins}</strong><small>具後台權限</small></div>
-          <div className="admin-stat tone-coral"><span>列印紀錄</span><strong>{users.reduce((sum, user) => sum + user._count.printJobs, 0)}</strong><small>所有會員累計</small></div>
+          <div className="admin-stat tone-coral"><span>可安全刪除</span><strong>{safeDeleteCandidates}</strong><small>無孩子／權限／紀錄的帳戶</small></div>
+        </section>
+
+        <section className="admin-safety-note" aria-label="刪除會員安全規則">
+          <strong>刪除安全線：</strong>
+          <span>只容許刪除未有孩子檔案、試卷權限、列印紀錄、後台操作紀錄，而且不是管理員／使用中會籍的帳戶。已有紀錄的帳戶請先改會籍或保留作審計。</span>
         </section>
 
         <div className="admin-table-wrap">
@@ -84,6 +127,8 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
               {users.map((user) => {
                 const subscription = user.subscriptions[0];
                 const status = subscription ? subscriptionStatusLabels[subscription.status] : "未訂閱";
+                const deleteBlockers = getDeleteBlockers(user, admin.id);
+                const deleteBlockedReason = deleteBlockers.join("、");
 
                 return (
                   <tr id={`user-${user.id}`} key={user.id}>
@@ -102,7 +147,25 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                     <td><Badge tone={getSubscriptionTone(subscription?.status)}>{status}</Badge></td>
                     <td>{subscription?.printAllowance ?? 0}</td>
                     <td>{new Intl.DateTimeFormat("zh-HK").format(user.createdAt)}</td>
-                    <td><div className="row-actions"><Link href={`/admin/users/${user.id}/edit`}>編輯</Link></div></td>
+                    <td>
+                      <div className="row-actions admin-user-actions">
+                        <Link href={`/admin/users/${user.id}/edit`}>編輯</Link>
+                        {deleteBlockers.length ? (
+                          <button className="danger-action" disabled title={deleteBlockedReason} type="button">刪除</button>
+                        ) : (
+                          <form action={deleteAdminUserAction}>
+                            <input name="userId" type="hidden" value={user.id} />
+                            <ConfirmSubmitButton
+                              className="danger-action"
+                              confirmMessage={`確定要刪除會員「${user.displayName}」（${user.email}）？此操作會移除登入 session / 會籍資料，而且不能復原。`}
+                            >
+                              刪除
+                            </ConfirmSubmitButton>
+                          </form>
+                        )}
+                        {deleteBlockers.length ? <span className="row-muted">受保護</span> : <span className="row-muted">可刪</span>}
+                      </div>
+                    </td>
                   </tr>
                 );
               })}

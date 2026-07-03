@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { Badge } from "@/components/ui";
-import { updateAdminUserAction } from "@/app/admin/actions";
+import { deleteAdminUserAction, updateAdminUserAction } from "@/app/admin/actions";
+import { requireAdmin } from "@/lib/auth/session";
 import { getAdminUserDetail } from "@/lib/admin/admin-repository";
+import { getAdminUserDeleteBlockers } from "@/lib/admin/user-delete-policy";
 
 export const metadata = { title: "編輯會員" };
 export const dynamic = "force-dynamic";
@@ -24,10 +27,23 @@ function toDateTimeLocal(value?: Date | null) {
 
 export default async function AdminUserEditPage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params;
+  const admin = await requireAdmin();
   const user = await getAdminUserDetail(userId);
   if (!user) notFound();
 
   const subscription = user.subscriptions[0];
+  const deleteBlockers = getAdminUserDeleteBlockers({
+    targetUserId: user.id,
+    currentAdminId: admin.id,
+    role: user.role,
+    childrenCount: user._count.children,
+    entitlementsCount: user._count.entitlements,
+    printJobsCount: user._count.printJobs,
+    authoredPapersCount: user._count.authoredPapers,
+    auditLogsCount: user._count.auditLogs,
+    latestSubscriptionStatus: subscription?.status,
+  });
+  const deleteBlockedReason = deleteBlockers.join("、");
 
   return (
     <AppShell activePath="/admin/users" mode="admin">
@@ -114,6 +130,28 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
 
           <button className="button button-primary" type="submit">儲存會員資料</button>
         </form>
+
+        <section className="form-panel admin-danger-zone">
+          <div>
+            <p className="eyebrow">Danger Zone</p>
+            <h2>刪除會員帳戶</h2>
+            <p>只適合刪除錯開、測試或未使用帳戶；有孩子檔案、試卷權限、列印紀錄、後台操作紀錄或使用中會籍時，系統會阻止硬刪。</p>
+            {deleteBlockers.length ? <p className="warning-banner">暫時不可刪除：{deleteBlockedReason}</p> : null}
+          </div>
+          {deleteBlockers.length ? (
+            <button className="button button-danger" disabled title={deleteBlockedReason} type="button">受保護，不能刪除</button>
+          ) : (
+            <form action={deleteAdminUserAction}>
+              <input name="userId" type="hidden" value={user.id} />
+              <ConfirmSubmitButton
+                className="button button-danger"
+                confirmMessage={`確定要刪除會員「${user.displayName}」（${user.email}）？此操作不能復原。`}
+              >
+                刪除帳戶
+              </ConfirmSubmitButton>
+            </form>
+          )}
+        </section>
       </div>
     </AppShell>
   );
