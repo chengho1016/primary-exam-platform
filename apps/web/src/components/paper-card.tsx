@@ -11,8 +11,10 @@ export function PaperCard({ paper }: { paper: PaperSummary }) {
   return (
     <article className="paper-card upgraded-paper-card">
       <div className={`paper-illustration subject-${paper.subjectId}`}>
+        <div className="paper-cover-lines"><span /><span /><span /></div>
         <PaperIcon />
         <span>{paper.subject}</span>
+        <small>小{paper.grade} · {paper.academicYear}</small>
       </div>
       <div className="paper-content">
         <div className="paper-badges">
@@ -22,8 +24,8 @@ export function PaperCard({ paper }: { paper: PaperSummary }) {
         </div>
         <h3>{paper.title}</h3>
         <div className="paper-card-meta">
-          <span>{paper.academicYear}</span>
           <span>{paper.questionCount}題</span>
+          <span>{paper.pageCount}頁</span>
           <span>約{paper.durationMinutes}分鐘</span>
         </div>
         <div className="paper-readiness">

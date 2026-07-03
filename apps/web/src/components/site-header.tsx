@@ -12,6 +12,7 @@ export async function SiteHeader() {
         <Link className="brand" href="/">
           <span className="brand-mark"><BookIcon /></span>
           <span>{siteConfig.name}</span>
+          <em className="brand-system-label">Learning OS</em>
         </Link>
         <nav className="public-nav" aria-label="主要導覽">
           <Link href="/#how-it-works">使用方法</Link>

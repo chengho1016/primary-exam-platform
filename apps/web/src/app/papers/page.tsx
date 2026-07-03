@@ -30,11 +30,16 @@ export default async function PapersPage({ searchParams }: { searchParams: Promi
   return (
     <AppShell activePath="/papers">
       <div className="app-content">
-        <header className="app-page-header papers-header">
+        <header className="app-page-header papers-header paper-library-hero">
           <div>
             <p className="eyebrow">試卷庫</p>
-            <h1>選試卷，然後開始練習或列印</h1>
-            <p>{selectedGrade ? `小${selectedGrade}` : "全部年級"} · {selectedSubjectLabel} · 找到 {papers.length} 份可用試卷。</p>
+            <h1>揀一份卷，立即開始今日學習任務</h1>
+            <p>{selectedGrade ? `小${selectedGrade}` : "全部年級"} · {selectedSubjectLabel} · 找到 {papers.length} 份可用試卷。每張卡都標示是否可練習、可列印，家長不用逐頁估。</p>
+          </div>
+          <div className="library-hero-stats" aria-label="試卷庫摘要">
+            <span><strong>{papers.length}</strong>份試卷</span>
+            <span><strong>{selectedGrade ? `小${selectedGrade}` : "P1-P6"}</strong>年級</span>
+            <span><strong>{selectedSubjectLabel}</strong>科目</span>
           </div>
         </header>
 
@@ -69,7 +74,7 @@ export default async function PapersPage({ searchParams }: { searchParams: Promi
           <div className="paper-grid">{papers.map((paper) => <PaperCard paper={paper} key={paper.id} />)}</div>
         ) : (
           <div className="empty-state upgraded-empty-state">
-            <span>📚</span>
+            <span className="empty-state-symbol" aria-hidden="true">卷</span>
             <h2>暫時未有符合條件的試卷</h2>
             <p>試下切換年級或科目；如果你是管理員，可以先到後台上傳新試卷。</p>
             <div className="empty-actions"><Link className="button button-secondary button-small" href="/papers">清除篩選</Link><Link className="button button-primary button-small" href="/admin/papers/new">上傳試卷</Link></div>

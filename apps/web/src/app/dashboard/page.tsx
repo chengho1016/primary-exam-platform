@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   return (
     <AppShell activePath="/dashboard">
       <div className="app-content">
-        <header className="app-page-header"><div><h1>你好，{user.displayName} 👋</h1><p>{child?.displayName ?? "孩子"}今個星期已完成{learning.weeklyAttemptCount}次練習。</p></div><ButtonLink href="/papers" variant="secondary">尋找試卷</ButtonLink></header>
+        <header className="app-page-header dashboard-header"><div><p className="eyebrow">今日學習任務</p><h1>你好，{user.displayName}</h1><p>{child?.displayName ?? "孩子"}今個星期已完成{learning.weeklyAttemptCount}次練習。</p></div><ButtonLink href="/papers" variant="secondary">尋找試卷</ButtonLink></header>
         <div className="dashboard-hero">
           <section className="welcome-card"><div><p className="eyebrow">建議練習</p><h2>{learning.recommendedPaper ? "今天溫習「分數」" : "先選一份數學試卷"}</h2><p>{learning.recommendedPaper ? `${learning.recommendedPaper.title} 已準備好網上練習，約需15分鐘完成。` : "目前未有足夠題目的建議練習，先到試卷庫查看可用內容。"}</p><ButtonLink href={recommendedHref}>{learning.recommendedPaper ? "開始15題練習" : "前往試卷庫"}<ArrowRightIcon /></ButtonLink></div></section>
           <aside className="profile-card">

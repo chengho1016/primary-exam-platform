@@ -12,8 +12,8 @@ const features = [
 
 const heroStats = [
   { value: "15題", label: "每日短練習" },
-  { value: "5科", label: "小學核心科目" },
-  { value: "A4", label: "可列印試卷" },
+  { value: "47題", label: "已入庫題目" },
+  { value: "水印", label: "正式試卷列印" },
 ] as const;
 
 const trustItems = [
@@ -28,18 +28,18 @@ export default function HomePage() {
       <SiteHeader />
       <main>
         <section className="hero commercial-hero">
-          <div className="container hero-grid">
-            <div className="hero-copy">
-              <p className="eyebrow">小一至小六 · 練習 + 列印 + 家長報告</p>
-              <h1>把試卷平台升級成<span>真正可用的學習系統</span></h1>
-              <p>小學堂將網上練習、完整試卷列印、錯題追蹤和家長管理放在同一個清晰流程。孩子知道下一步做甚麼，家長知道進度在哪裏。</p>
+          <div className="container hero-grid redesign-hero-grid">
+            <div className="hero-copy redesign-hero-copy">
+              <p className="eyebrow">香港小學生 · 練習 / 列印 / 跟進</p>
+              <h1>每日十五題，慢慢變成真正識做。</h1>
+              <p>小學堂將試卷庫、智能練習、錯題追蹤和家長管理整理成一條清晰路線。孩子不再迷路，家長不再靠估，管理員亦可以穩定擴充題庫。</p>
               <div className="hero-actions">
                 <ButtonLink href="/register">免費開始練習<ArrowRightIcon /></ButtonLink>
                 <ButtonLink href="/papers" variant="secondary">瀏覽試卷庫</ButtonLink>
               </div>
-              <div className="hero-proof">
-                <div className="avatar-stack"><span>樂</span><span>晴</span><span>朗</span></div>
-                <span>先試做、再列印、再跟進弱項，流程清晰易操作。</span>
+              <div className="hero-proof redesigned-proof">
+                <div className="avatar-stack"><span>學</span><span>練</span><span>進</span></div>
+                <span>先做短練習，再列印完整卷，最後用錯題追弱項。</span>
               </div>
               <div className="hero-stats" aria-label="平台重點數據">
                 {heroStats.map((stat) => (
@@ -47,26 +47,38 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <div className="hero-visual" aria-hidden="true">
-              <div className="visual-orbit" />
-              <div className="practice-mock upgraded-mock">
-                <div className="mock-top"><div className="mock-dots"><i /><i /><i /></div><span className="mock-pill">第 6 / 15 題</span></div>
-                <div className="mock-progress"><span /></div>
-                <div className="mock-question">
-                  <small>四年級 · 數學 · 分數</small>
+            <div className="hero-visual redesign-visual" aria-hidden="true">
+              <div className="learning-console">
+                <div className="console-topline">
+                  <span>Learning OS</span>
+                  <strong>今日任務</strong>
+                </div>
+                <div className="console-main-score">
+                  <span>15</span>
+                  <div><strong>題短練習</strong><small>小四數學 · 分數</small></div>
+                </div>
+                <div className="console-question-card">
+                  <small>第 6 題</small>
                   <strong>3/4 等於下列哪一個分數？</strong>
-                  <div className="mock-options"><span>6/10</span><span className="selected">9/12</span><span>12/20</span><span>15/24</span></div>
+                  <div className="console-options"><span>6/10</span><span className="selected">9/12</span><span>12/20</span></div>
+                </div>
+                <div className="console-metrics">
+                  <div><span>正確率</span><strong>86%</strong></div>
+                  <div><span>錯題</span><strong>4</strong></div>
+                  <div><span>列印</span><strong>A4</strong></div>
                 </div>
               </div>
-              <div className="floating-card floating-score"><ChartIcon />本週正確率 86%</div>
-              <div className="floating-card floating-print"><PrinterIcon />試卷已加個人水印</div>
+              <div className="floating-card floating-score"><ChartIcon />弱項已更新</div>
+              <div className="floating-card floating-print"><PrinterIcon />試卷已加水印</div>
+              <div className="learning-orbit orbit-one" />
+              <div className="learning-orbit orbit-two" />
             </div>
           </div>
         </section>
 
         <section className="section" id="features">
           <div className="container">
-            <SectionHeading eyebrow="一個平台，兩種學習方式" title="網上練習與紙本試卷，毋須二選一" description="孩子可以在線上快速練習，亦可以按需要列印完整試卷，在家模擬正式測考。" />
+            <SectionHeading eyebrow="一個平台，兩種學習方式" title="線上練習、紙本試卷、家長跟進，放回同一條路線" description="不是把功能堆在一起，而是把每日使用流程重新整理：先短練習建立信心，再用完整試卷模擬考試，最後用錯題追弱項。" />
             <div className="feature-grid">
               {features.map(({ title, description, icon: Icon, tone }) => (
                 <article className="feature-card elevated-card" key={title}>
@@ -80,7 +92,7 @@ export default function HomePage() {
 
         <section className="section section-muted" id="how-it-works">
           <div className="container">
-            <SectionHeading eyebrow="三步開始" title="簡單得孩子自己也懂" description="介面按照孩子真正使用的次序設計，家長毋須每次在旁協助。" />
+            <SectionHeading eyebrow="三步開始" title="孩子知道下一步，家長知道點跟" description="重新設計後，入口按照真實使用次序排列：選內容、做任務、看結果。" />
             <div className="steps-grid">
               <article className="step-card"><span className="step-number">1</span><h3>選擇年級與科目</h3><p>從小一至小六，快速找到中文、英文、數學、人文或科學試卷。</p></article>
               <article className="step-card"><span className="step-number">2</span><h3>練習或列印</h3><p>抽取15題即時作答，或預覽後直接列印帶有個人水印的完整試卷。</p></article>
