@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
 import { LockIcon, PrinterIcon } from "@/components/icons";
 
 const PAPER_ID = "2324-03-MA-P4";
@@ -26,12 +25,6 @@ type PrintPreviewProps = {
 
 export function PrintPreview({ authorization, paperId, watermarkText, mode = "pages", title }: PrintPreviewProps) {
   const activePaperId = paperId === PAPER_ID ? paperId : PAPER_ID;
-  const sourceFrameRef = useRef<HTMLIFrameElement>(null);
-
-  function printUploadedSource() {
-    sourceFrameRef.current?.contentWindow?.focus();
-    sourceFrameRef.current?.contentWindow?.print();
-  }
 
   if (mode === "source") {
     const sourceUrl = `/api/print-source/${paperId}?job=${encodeURIComponent(authorization)}`;
@@ -45,11 +38,11 @@ export function PrintPreview({ authorization, paperId, watermarkText, mode = "pa
           <div className="header-tools">
             <span className="security-note"><LockIcon />授權有效15分鐘</span>
             <Link className="button button-secondary button-small" href={`/papers/${paperId}`}>返回</Link>
-            <button className="button button-primary button-small" onClick={printUploadedSource} type="button"><PrinterIcon />直接列印</button>
+            <button className="button button-primary button-small" onClick={() => window.print()} type="button"><PrinterIcon />直接列印</button>
           </div>
         </header>
         <section className="source-print-preview">
-          <iframe ref={sourceFrameRef} src={sourceUrl} title="試卷PDF列印預覽" />
+          <iframe src={sourceUrl} title="試卷PDF列印預覽" />
           <div className="source-print-watermark" aria-hidden="true">{watermarkText}</div>
         </section>
       </main>

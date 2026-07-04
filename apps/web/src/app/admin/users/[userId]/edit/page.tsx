@@ -5,6 +5,7 @@ import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { Badge } from "@/components/ui";
 import { deleteAdminUserAction, updateAdminUserAction } from "@/app/admin/actions";
 import { requireAdmin } from "@/lib/auth/session";
+import { formatPhoneNumberForDisplay } from "@/lib/auth/phone";
 import { accountStatusLabels, type AccountStatus } from "@/lib/auth/account-status";
 import { getAdminUserDetail } from "@/lib/admin/admin-repository";
 import { getAdminUserForceDeleteBlockers } from "@/lib/admin/user-delete-policy";
@@ -62,9 +63,10 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
           <section className="form-panel">
             <h2>基本資料</h2>
             <p>這些資料會影響登入身份及後台權限。改電郵前要確認沒有重複帳戶。</p>
-            <div className="field-row">
+            <div className="field-row three-columns">
               <div className="field"><label htmlFor="displayName">會員名稱</label><input defaultValue={user.displayName} id="displayName" name="displayName" required /></div>
               <div className="field"><label htmlFor="email">電郵</label><input defaultValue={user.email} id="email" name="email" required type="email" /></div>
+              <div className="field"><label htmlFor="phoneNumber">電話</label><input autoComplete="tel" defaultValue={user.phoneNumber ?? ""} id="phoneNumber" inputMode="tel" name="phoneNumber" placeholder="9123 4567" /><p className="field-help">列印水印會使用此電話。</p></div>
             </div>
             <div className="field-row">
               <div className="field">
@@ -91,7 +93,7 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
               </div>
               <div className="field">
                 <label>目前資料</label>
-                <div className="readonly-box">{user.children.length} 個孩子 · {user.entitlements.length} 份試卷權限 · {user.printJobs.length} 筆近期列印</div>
+                <div className="readonly-box">{user.children.length} 個孩子 · {user.entitlements.length} 份試卷權限 · {user.printJobs.length} 筆近期列印 · {formatPhoneNumberForDisplay(user.phoneNumber) ?? "未留電話"}</div>
               </div>
             </div>
             <div className="field-row">

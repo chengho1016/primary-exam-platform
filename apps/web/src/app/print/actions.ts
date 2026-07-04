@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { hasPaperAccess } from "@/lib/auth/entitlements";
+import { buildPrintWatermarkText } from "@/lib/auth/phone";
 import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
 
@@ -27,7 +28,12 @@ export async function createPrintJobAction(formData: FormData) {
       userId: user.id,
       paperId,
       authorization,
-      watermarkText: `${user.email} · ${date} · ${authorization}`,
+      watermarkText: buildPrintWatermarkText({
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        date,
+        authorization,
+      }),
       expiresAt: new Date(now.getTime() + 15 * 60 * 1000),
     },
   });

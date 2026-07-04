@@ -50,6 +50,7 @@ export async function getCurrentUser() {
         select: {
           id: true,
           email: true,
+          phoneNumber: true,
           displayName: true,
           role: true,
           accountStatus: true,

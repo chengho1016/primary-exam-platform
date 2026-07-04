@@ -7,7 +7,7 @@ const features = [
   { title: "智能15題練習", description: "用短時間完成一組有節奏的題目，適合每日溫習，不會令孩子覺得負擔太大。", icon: SparklesIcon, tone: "blue" },
   { title: "即時批改與解析", description: "完成後即時知道對錯、得分及正確答案，家長不用逐題人手改。", icon: CheckIcon, tone: "mint" },
   { title: "錯題與弱項追蹤", description: "做錯的題目自動儲存，逐步看見孩子在哪些課題需要再練。", icon: PaperIcon, tone: "sun" },
-  { title: "安全水印列印", description: "每次列印加入會員、日期及授權編號，方便管理正式試卷資源。", icon: ShieldIcon, tone: "coral" },
+  { title: "安全水印列印", description: "每次列印加入會員電郵、電話、日期及授權編號，方便管理正式試卷資源。", icon: ShieldIcon, tone: "coral" },
 ] as const;
 
 const heroStats = [

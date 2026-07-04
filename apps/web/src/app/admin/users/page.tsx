@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { createAdminUserAction, deleteAdminUserAction } from "@/app/admin/actions";
 import { requireAdmin } from "@/lib/auth/session";
+import { formatPhoneNumberForDisplay } from "@/lib/auth/phone";
 import { accountStatusLabels, type AccountStatus } from "@/lib/auth/account-status";
 import { listAdminUsers } from "@/lib/admin/admin-repository";
 
@@ -78,9 +79,10 @@ export default async function AdminUsersPage({
           <div className="panel-header"><h3>快速新增帳戶</h3><span>商業化必備：不用再靠工程師改密碼或開 Admin</span></div>
           <p>可直接建立管理員或家長帳戶；密碼會即時 bcrypt hash 後儲存，並寫入 AdminAuditLog。新增後可在下方列表再編輯會籍、額度、角色及帳戶狀態。</p>
           <form action={createAdminUserAction} className="admin-inline-form">
-            <div className="field-row three-columns">
+            <div className="field-row four-columns">
               <div className="field"><label htmlFor="newDisplayName">名稱</label><input id="newDisplayName" name="displayName" placeholder="例如 Sally" required /></div>
               <div className="field"><label htmlFor="newEmail">登入 Email</label><input id="newEmail" name="email" placeholder="name@example.com" required type="email" /></div>
+              <div className="field"><label htmlFor="newPhoneNumber">電話</label><input autoComplete="tel" id="newPhoneNumber" inputMode="tel" name="phoneNumber" placeholder="9123 4567" /></div>
               <div className="field"><label htmlFor="newPassword">初始密碼</label><input autoComplete="new-password" id="newPassword" minLength={6} name="password" required type="password" /></div>
             </div>
             <div className="field-row four-columns">
@@ -131,6 +133,7 @@ export default async function AdminUsersPage({
                     <td className="admin-paper-title-cell">
                       <strong>{user.displayName}</strong>
                       <small>{user.email}</small>
+                      <small>{user.phoneNumber ? `電話 ${formatPhoneNumberForDisplay(user.phoneNumber)}` : "未留電話"}</small>
                     </td>
                     <td><Badge tone={user.role === "ADMIN" ? "coral" : "blue"}>{user.role === "ADMIN" ? "管理員" : "家長"}</Badge></td>
                     <td><Badge tone={getAccountStatusTone(user.accountStatus)}>{accountStatusLabels[user.accountStatus]}</Badge></td>

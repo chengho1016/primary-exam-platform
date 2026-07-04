@@ -12,6 +12,7 @@ import { normalizeTopicName } from "@/lib/admin/topic-insights";
 import { ensureQuestionTaxonomyRefs, ensureSubjectRef } from "@/lib/curriculum/backfill";
 import { buildQuestionContentSnapshot } from "@/lib/questions/question-snapshot";
 import { verifyPassword } from "@/lib/auth/password";
+import { normalizePhoneNumber } from "@/lib/auth/phone";
 import { getAdminUserForceDeleteBlockers } from "@/lib/admin/user-delete-policy";
 import type { NewPaperActionState } from "@/app/admin/action-types";
 
@@ -92,10 +93,22 @@ const createQuestionSchema = z.object({
 });
 
 const passwordSchema = z.string().trim().min(6, "密碼最少需要6個字元").max(128, "密碼不可超過128個字元");
+const optionalPhoneNumberSchema = z.string()
+  .trim()
+  .transform((value, ctx) => {
+    if (!value) return null;
+    const normalized = normalizePhoneNumber(value);
+    if (!normalized) {
+      ctx.addIssue({ code: "custom", message: "請輸入有效電話號碼" });
+      return z.NEVER;
+    }
+    return normalized;
+  });
 
 const createAdminUserSchema = z.object({
   displayName: z.string().trim().min(1, "請輸入會員名稱").max(80),
   email: z.string().trim().email("請輸入有效電郵").max(160),
+  phoneNumber: optionalPhoneNumberSchema,
   password: passwordSchema,
   role: z.enum(["PARENT", "ADMIN"]),
   membershipStatus: z.enum(["NONE", "TRIAL", "ACTIVE"]),
@@ -107,6 +120,7 @@ const adminUserSchema = z.object({
   userId: z.string().min(1),
   displayName: z.string().trim().min(1, "請輸入會員名稱").max(80),
   email: z.string().trim().email("請輸入有效電郵").max(160),
+  phoneNumber: optionalPhoneNumberSchema,
   role: z.enum(["PARENT", "ADMIN"]),
   accountStatus: z.enum(["ACTIVE", "DISABLED", "BLOCKED"]),
   membershipStatus: z.enum(["NONE", "TRIAL", "ACTIVE", "PAST_DUE", "CANCELLED"]),
@@ -609,6 +623,7 @@ export async function createAdminUserAction(formData: FormData) {
       const user = await tx.user.create({
         data: {
           email: parsedUser.data.email.toLowerCase(),
+          phoneNumber: parsedUser.data.phoneNumber,
           displayName: parsedUser.data.displayName,
           passwordHash,
           role: parsedUser.data.role,
@@ -636,6 +651,7 @@ export async function createAdminUserAction(formData: FormData) {
           entityId: user.id,
           metadata: {
             email: user.email,
+            phoneNumber: user.phoneNumber,
             role: user.role,
             membershipStatus: parsedUser.data.membershipStatus,
             printAllowance: parsedUser.data.printAllowance,
@@ -696,6 +712,7 @@ export async function updateAdminUserAction(formData: FormData) {
       data: {
         displayName: parsedUser.data.displayName,
         email: parsedUser.data.email.toLowerCase(),
+        phoneNumber: parsedUser.data.phoneNumber,
         role: parsedUser.data.role,
         accountStatus: parsedUser.data.accountStatus,
         ...(passwordHash ? { passwordHash } : {}),
@@ -741,6 +758,7 @@ export async function updateAdminUserAction(formData: FormData) {
         entityId: parsedUser.data.userId,
         metadata: {
           role: parsedUser.data.role,
+          phoneNumber: parsedUser.data.phoneNumber,
           accountStatus: parsedUser.data.accountStatus,
           membershipStatus: parsedUser.data.membershipStatus,
           printAllowance: parsedUser.data.printAllowance,

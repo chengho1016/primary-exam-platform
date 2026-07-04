@@ -6,6 +6,7 @@ import { db } from "@/lib/db/prisma";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { createSession, deleteSession } from "@/lib/auth/session";
 import { canSignInWithAccountStatus, getAccountStatusLoginMessage } from "@/lib/auth/account-status";
+import { normalizePhoneNumber } from "@/lib/auth/phone";
 
 export interface AuthActionState {
   error?: string;
@@ -19,6 +20,11 @@ const loginSchema = z.object({
 const registerSchema = z.object({
   name: z.string().trim().min(2, "請輸入家長稱呼").max(50),
   email: z.string().trim().toLowerCase().email("請輸入有效電郵地址"),
+  phoneNumber: z.string()
+    .trim()
+    .min(1, "請輸入電話號碼")
+    .refine((value) => Boolean(normalizePhoneNumber(value)), "請輸入有效電話號碼")
+    .transform((value) => normalizePhoneNumber(value)!),
   childName: z.string().trim().min(1, "請輸入小朋友名稱").max(50),
   grade: z.coerce.number().int().min(1).max(6),
   password: z.string().min(8, "密碼最少需要8個字元").regex(/[A-Za-z]/, "密碼需要包含英文字母").regex(/[0-9]/, "密碼需要包含數字"),
@@ -62,6 +68,7 @@ export async function registerAction(
     const user = await db.user.create({
       data: {
         email: parsedAccount.data.email,
+        phoneNumber: parsedAccount.data.phoneNumber,
         displayName: parsedAccount.data.name,
         passwordHash,
         children: {
