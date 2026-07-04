@@ -18,7 +18,7 @@ describe("phone helpers", () => {
       phoneNumber: "+85291234567",
       date: "2026-07-04",
       authorization: "PRINT-ABC12345",
-    })).toBe("parent@example.com · 電話 +852 9123 4567 · 2026-07-04 · PRINT-ABC12345");
+    })).toBe("parent@example.com · +852 9123 4567 · 2026-07-04 · PRINT-ABC12345");
   });
 
   it("formats stored phone numbers for display", () => {

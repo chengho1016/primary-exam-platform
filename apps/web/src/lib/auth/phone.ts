@@ -24,5 +24,5 @@ type PrintWatermarkIdentity = {
 
 export function buildPrintWatermarkText({ email, phoneNumber, date, authorization }: PrintWatermarkIdentity) {
   const phoneText = formatPhoneNumberForDisplay(phoneNumber);
-  return [email, phoneText ? `電話 ${phoneText}` : "電話未提供", date, authorization].join(" · ");
+  return [email, phoneText ?? "電話未提供", date, authorization].join(" · ");
 }
