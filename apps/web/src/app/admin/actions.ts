@@ -11,7 +11,8 @@ import { db } from "@/lib/db/prisma";
 import { normalizeTopicName } from "@/lib/admin/topic-insights";
 import { ensureQuestionTaxonomyRefs, ensureSubjectRef } from "@/lib/curriculum/backfill";
 import { buildQuestionContentSnapshot } from "@/lib/questions/question-snapshot";
-import { getAdminUserDeleteBlockers } from "@/lib/admin/user-delete-policy";
+import { verifyPassword } from "@/lib/auth/password";
+import { getAdminUserForceDeleteBlockers } from "@/lib/admin/user-delete-policy";
 import type { NewPaperActionState } from "@/app/admin/action-types";
 
 const ADMIN_EMAIL = "admin@local.exam";
@@ -43,6 +44,7 @@ const deletePaperSchema = z.object({
 
 const deleteAdminUserSchema = z.object({
   userId: z.string().min(1),
+  adminPassword: z.string().min(1, "請輸入管理員密碼"),
 });
 
 const renameMathTopicSchema = z.object({
@@ -106,6 +108,7 @@ const adminUserSchema = z.object({
   displayName: z.string().trim().min(1, "請輸入會員名稱").max(80),
   email: z.string().trim().email("請輸入有效電郵").max(160),
   role: z.enum(["PARENT", "ADMIN"]),
+  accountStatus: z.enum(["ACTIVE", "DISABLED", "BLOCKED"]),
   membershipStatus: z.enum(["NONE", "TRIAL", "ACTIVE", "PAST_DUE", "CANCELLED"]),
   providerPlanId: z.string().trim().max(80),
   printAllowance: z.coerce.number().int().min(0).max(9999),
@@ -660,6 +663,12 @@ function parseAdminDateTime(value: string, fallback: Date) {
   return parsed;
 }
 
+async function verifyForceDeletePassword(adminPassword: string, currentAdminPasswordHash: string) {
+  const configuredForceDeleteHash = process.env.ADMIN_FORCE_DELETE_PASSWORD_HASH;
+  if (configuredForceDeleteHash && await verifyPassword(adminPassword, configuredForceDeleteHash)) return true;
+  return verifyPassword(adminPassword, currentAdminPasswordHash);
+}
+
 export async function updateAdminUserAction(formData: FormData) {
   const admin = await requireAdmin();
   const parsedUser = adminUserSchema.safeParse(Object.fromEntries(formData));
@@ -677,6 +686,10 @@ export async function updateAdminUserAction(formData: FormData) {
   const newPassword = parsedUser.data.newPassword?.trim();
   const passwordHash = newPassword ? await hash(newPassword, 12) : undefined;
 
+  if (parsedUser.data.userId === admin.id && parsedUser.data.accountStatus !== "ACTIVE") {
+    throw new Error("不能停用或封鎖目前登入中的管理員帳戶");
+  }
+
   await db.$transaction(async (tx) => {
     await tx.user.update({
       where: { id: parsedUser.data.userId },
@@ -684,6 +697,7 @@ export async function updateAdminUserAction(formData: FormData) {
         displayName: parsedUser.data.displayName,
         email: parsedUser.data.email.toLowerCase(),
         role: parsedUser.data.role,
+        accountStatus: parsedUser.data.accountStatus,
         ...(passwordHash ? { passwordHash } : {}),
       },
     });
@@ -715,6 +729,10 @@ export async function updateAdminUserAction(formData: FormData) {
       });
     }
 
+    if (parsedUser.data.accountStatus !== "ACTIVE") {
+      await tx.session.deleteMany({ where: { userId: parsedUser.data.userId } });
+    }
+
     await tx.adminAuditLog.create({
       data: {
         adminId: admin.id,
@@ -723,6 +741,7 @@ export async function updateAdminUserAction(formData: FormData) {
         entityId: parsedUser.data.userId,
         metadata: {
           role: parsedUser.data.role,
+          accountStatus: parsedUser.data.accountStatus,
           membershipStatus: parsedUser.data.membershipStatus,
           printAllowance: parsedUser.data.printAllowance,
           passwordReset: Boolean(passwordHash),
@@ -739,7 +758,13 @@ export async function updateAdminUserAction(formData: FormData) {
 export async function deleteAdminUserAction(formData: FormData) {
   const admin = await requireAdmin();
   const parsedUser = deleteAdminUserSchema.safeParse(Object.fromEntries(formData));
-  if (!parsedUser.success) throw new Error("無效的會員刪除要求");
+  if (!parsedUser.success) throw new Error(parsedUser.error.issues[0]?.message ?? "無效的會員刪除要求");
+
+  const adminCredential = await db.user.findUnique({ where: { id: admin.id }, select: { passwordHash: true } });
+  const isValidAdminPassword = adminCredential
+    ? await verifyForceDeletePassword(parsedUser.data.adminPassword, adminCredential.passwordHash)
+    : false;
+  if (!isValidAdminPassword) redirect("/admin/users?deleteBlocked=1&reason=admin-password-invalid");
 
   const targetUser = await db.user.findUnique({
     where: { id: parsedUser.data.userId },
@@ -760,41 +785,46 @@ export async function deleteAdminUserAction(formData: FormData) {
 
   if (!targetUser) redirect("/admin/users?deleteBlocked=1&reason=not-found");
 
-  const blockers = getAdminUserDeleteBlockers({
-    targetUserId: targetUser.id,
-    currentAdminId: admin.id,
-    role: targetUser.role,
-    childrenCount: targetUser._count.children,
-    entitlementsCount: targetUser._count.entitlements,
-    printJobsCount: targetUser._count.printJobs,
-    authoredPapersCount: targetUser._count.authoredPapers,
-    auditLogsCount: targetUser._count.auditLogs,
-    latestSubscriptionStatus: targetUser.subscriptions[0]?.status,
-  });
-
-  if (blockers.length) {
+  const forceBlockers = getAdminUserForceDeleteBlockers({ targetUserId: targetUser.id, currentAdminId: admin.id });
+  if (forceBlockers.length) {
     const params = new URLSearchParams({
       deleteBlocked: "1",
       user: targetUser.displayName || targetUser.email,
-      reason: blockers.join("、"),
+      reason: forceBlockers.join("、"),
     });
     redirect(`/admin/users?${params.toString()}`);
   }
 
   await db.$transaction(async (tx) => {
+    const printJobsDeleted = await tx.printJob.deleteMany({ where: { userId: targetUser.id } });
+    const authoredPapersReassigned = await tx.paper.updateMany({
+      where: { createdById: targetUser.id },
+      data: { createdById: admin.id },
+    });
+    const auditLogsReassigned = await tx.adminAuditLog.updateMany({
+      where: { adminId: targetUser.id },
+      data: { adminId: admin.id },
+    });
+
     await tx.user.delete({ where: { id: targetUser.id } });
     await tx.adminAuditLog.create({
       data: {
         adminId: admin.id,
-        action: "user.deleted",
+        action: "user.force_deleted",
         entityType: "User",
         entityId: targetUser.id,
         metadata: {
           email: targetUser.email,
           displayName: targetUser.displayName,
           role: targetUser.role,
+          accountStatus: targetUser.accountStatus,
           latestSubscriptionStatus: targetUser.subscriptions[0]?.status ?? null,
+          childrenDeleted: targetUser._count.children,
+          entitlementsDeleted: targetUser._count.entitlements,
+          printJobsDeleted: printJobsDeleted.count,
           sessionsDeleted: targetUser._count.sessions,
+          authoredPapersReassigned: authoredPapersReassigned.count,
+          auditLogsReassigned: auditLogsReassigned.count,
         },
       },
     });

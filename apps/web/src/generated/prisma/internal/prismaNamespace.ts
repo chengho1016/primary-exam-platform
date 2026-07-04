@@ -1723,6 +1723,7 @@ export const UserScalarFieldEnum = {
   passwordHash: 'passwordHash',
   displayName: 'displayName',
   role: 'role',
+  accountStatus: 'accountStatus',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2056,6 +2057,20 @@ export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'UserRole[]'
  */
 export type ListEnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole[]'>
+
+
+
+/**
+ * Reference to a field of type 'UserAccountStatus'
+ */
+export type EnumUserAccountStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserAccountStatus'>
+
+
+
+/**
+ * Reference to a field of type 'UserAccountStatus[]'
+ */
+export type ListEnumUserAccountStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserAccountStatus[]'>
 
 
 

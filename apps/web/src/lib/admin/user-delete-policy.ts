@@ -41,3 +41,14 @@ export function getAdminUserDeleteBlockers(input: AdminUserDeletePolicyInput) {
 export function canDeleteAdminUser(input: AdminUserDeletePolicyInput) {
   return getAdminUserDeleteBlockers(input).length === 0;
 }
+
+export function getAdminUserForceDeleteBlockers(input: Pick<AdminUserDeletePolicyInput, "targetUserId" | "currentAdminId">) {
+  if (input.targetUserId === input.currentAdminId) {
+    return ["不能強制刪除目前登入中的管理員"];
+  }
+  return [];
+}
+
+export function canForceDeleteAdminUser(input: Pick<AdminUserDeletePolicyInput, "targetUserId" | "currentAdminId">) {
+  return getAdminUserForceDeleteBlockers(input).length === 0;
+}

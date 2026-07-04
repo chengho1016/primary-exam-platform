@@ -17,6 +17,15 @@ export const UserRole = {
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
 
+export const UserAccountStatus = {
+  ACTIVE: 'ACTIVE',
+  DISABLED: 'DISABLED',
+  BLOCKED: 'BLOCKED'
+} as const
+
+export type UserAccountStatus = (typeof UserAccountStatus)[keyof typeof UserAccountStatus]
+
+
 export const PaperStatus = {
   DRAFT: 'DRAFT',
   REVIEW: 'REVIEW',

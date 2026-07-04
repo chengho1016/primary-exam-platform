@@ -12,6 +12,12 @@ enum UserRole {
   ADMIN
 }
 
+enum UserAccountStatus {
+  ACTIVE
+  DISABLED
+  BLOCKED
+}
+
 enum PaperStatus {
   DRAFT
   REVIEW
@@ -56,6 +62,7 @@ model User {
   passwordHash   String
   displayName    String
   role           UserRole           @default(PARENT)
+  accountStatus  UserAccountStatus  @default(ACTIVE)
   children       ChildProfile[]
   authoredPapers Paper[]            @relation("PaperAuthor")
   subscriptions  Subscription[]
@@ -65,6 +72,8 @@ model User {
   sessions       Session[]
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
+
+  @@index([accountStatus])
 }
 
 model Session {

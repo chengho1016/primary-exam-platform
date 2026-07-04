@@ -5,8 +5,9 @@ import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { Badge } from "@/components/ui";
 import { deleteAdminUserAction, updateAdminUserAction } from "@/app/admin/actions";
 import { requireAdmin } from "@/lib/auth/session";
+import { accountStatusLabels, type AccountStatus } from "@/lib/auth/account-status";
 import { getAdminUserDetail } from "@/lib/admin/admin-repository";
-import { getAdminUserDeleteBlockers } from "@/lib/admin/user-delete-policy";
+import { getAdminUserForceDeleteBlockers } from "@/lib/admin/user-delete-policy";
 
 export const metadata = { title: "編輯會員" };
 export const dynamic = "force-dynamic";
@@ -32,18 +33,17 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
   if (!user) notFound();
 
   const subscription = user.subscriptions[0];
-  const deleteBlockers = getAdminUserDeleteBlockers({
+  const deleteBlockers = getAdminUserForceDeleteBlockers({
     targetUserId: user.id,
     currentAdminId: admin.id,
-    role: user.role,
-    childrenCount: user._count.children,
-    entitlementsCount: user._count.entitlements,
-    printJobsCount: user._count.printJobs,
-    authoredPapersCount: user._count.authoredPapers,
-    auditLogsCount: user._count.auditLogs,
-    latestSubscriptionStatus: subscription?.status,
   });
   const deleteBlockedReason = deleteBlockers.join("、");
+
+  function getAccountStatusTone(status: AccountStatus) {
+    if (status === "ACTIVE") return "mint" as const;
+    if (status === "DISABLED") return "sun" as const;
+    return "coral" as const;
+  }
 
   return (
     <AppShell activePath="/admin/users" mode="admin">
@@ -73,6 +73,21 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
                   <option value="PARENT">家長</option>
                   <option value="ADMIN">管理員</option>
                 </select>
+              </div>
+              <div className="field">
+                <label htmlFor="accountStatus">帳戶狀態</label>
+                <select defaultValue={user.accountStatus} id="accountStatus" name="accountStatus">
+                  <option value="ACTIVE">啟用：可以登入</option>
+                  <option value="DISABLED">停用：暫停登入</option>
+                  <option value="BLOCKED">封鎖：阻止登入</option>
+                </select>
+                <p className="field-help">停用或封鎖後會清走該帳戶現有 session。</p>
+              </div>
+            </div>
+            <div className="field-row">
+              <div className="field">
+                <label>目前狀態</label>
+                <div className="readonly-box"><Badge tone={getAccountStatusTone(user.accountStatus)}>{accountStatusLabels[user.accountStatus]}</Badge></div>
               </div>
               <div className="field">
                 <label>目前資料</label>
@@ -134,20 +149,24 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
         <section className="form-panel admin-danger-zone">
           <div>
             <p className="eyebrow">Danger Zone</p>
-            <h2>刪除會員帳戶</h2>
-            <p>只適合刪除錯開、測試或未使用帳戶；有孩子檔案、試卷權限、列印紀錄、後台操作紀錄或使用中會籍時，系統會阻止硬刪。</p>
+            <h2>強制刪除會員帳戶</h2>
+            <p>輸入指定強制刪除密碼後，可強制刪除會員資料：孩子、會籍、權限、列印紀錄及 session 會被清理；其建立的試卷／審計紀錄會重指派到目前管理員。不能刪除目前登入中的管理員。</p>
             {deleteBlockers.length ? <p className="warning-banner">暫時不可刪除：{deleteBlockedReason}</p> : null}
           </div>
           {deleteBlockers.length ? (
             <button className="button button-danger" disabled title={deleteBlockedReason} type="button">受保護，不能刪除</button>
           ) : (
-            <form action={deleteAdminUserAction}>
+            <form action={deleteAdminUserAction} className="danger-zone-delete-form">
               <input name="userId" type="hidden" value={user.id} />
+              <div className="field">
+                <label htmlFor="forceDeletePassword">強制刪除密碼</label>
+                <input autoComplete="current-password" id="forceDeletePassword" name="adminPassword" placeholder="輸入強制刪除密碼" required type="password" />
+              </div>
               <ConfirmSubmitButton
                 className="button button-danger"
-                confirmMessage={`確定要刪除會員「${user.displayName}」（${user.email}）？此操作不能復原。`}
+                confirmMessage={`確定要強制刪除會員「${user.displayName}」（${user.email}）？系統會清理其孩子、會籍、權限、列印紀錄及登入 session，而且不能復原。`}
               >
-                刪除帳戶
+                強制刪除帳戶
               </ConfirmSubmitButton>
             </form>
           )}

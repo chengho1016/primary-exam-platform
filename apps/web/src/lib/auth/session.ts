@@ -3,6 +3,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db/prisma";
+import { canSignInWithAccountStatus } from "@/lib/auth/account-status";
 
 const SESSION_COOKIE = "primary_exam_session";
 const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
@@ -37,25 +38,35 @@ export async function deleteSession() {
 }
 
 export async function getCurrentUser() {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return undefined;
 
   const session = await db.session.findFirst({
     where: { tokenHash: hashSessionToken(token), expiresAt: { gt: new Date() } },
     select: {
+      id: true,
       user: {
         select: {
           id: true,
           email: true,
           displayName: true,
           role: true,
+          accountStatus: true,
           children: { orderBy: { createdAt: "asc" }, select: { id: true, displayName: true, grade: true } },
         },
       },
     },
   });
 
-  return session?.user;
+  if (!session) return undefined;
+  if (!canSignInWithAccountStatus(session.user.accountStatus)) {
+    await db.session.deleteMany({ where: { id: session.id } });
+    cookieStore.delete(SESSION_COOKIE);
+    return undefined;
+  }
+
+  return session.user;
 }
 
 export async function requireUser() {

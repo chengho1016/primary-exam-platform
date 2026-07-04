@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { canDeleteAdminUser, getAdminUserDeleteBlockers, type AdminUserDeletePolicyInput } from "./user-delete-policy";
+import {
+  canDeleteAdminUser,
+  canForceDeleteAdminUser,
+  getAdminUserDeleteBlockers,
+  getAdminUserForceDeleteBlockers,
+  type AdminUserDeletePolicyInput,
+} from "./user-delete-policy";
 
 const baseInput: AdminUserDeletePolicyInput = {
   targetUserId: "user-1",
@@ -44,6 +50,13 @@ describe("admin user delete policy", () => {
       "1 份試卷權限",
       "3 個列印紀錄",
       "4 筆後台操作紀錄",
+    ]);
+  });
+
+  it("allows force-delete for historical accounts but still blocks the current admin", () => {
+    expect(canForceDeleteAdminUser({ targetUserId: "user-1", currentAdminId: "admin-1" })).toBe(true);
+    expect(getAdminUserForceDeleteBlockers({ targetUserId: "admin-1", currentAdminId: "admin-1" })).toEqual([
+      "不能強制刪除目前登入中的管理員",
     ]);
   });
 });

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { db } from "@/lib/db/prisma";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { createSession, deleteSession } from "@/lib/auth/session";
+import { canSignInWithAccountStatus, getAccountStatusLoginMessage } from "@/lib/auth/account-status";
 
 export interface AuthActionState {
   error?: string;
@@ -40,6 +41,9 @@ export async function loginAction(
     : false;
 
   if (!user || !isValidPassword) return { error: "電郵地址或密碼不正確" };
+  if (!canSignInWithAccountStatus(user.accountStatus)) {
+    return { error: getAccountStatusLoginMessage(user.accountStatus) ?? "此帳戶暫時不可登入" };
+  }
 
   await db.session.deleteMany({ where: { userId: user.id, expiresAt: { lt: new Date() } } });
   await createSession(user.id);
