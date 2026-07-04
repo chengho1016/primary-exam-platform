@@ -558,12 +558,13 @@ svg { display: block; }
 .print-pages { display: grid; gap: 28px; justify-content: center; padding: 34px 20px 80px; }
 .source-print-preview { position: relative; width: min(1000px, calc(100vw - 40px)); height: calc(100vh - 120px); margin: 28px auto; overflow: hidden; border-radius: 16px; background: #fff; box-shadow: 0 12px 36px rgba(24,48,74,.18); }
 .source-print-preview iframe { position: relative; z-index: 1; width: 100%; height: 100%; border: 0; background: #fff; }
-.source-print-watermark { position: absolute; z-index: 2; inset: 0; display: grid; place-items: center; pointer-events: none; color: #244f78; font-size: clamp(22px, 4vw, 48px); font-weight: 900; opacity: .08; transform: rotate(-24deg); white-space: nowrap; }
+.source-print-watermark { position: absolute; z-index: 2; inset: -8%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-content: space-around; justify-items: center; gap: 20px 10px; pointer-events: none; transform: rotate(-24deg); opacity: .075; }
+.source-print-watermark span { color: #244f78; font-size: clamp(10px, 1.25vw, 16px); font-weight: 900; white-space: nowrap; }
 .print-page { position: relative; width: min(794px, calc(100vw - 40px)); aspect-ratio: 210 / 297; overflow: hidden; background: #fff; box-shadow: 0 12px 36px rgba(24,48,74,.18); }
 .print-page-image { display: block; width: 100%; height: 100%; object-fit: contain; }
 .print-page-label { position: absolute; right: 16px; bottom: 10px; z-index: 2; padding: 3px 6px; color: #32465b; background: rgba(255,255,255,.78); font-size: 7px; }
-.watermark-layer { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; align-content: space-around; justify-items: center; pointer-events: none; transform: rotate(-28deg) scale(1.25); opacity: .09; }
-.watermark-layer span { color: #244f78; font-size: 18px; font-weight: 900; white-space: nowrap; }
+.watermark-layer { position: absolute; inset: -8%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: space-around; justify-items: center; gap: 18px 8px; pointer-events: none; transform: rotate(-28deg) scale(1.08); opacity: .075; }
+.watermark-layer span { color: #244f78; font-size: 12px; font-weight: 900; white-space: nowrap; }
 .print-paper-header { display: flex; justify-content: space-between; padding-bottom: 16px; border-bottom: 2px solid var(--ink); }
 .print-paper-header h2 { margin: 0; font-size: 19px; }
 .print-paper-header span { font-size: 10px; }
@@ -1079,7 +1080,8 @@ body {
   .print-toolbar { display: none !important; }
   .print-pages { display: block; padding: 0; }
   .source-print-preview { width: 210mm; height: 297mm; margin: 0; border-radius: 0; box-shadow: none; }
-  .source-print-watermark { position: fixed; opacity: .11; color: #244f78; }
+  .source-print-watermark { position: fixed; opacity: .095; }
+  .source-print-watermark span { font-size: 9pt; }
   .print-page { width: 210mm; height: 297mm; break-after: page; box-shadow: none; }
   .print-page:last-child { break-after: auto; }
 }

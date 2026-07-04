@@ -10,7 +10,7 @@ const PAGE_COUNT = 12;
 function WatermarkLayer({ watermarkText }: { watermarkText: string }) {
   return (
     <div className="watermark-layer" aria-hidden="true">
-      {Array.from({ length: 8 }, (_, index) => <span key={index}>{watermarkText}</span>)}
+      {Array.from({ length: 24 }, (_, index) => <span key={index}>{watermarkText}</span>)}
     </div>
   );
 }
@@ -43,7 +43,9 @@ export function PrintPreview({ authorization, paperId, watermarkText, mode = "pa
         </header>
         <section className="source-print-preview">
           <iframe src={sourceUrl} title="試卷PDF列印預覽" />
-          <div className="source-print-watermark" aria-hidden="true">{watermarkText}</div>
+          <div className="source-print-watermark" aria-hidden="true">
+            {Array.from({ length: 32 }, (_, index) => <span key={index}>{watermarkText}</span>)}
+          </div>
         </section>
       </main>
     );
