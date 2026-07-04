@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BookIcon, ChartIcon, CheckIcon, CloseIcon, PaperIcon } from "@/components/icons";
 import { Badge, ProgressBar } from "@/components/ui";
 import type { PracticeQuestion } from "@/lib/domain/types";
@@ -56,6 +56,8 @@ export function PracticeSession({ paperId, paperTitle, questionPool }: { paperId
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [savedScore, setSavedScore] = useState<number>();
+  const [isFocusMode, setIsFocusMode] = useState(false);
+  const answerInputRef = useRef<HTMLInputElement>(null);
 
   const currentQuestion = questions[currentIndex];
   const currentAnswer = answers[currentQuestion.id] ?? "";
@@ -77,6 +79,36 @@ export function PracticeSession({ paperId, paperTitle, questionPool }: { paperId
     if (!currentAnswer) return;
     setGradedQuestions((currentQuestions) => ({ ...currentQuestions, [currentQuestion.id]: true }));
   }
+
+  // Keyboard shortcuts: Enter to grade/advance, arrows to navigate
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        if (event.key === "Enter" && !isCurrentGraded && currentAnswer) {
+          event.preventDefault();
+          gradeCurrentQuestion();
+        } else if (event.key === "Enter" && isCurrentGraded) {
+          event.preventDefault();
+          goToNextQuestion();
+        }
+        return;
+      }
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        event.preventDefault();
+        setCurrentIndex((index) => Math.min(questions.length - 1, index + 1));
+      } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        event.preventDefault();
+        setCurrentIndex((index) => Math.max(0, index - 1));
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
+
+  // Auto-focus answer input on question change
+  useEffect(() => {
+    answerInputRef.current?.focus();
+  }, [currentIndex]);
 
   function goToNextQuestion() {
     if (currentIndex === questions.length - 1) {
@@ -146,7 +178,7 @@ export function PracticeSession({ paperId, paperTitle, questionPool }: { paperId
 
   return (
     <main className="practice-layout practice-layout-redesign">
-      <aside className="practice-sidebar practice-sidebar-redesign">
+      <aside className={`practice-sidebar practice-sidebar-redesign${isFocusMode ? " practice-sidebar-hidden" : ""}`}>
         <div className="practice-sidebar-top">
           <Link className="brand" href="/dashboard"><span className="brand-mark"><BookIcon /></span>{siteConfig.name}</Link>
           <span className="practice-mode-pill">15題</span>
@@ -169,8 +201,10 @@ export function PracticeSession({ paperId, paperTitle, questionPool }: { paperId
         <div className="practice-topbar practice-topbar-redesign">
           <div><p>四年級 · 數學 · 智能練習</p><strong>{gradedCount}題已批改 · {score}題答對</strong></div>
           <div className="practice-progress"><ProgressBar value={progressPercent} label={`${gradedCount}/${questions.length}`} /></div>
+          <button className="practice-focus-toggle" onClick={() => setIsFocusMode((mode) => !mode)} title={isFocusMode ? "顯示側欄" : "專注模式"} type="button">{isFocusMode ? "顯示側欄" : "專注"}</button>
+          <span className="practice-kbd-hint" title="Enter 核對 · ←→ 導航">⌨️ Enter 核對 · ←→ 導航</span>
         </div>
-        <article className="question-card question-card-redesign">
+        <article className="question-card question-card-redesign" key={currentIndex}>
           <div className="question-heading question-heading-redesign">
             <div>
               <span className="question-number">練習第 {currentIndex + 1} 題{currentQuestion.sourceNumber ? ` · 原卷第 ${currentQuestion.sourceNumber} 題` : ""}</span>
@@ -192,6 +226,7 @@ export function PracticeSession({ paperId, paperTitle, questionPool }: { paperId
               inputMode={isTextAnswerQuestion(currentQuestion) ? "text" : "decimal"}
               onChange={(event) => updateAnswer(event.target.value)}
               placeholder={isTextAnswerQuestion(currentQuestion) ? "在此輸入文字答案，例如：正方形" : "在此輸入答案"}
+              ref={answerInputRef}
               type="text"
               value={currentAnswer}
             />

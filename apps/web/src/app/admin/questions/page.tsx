@@ -98,6 +98,7 @@ export default async function AdminQuestionsPage({ searchParams }: { searchParam
         <section className="admin-ops-strip admin-questions-strip" aria-label="題庫下一步">
           <div><span>可入題庫池</span><strong>{metrics.verified}</strong><small>已覆核 + 可網上練習</small></div>
           <div><span>待處理</span><strong>{metrics.needsReview}</strong><small>先核對答案與解析</small></div>
+          <div><span>只供列印</span><strong>{metrics.printOnly}</strong><small>暫不放入網上練習</small></div>
           <div><span>課題覆蓋</span><strong>{metrics.topicCount}</strong><small>未來組卷基礎</small></div>
         </section>
 
@@ -113,13 +114,6 @@ export default async function AdminQuestionsPage({ searchParams }: { searchParam
               </Link>
             );
           })}
-        </section>
-
-        <section className="admin-grid admin-question-metrics" aria-label="題庫概覽">
-          <div className="admin-stat tone-mint"><span>已覆核可練習</span><strong>{metrics.verified}</strong><small>可作網上練習／未來組卷基礎</small></div>
-          <div className="admin-stat tone-coral"><span>需要覆核</span><strong>{metrics.needsReview}</strong><small>先檢查答案規則</small></div>
-          <div className="admin-stat tone-sun"><span>只供列印</span><strong>{metrics.printOnly}</strong><small>暫不放入網上練習</small></div>
-          <div className="admin-stat tone-blue"><span>課題數</span><strong>{metrics.topicCount}</strong><small>下一步可正規化成 Topic table</small></div>
         </section>
 
         <form className="filter-bar" method="get">

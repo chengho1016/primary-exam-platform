@@ -76,6 +76,7 @@ export default async function AdminPapersPage({ searchParams }: { searchParams: 
   const publishedCount = papers.filter((paper) => paper.status === "PUBLISHED").length;
   const printableCount = papers.filter((paper) => paper.printablePdfPath || paper.sourceAssetPath).length;
   const practiceReadyCount = papers.filter((paper) => getPracticeState(paper).tone === "good").length;
+  const totalPapers = papers.length;
 
   return (
     <AppShell activePath="/admin/papers" mode="admin">
@@ -96,6 +97,7 @@ export default async function AdminPapersPage({ searchParams }: { searchParams: 
         ) : null}
 
         <section className="admin-ops-strip" aria-label="試卷營運狀態">
+          <div><span>全部試卷</span><strong>{totalPapers}</strong><small>系統中所有試卷</small></div>
           <div><span>已發布</span><strong>{publishedCount}</strong><small>前台可見試卷</small></div>
           <div><span>可列印</span><strong>{printableCount}</strong><small>PDF 或來源檔可用</small></div>
           <div><span>可練習</span><strong>{practiceReadyCount}</strong><small>15題以上已覆核</small></div>

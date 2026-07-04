@@ -28,8 +28,15 @@ export default async function DashboardPage() {
     <AppShell activePath="/dashboard">
       <div className="app-content">
         <header className="app-page-header dashboard-header dashboard-command-header">
-          <div><p className="eyebrow">Learning OS · 今日任務中心</p><h1>你好，{user.displayName}</h1><p>{child?.displayName ?? "孩子"}今個星期已完成{learning.weeklyAttemptCount}次練習；下一步係保持短、準、穩。</p></div>
-          <ButtonLink href="/papers" variant="secondary">尋找試卷</ButtonLink>
+          <div>
+            <p className="eyebrow">Learning OS · 今日任務中心</p>
+            <h1>你好，{user.displayName}</h1>
+            <p>{child?.displayName ?? "孩子"}今個星期已完成{learning.weeklyAttemptCount}次練習；下一步係保持短、準、穩。</p>
+          </div>
+          <div className="dashboard-header-right">
+            <span className="dashboard-today">{new Intl.DateTimeFormat("zh-HK", { weekday: "long", month: "long", day: "numeric" }).format(new Date())}</span>
+            <ButtonLink href="/papers" variant="secondary">尋找試卷</ButtonLink>
+          </div>
         </header>
         <div className="dashboard-hero dashboard-mission-grid">
           <section className="welcome-card dashboard-mission-card">
