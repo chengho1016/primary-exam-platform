@@ -26,7 +26,7 @@ export function RegisterForm() {
     <form action={action} className="form-stack">
       <div className="field"><label htmlFor="name">家長稱呼</label><input id="name" name="name" placeholder="例如：陳太" required /></div>
       <div className="field"><label htmlFor="register-email">電郵地址</label><input autoComplete="email" id="register-email" name="email" type="email" placeholder="parent@example.com" required /></div>
-      <div className="field"><label htmlFor="phone-number">電話號碼</label><input autoComplete="tel" id="phone-number" inputMode="tel" name="phoneNumber" placeholder="例如：9123 4567" required /><p className="field-hint">用作帳戶識別；列印試卷時會加入水印，減低共享及外流風險。</p></div>
+      <div className="field"><label htmlFor="phone-number">電話號碼</label><input autoComplete="tel" id="phone-number" inputMode="tel" name="phoneNumber" placeholder="例如：9123 4567" required /></div>
       <div className="field-row">
         <div className="field"><label htmlFor="child-name">小朋友名稱</label><input id="child-name" name="childName" placeholder="樂言" required /></div>
         <div className="field"><label htmlFor="grade">年級</label><select id="grade" name="grade" defaultValue="4"><option value="1">小一</option><option value="2">小二</option><option value="3">小三</option><option value="4">小四</option><option value="5">小五</option><option value="6">小六</option></select></div>
