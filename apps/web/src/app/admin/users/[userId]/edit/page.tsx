@@ -132,12 +132,24 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
           </section>
 
           <section className="form-panel">
+            <h2>孩子檔案</h2>
+            <p>可直接編輯小朋友名稱同年級。空白名稱會刪除該孩子。最多 3 位小朋友。</p>
+            {[0, 1, 2].map((index) => {
+              const childNumber = index + 1;
+              const child = user.children[index];
+              return (
+                <div className="field-row" key={childNumber}>
+                  <input name={`child${childNumber}Id`} type="hidden" value={child?.id ?? ""} />
+                  <div className="field"><label htmlFor={`child${childNumber}Name`}>{childNumber === 1 ? "第一個小朋友名稱" : childNumber === 2 ? "第二位小朋友名稱" : "第三位小朋友名稱"}</label><input defaultValue={child?.displayName ?? ""} id={`child${childNumber}Name`} name={`child${childNumber}Name`} placeholder={childNumber === 1 ? "例如：樂言" : "選填"} /></div>
+                  <div className="field"><label htmlFor={`child${childNumber}Grade`}>年級</label><select defaultValue={child?.grade ?? (childNumber === 1 ? 4 : "")} id={`child${childNumber}Grade`} name={`child${childNumber}Grade`}>{[1, 2, 3, 4, 5, 6].map((grade) => <option key={grade} value={grade}>小{grade}</option>)}</select></div>
+                </div>
+              );
+            })}
+          </section>
+
+          <section className="form-panel">
             <h2>關聯資料</h2>
             <div className="admin-related-grid">
-              <div>
-                <h3>孩子檔案</h3>
-                {user.children.length ? <ul>{user.children.map((child) => <li key={child.id}>{child.displayName} · 小{child.grade}</li>)}</ul> : <p className="row-muted">未建立孩子檔案</p>}
-              </div>
               <div>
                 <h3>試卷權限</h3>
                 {user.entitlements.length ? <ul>{user.entitlements.slice(0, 6).map((entitlement) => <li key={entitlement.id}>{entitlement.paper.code} · 列印額度 {entitlement.printAllowance}</li>)}</ul> : <p className="row-muted">未有逐份試卷權限</p>}

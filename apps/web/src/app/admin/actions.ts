@@ -129,6 +129,12 @@ const adminUserSchema = z.object({
   periodStartsAt: z.string().trim().max(40),
   periodEndsAt: z.string().trim().max(40),
   newPassword: z.string().trim().max(128).optional(),
+  child1Name: z.string().trim().max(50).optional(),
+  child1Grade: z.coerce.number().int().min(1).max(6).optional(),
+  child2Name: z.string().trim().max(50).optional(),
+  child2Grade: z.coerce.number().int().min(1).max(6).optional(),
+  child3Name: z.string().trim().max(50).optional(),
+  child3Grade: z.coerce.number().int().min(1).max(6).optional(),
 });
 
 function isUniqueConstraintError(error: unknown) {
@@ -702,6 +708,15 @@ export async function updateAdminUserAction(formData: FormData) {
   const newPassword = parsedUser.data.newPassword?.trim();
   const passwordHash = newPassword ? await hash(newPassword, 12) : undefined;
 
+  const childSlots = [
+    { name: parsedUser.data.child1Name?.trim(), grade: parsedUser.data.child1Grade ?? 0 },
+    { name: parsedUser.data.child2Name?.trim(), grade: parsedUser.data.child2Grade ?? 0 },
+    { name: parsedUser.data.child3Name?.trim(), grade: parsedUser.data.child3Grade ?? 0 },
+  ].filter((child): child is { name: string; grade: number } => {
+    const { grade } = child;
+    return Boolean(child.name) && Number.isInteger(grade) && grade >= 1 && grade <= 6;
+  });
+
   if (parsedUser.data.userId === admin.id && parsedUser.data.accountStatus !== "ACTIVE") {
     throw new Error("不能停用或封鎖目前登入中的管理員帳戶");
   }
@@ -748,6 +763,24 @@ export async function updateAdminUserAction(formData: FormData) {
 
     if (parsedUser.data.accountStatus !== "ACTIVE") {
       await tx.session.deleteMany({ where: { userId: parsedUser.data.userId } });
+    }
+
+    const existingChildren = await tx.childProfile.findMany({
+      where: { parentId: parsedUser.data.userId },
+      orderBy: { createdAt: "asc" },
+      select: { id: true },
+    });
+
+    for (let i = 0; i < Math.max(existingChildren.length, childSlots.length); i++) {
+      const existing = existingChildren[i];
+      const slot = childSlots[i];
+      if (slot && existing) {
+        await tx.childProfile.update({ where: { id: existing.id }, data: { displayName: slot.name, grade: slot.grade } });
+      } else if (slot && !existing) {
+        await tx.childProfile.create({ data: { parentId: parsedUser.data.userId, displayName: slot.name, grade: slot.grade } });
+      } else if (!slot && existing) {
+        await tx.childProfile.delete({ where: { id: existing.id } });
+      }
     }
 
     await tx.adminAuditLog.create({
