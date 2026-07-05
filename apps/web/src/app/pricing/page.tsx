@@ -5,9 +5,8 @@ import { ButtonLink, SectionHeading } from "@/components/ui";
 import { siteConfig } from "@/lib/site-config";
 
 const plans = [
-  { name: "免費試用", description: "適合先試流程的家庭", price: "$0", suffix: "永久", features: ["可瀏覽公開試卷", "試做精選15題練習", "建立家長與孩子帳戶"], cta: "免費註冊", href: "/register", featured: false },
-  { name: "家庭月費", description: "正式溫習、列印及追蹤弱項", price: "$88", suffix: "／月", features: ["不限次數網上練習", "每月10份水印列印額度", "完整錯題本與家長報告", "最多3個孩子檔案"], cta: "聯絡開通", href: "/contact?plan=monthly", featured: true },
-  { name: "逐份試卷", description: "只需要指定考試卷時使用", price: "$18", suffix: "／份起", features: ["指定試卷永久練習權", "2次水印列印授權", "保留該卷錯題紀錄"], cta: "瀏覽試卷", href: "/papers", featured: false },
+  { name: "考試之星", description: "無限下載及列印，適合恆常溫習", price: "$128", suffix: "／月", features: ["不限次數網上練習", "無限水印列印", "完整錯題本及家長報告", "最多3個孩子檔案", "單月收費，隨時取消"], cta: "聯絡開通", href: "/contact?plan=star", featured: false },
+  { name: "考試之王", description: "全年無限下載及列印，最抵用", price: "$300", suffix: "／年", features: ["考試之星全部功能", "全年無限下載及列印", "每年收費，節省 $1,236", "優先客服支援"], cta: "聯絡開通", href: "/contact?plan=king", featured: true },
 ];
 
 const faqs = [
@@ -26,7 +25,7 @@ export default function PricingPage() {
       <main>
         <section className="section pricing-hero-section">
           <div className="container">
-            <SectionHeading eyebrow="Commercial MVP" title="可以先收費營運，再逐步接入自動付款" description="第一階段用清楚方案 + 後台手動開通，先驗證家長願意付費；付款 provider 準備好後再自動化。" />
+            <SectionHeading eyebrow="Plans" title="兩個方案，無限練習與列印" description="考試之星適合逐月使用，考試之王全年最抵。聯絡客服後，管理員可即時開通會籍。" />
             <div className="pricing-grid">{plans.map((plan) => <article className={`pricing-card ${plan.featured ? "featured" : ""}`} key={plan.name}>{plan.featured ? <span className="pricing-ribbon">建議主推</span> : null}<h3>{plan.name}</h3><p>{plan.description}</p><div className="price">{plan.price}<small>{plan.suffix}</small></div><ul className="feature-list">{plan.features.map((feature) => <li key={feature}><CheckIcon />{feature}</li>)}</ul><ButtonLink className="button-full" href={plan.href} variant={plan.featured ? "primary" : "secondary"}>{plan.cta}</ButtonLink></article>)}</div>
           </div>
         </section>

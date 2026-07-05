@@ -410,7 +410,7 @@ svg { display: block; }
 .bar-column:nth-child(4) i { background: linear-gradient(180deg, #f5aa9c, var(--coral)); }
 .bar-column span { color: var(--ink-soft); font-size: 10px; }
 
-.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); align-items: stretch; gap: 18px; }
+.pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); align-items: stretch; gap: 18px; }
 .pricing-card { position: relative; padding: 30px; border: 1px solid var(--line); border-radius: 22px; background: #fff; box-shadow: var(--shadow-sm); }
 .pricing-card.featured { border: 2px solid var(--blue); transform: translateY(-8px); box-shadow: var(--shadow-md); }
 .pricing-ribbon { position: absolute; top: -12px; right: 24px; padding: 6px 11px; border-radius: 999px; color: #fff; background: var(--blue); font-size: 9px; font-weight: 900; }
