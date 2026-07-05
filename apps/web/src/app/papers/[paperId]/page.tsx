@@ -33,15 +33,22 @@ export default async function PaperDetailPage({ params }: { params: Promise<{ pa
             <p className="eyebrow">Paper Mission Brief</p>
             <h1>{paper.title}</h1>
             <p>
-              先了解試卷範圍，再選擇 15 題網上練習或防外流水印列印。第三階段把試卷詳情變成「任務簡報」，家長同小朋友更易判斷下一步。
+              先了解試卷範圍，再選擇「預覽及列印」或「線上練習」。家長可以先睇卷面，再決定列印紙本定做 15 題短練習。
             </p>
             <div className="paper-detail-actions-inline">
+              {canPrint ? (
+                <form action={createPrintJobAction}>
+                  <input name="paperId" type="hidden" value={paper.id} />
+                  <button className="button button-primary" type="submit"><PrinterIcon />預覽及列印</button>
+                </form>
+              ) : (
+                <span className="button button-disabled">列印檔案整理中</span>
+              )}
               {practiceReady ? (
-                <Link className="button button-primary" href={`/practice/${paper.id}`}><SparklesIcon />開始15題練習</Link>
+                <Link className="button button-secondary" href={`/practice/${paper.id}`}><SparklesIcon />線上練習</Link>
               ) : (
                 <span className="button button-disabled">網上題目整理中</span>
               )}
-              <Link className="button button-secondary" href="/papers">返回試卷庫</Link>
             </div>
           </div>
 
@@ -88,26 +95,26 @@ export default async function PaperDetailPage({ params }: { params: Promise<{ pa
 
           <aside className="action-card action-card-redesign">
             <p className="eyebrow">Choose Mode</p>
-            <h3>選擇使用方式</h3>
-            <p>兩種模式使用同一份題庫，但保留各自最合適的作答體驗。</p>
+            <h3>預覽列印或線上練習</h3>
+            <p>家長先預覽試卷，確認合適就列印；想即時批改就用線上練習。</p>
             <div className="action-stack action-stack-redesign">
-              {practiceReady ? (
-                <Link className="button button-primary" href={`/practice/${paper.id}`}><SparklesIcon />開始15題練習</Link>
-              ) : (
-                <span className="button button-disabled">網上題目整理中</span>
-              )}
               {canPrint ? (
                 <form action={createPrintJobAction}>
                   <input name="paperId" type="hidden" value={paper.id} />
-                  <button className="button button-secondary button-full" type="submit"><PrinterIcon />{printMode === "source" ? "預覽來源檔並列印" : "預覽及列印"}</button>
+                  <button className="button button-primary button-full" type="submit"><PrinterIcon />{printMode === "source" ? "預覽來源檔並列印" : "預覽及列印"}</button>
                 </form>
               ) : (
                 <span className="button button-disabled">列印檔案整理中</span>
               )}
+              {practiceReady ? (
+                <Link className="button button-secondary" href={`/practice/${paper.id}`}><SparklesIcon />線上練習</Link>
+              ) : (
+                <span className="button button-disabled">網上題目整理中</span>
+              )}
             </div>
             <div className="paper-mode-note">
               <strong>Learning OS 建議</strong>
-              <span>{practiceReady ? "今日先做 15 題，錯題會自動沉澱到弱項訓練中心。" : "如果網上題未齊，先用列印模式完成紙本測驗。"}</span>
+              <span>{practiceReady ? "如果想即時知道對錯，先做 15 題；如果想紙本測驗，先預覽再列印。" : "如果網上題未齊，先用預覽及列印模式完成紙本測驗。"}</span>
             </div>
           </aside>
         </div>

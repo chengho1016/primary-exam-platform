@@ -33,8 +33,8 @@ export function PaperCard({ paper }: { paper: PaperSummary }) {
           <small>{canPractice ? "適合網上15題練習" : "可先查看或列印試卷"}</small>
         </div>
         <div className="paper-card-actions">
-          <Link className="button button-secondary button-small" href={`/papers/${paper.id}`}>查看詳情</Link>
-          {canPractice ? <Link className="button button-primary button-small" href={`/practice/${paper.id}`}><SparklesIcon />開始練習</Link> : <Link className="card-link" href={`/papers/${paper.id}`}>查看試卷 →</Link>}
+          <Link className="button button-secondary button-small" href={`/papers/${paper.id}`}>預覽及列印</Link>
+          {canPractice ? <Link className="button button-primary button-small" href={`/practice/${paper.id}`}><SparklesIcon />線上練習</Link> : <Link className="card-link" href={`/papers/${paper.id}`}>預覽試卷 →</Link>}
         </div>
       </div>
     </article>

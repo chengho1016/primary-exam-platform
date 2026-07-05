@@ -19,10 +19,12 @@ const weekDays = ["一", "二", "三", "四", "五", "六", "日"] as const;
 export default async function DashboardPage() {
   const user = await requireUser();
   const child = user.children[0];
+  const childProfiles = user.children.slice(0, 3);
   const learning = child ? await getDashboardLearningData(child.id) : { weeklyAttemptCount: 0, recentAttempts: [], recommendedPaper: null };
   const weeklyGoal = 4;
   const goalProgress = Math.min(100, learning.weeklyAttemptCount / weeklyGoal * 100);
-  const recommendedHref = learning.recommendedPaper ? `/practice/${learning.recommendedPaper.id}` : "/papers?subject=math";
+  const gradePapersHref = child ? `/papers?grade=${child.grade}` : "/papers";
+  const recommendedHref = learning.recommendedPaper ? `/practice/${learning.recommendedPaper.id}` : `${gradePapersHref}${child ? "&subject=math" : "?subject=math"}`;
 
   return (
     <AppShell activePath="/dashboard">
@@ -35,7 +37,7 @@ export default async function DashboardPage() {
           </div>
           <div className="dashboard-header-right">
             <span className="dashboard-today">{new Intl.DateTimeFormat("zh-HK", { weekday: "long", month: "long", day: "numeric" }).format(new Date())}</span>
-            <ButtonLink href="/papers" variant="secondary">尋找試卷</ButtonLink>
+            <ButtonLink href={gradePapersHref} variant="secondary">尋找及列印試卷</ButtonLink>
           </div>
         </header>
         <div className="dashboard-hero dashboard-mission-grid">
@@ -49,6 +51,11 @@ export default async function DashboardPage() {
           </section>
           <aside className="profile-card dashboard-rhythm-card">
             <div className="child-card-top"><div className="child-avatar">{child?.displayName.slice(0, 1) ?? "童"}</div><div><h3>{child?.displayName ?? "尚未加入孩子"}</h3><span>小{child?.grade ?? "-"} · 本週第{learning.weeklyAttemptCount}次練習</span></div></div>
+            {childProfiles.length ? (
+              <div className="child-grade-chips" aria-label="孩子年級">
+                {childProfiles.map((profile) => <Link href={`/papers?grade=${profile.grade}`} key={profile.id}>{profile.displayName}<span>小{profile.grade}</span></Link>)}
+              </div>
+            ) : null}
             <div className="weekly-score"><div><small>本週目標</small><strong>{learning.weeklyAttemptCount} / {weeklyGoal}</strong></div><span className="badge badge-mint">{learning.weeklyAttemptCount >= weeklyGoal ? "已達標" : `還差${weeklyGoal - learning.weeklyAttemptCount}次`}</span></div>
             <ProgressBar value={goalProgress} label={`${Math.round(goalProgress)}%`} />
             <div className="mission-mini-list">
@@ -59,7 +66,7 @@ export default async function DashboardPage() {
 
         <SectionHeading title="選擇科目" description={`內容會自動配合${child?.displayName ?? "孩子"}目前的小${child?.grade ?? "學"}年級。`} />
         <div className="subject-grid">
-          {subjects.map((subject) => <Link className={`subject-tile tone-${subject.tone}`} href={`/papers?subject=${subject.id}`} key={subject.id}><span>{subject.shortName}</span><strong>{subject.name}</strong><small>查看試卷 →</small></Link>)}
+          {subjects.map((subject) => <Link className={`subject-tile tone-${subject.tone}`} href={`${gradePapersHref}${child ? `&subject=${subject.id}` : `?subject=${subject.id}`}`} key={subject.id}><span>{subject.shortName}</span><strong>{subject.name}</strong><small>查看試卷 →</small></Link>)}
         </div>
 
         <div className="dashboard-grid">

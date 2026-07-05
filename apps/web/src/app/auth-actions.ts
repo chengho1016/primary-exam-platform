@@ -25,8 +25,13 @@ const registerSchema = z.object({
     .min(1, "請輸入電話號碼")
     .refine((value) => Boolean(normalizePhoneNumber(value)), "請輸入有效電話號碼")
     .transform((value) => normalizePhoneNumber(value)!),
-  childName: z.string().trim().min(1, "請輸入小朋友名稱").max(50),
-  grade: z.coerce.number().int().min(1).max(6),
+  childName1: z.string().trim().min(1, "請輸入至少一位小朋友名稱").max(50),
+  grade1: z.coerce.number().int().min(1).max(6),
+  childName2: z.string().trim().max(50).optional(),
+  grade2: z.coerce.number().int().min(1).max(6).optional(),
+  childName3: z.string().trim().max(50).optional(),
+  grade3: z.coerce.number().int().min(1).max(6).optional(),
+  verificationCode: z.string().trim().refine((value) => value === "1234", "驗證碼不正確"),
   password: z.string().min(8, "密碼最少需要8個字元").regex(/[A-Za-z]/, "密碼需要包含英文字母").regex(/[0-9]/, "密碼需要包含數字"),
 });
 
@@ -65,6 +70,11 @@ export async function registerAction(
 
   try {
     const passwordHash = await hashPassword(parsedAccount.data.password);
+    const children = [
+      { displayName: parsedAccount.data.childName1, grade: parsedAccount.data.grade1 },
+      parsedAccount.data.childName2 ? { displayName: parsedAccount.data.childName2, grade: parsedAccount.data.grade2 ?? parsedAccount.data.grade1 } : null,
+      parsedAccount.data.childName3 ? { displayName: parsedAccount.data.childName3, grade: parsedAccount.data.grade3 ?? parsedAccount.data.grade1 } : null,
+    ].filter((child): child is { displayName: string; grade: number } => Boolean(child));
     const user = await db.user.create({
       data: {
         email: parsedAccount.data.email,
@@ -72,7 +82,7 @@ export async function registerAction(
         displayName: parsedAccount.data.name,
         passwordHash,
         children: {
-          create: { displayName: parsedAccount.data.childName, grade: parsedAccount.data.grade },
+          create: children,
         },
       },
     });

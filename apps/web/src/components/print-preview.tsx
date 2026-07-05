@@ -7,10 +7,26 @@ import { LockIcon, PrinterIcon } from "@/components/icons";
 const PAPER_ID = "2324-03-MA-P4";
 const PAGE_COUNT = 12;
 
+function splitWatermarkText(watermarkText: string) {
+  const [email = watermarkText, phone = "", date = "", authorization = ""] = watermarkText.split(" · ");
+  return { email, phone, date, authorization };
+}
+
+function WatermarkTile({ watermarkText }: { watermarkText: string }) {
+  const { email, phone, date, authorization } = splitWatermarkText(watermarkText);
+  return (
+    <span className="watermark-tile">
+      <em>{email}</em>
+      <em>{phone}</em>
+      <em>{date} · {authorization}</em>
+    </span>
+  );
+}
+
 function WatermarkLayer({ watermarkText }: { watermarkText: string }) {
   return (
     <div className="watermark-layer" aria-hidden="true">
-            {Array.from({ length: 20 }, (_, index) => <span key={index}>{watermarkText}</span>)}
+      {Array.from({ length: 12 }, (_, index) => <WatermarkTile key={index} watermarkText={watermarkText} />)}
     </div>
   );
 }
@@ -44,7 +60,7 @@ export function PrintPreview({ authorization, paperId, watermarkText, mode = "pa
         <section className="source-print-preview">
           <iframe src={sourceUrl} title="試卷PDF列印預覽" />
           <div className="source-print-watermark" aria-hidden="true">
-            {Array.from({ length: 24 }, (_, index) => <span key={index}>{watermarkText}</span>)}
+            {Array.from({ length: 12 }, (_, index) => <WatermarkTile key={index} watermarkText={watermarkText} />)}
           </div>
         </section>
       </main>

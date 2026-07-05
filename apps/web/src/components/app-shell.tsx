@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 
 const memberNavigation = [
   { href: "/dashboard", label: "首頁", desktopLabel: "學習首頁", icon: HomeIcon },
-  { href: "/papers", label: "試卷", desktopLabel: "試卷練習", icon: PaperIcon },
+  { href: "/papers", label: "試卷", desktopLabel: "尋找及列印試卷", icon: PaperIcon },
   { href: "/wrong-book", label: "錯題", desktopLabel: "錯題本", icon: WrongBookIcon },
   { href: "/parent", label: "報告", desktopLabel: "家長報告", icon: ChartIcon },
   { href: "/membership", label: "會員", desktopLabel: "會員計劃", icon: CardIcon },

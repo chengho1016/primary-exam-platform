@@ -15,7 +15,7 @@ export default function RegisterPage() {
       </aside>
       <section className="auth-main">
         <div className="auth-card">
-          <h2>建立免費帳戶</h2><p>先填寫家長資料，登入後再加入孩子。</p>
+          <h2>建立免費帳戶</h2><p>先填寫家長資料，同時加入最多 3 位小朋友。</p>
           <RegisterForm />
           <p className="auth-switch">已有帳戶？ <Link href="/login">立即登入</Link></p>
         </div>
