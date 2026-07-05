@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { PracticeSession } from "@/components/practice-session";
+import { canAccessGrade } from "@/lib/auth/grade-access";
 import { hasPaperAccess } from "@/lib/auth/entitlements";
 import { requireUser } from "@/lib/auth/session";
 import { getPublishedPaperDetails } from "@/lib/papers/paper-repository";
@@ -12,6 +13,7 @@ export default async function PracticePage({ params }: { params: Promise<{ paper
   const user = await requireUser();
   const paper = await getPublishedPaperDetails(paperId);
   if (!paper) notFound();
+  if (!canAccessGrade(user, paper.summary.grade)) redirect("/papers");
   if (!(await hasPaperAccess(user.id, paperId))) redirect("/membership");
   const questionPool = await getPracticeQuestionPool(paperId);
   if (questionPool.length < 15) notFound();

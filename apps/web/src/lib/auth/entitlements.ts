@@ -1,12 +1,20 @@
 import "server-only";
+import { canAccessGrade } from "@/lib/auth/grade-access";
 import { db } from "@/lib/db/prisma";
 
 export async function hasPaperAccess(userId: string, paperId: string) {
-  const paper = await db.paper.findFirst({
-    where: { id: paperId, status: "PUBLISHED" },
-    select: { access: true },
-  });
-  if (!paper) return false;
+  const [paper, user] = await Promise.all([
+    db.paper.findFirst({
+      where: { id: paperId, status: "PUBLISHED" },
+      select: { access: true, grade: true },
+    }),
+    db.user.findUnique({
+      where: { id: userId },
+      select: { role: true, children: { select: { grade: true } } },
+    }),
+  ]);
+  if (!paper || !user) return false;
+  if (!canAccessGrade(user, paper.grade)) return false;
   if (paper.access === "FREE") return true;
 
   if (paper.access === "MEMBERSHIP") {

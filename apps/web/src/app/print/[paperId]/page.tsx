@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { PrintPreview } from "@/components/print-preview";
+import { canAccessGrade } from "@/lib/auth/grade-access";
 import { hasPaperAccess } from "@/lib/auth/entitlements";
 import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
@@ -13,6 +14,7 @@ export default async function PrintPage({ params, searchParams }: { params: Prom
   const user = await requireUser();
   const paper = await getPublishedPaperDetails(paperId);
   if (!paper || !paper.canPrint) notFound();
+  if (!canAccessGrade(user, paper.summary.grade)) redirect("/papers");
   if (!(await hasPaperAccess(user.id, paperId))) redirect("/membership");
   if (!authorization) redirect(`/papers/${paperId}`);
 

@@ -11,12 +11,14 @@ export default async function WrongBookPage() {
   const user = await requireUser();
   const child = user.children[0];
   const { items, topicCounts } = child ? await getWrongBook(child.id) : { items: [], topicCounts: {} };
-  const recommendedPaper = await getRecommendedPracticePaper();
+  const recommendedPaper = await getRecommendedPracticePaper(child?.grade);
   const practiceHref = items[0]?.question.paper.id
     ? `/practice/${items[0].question.paper.id}`
     : recommendedPaper
       ? `/practice/${recommendedPaper.id}`
-      : "/papers?subject=math";
+      : child
+        ? `/papers?grade=${child.grade}&subject=math`
+        : "/papers?subject=math";
   const priorityTopics = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]);
   const topTopic = priorityTopics[0];
   const totalWrong = items.reduce((sum, item) => sum + item.incorrectCount, 0);

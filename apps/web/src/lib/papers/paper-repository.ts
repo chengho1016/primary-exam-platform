@@ -47,9 +47,15 @@ function mapPaperSummary(paper: {
   };
 }
 
-export async function listPublishedPapers(filters: { grade?: number; subject?: string } = {}) {
+export async function listPublishedPapers(filters: { grade?: number; subject?: string; allowedGrades?: number[] } = {}) {
   const where: Prisma.PaperWhereInput = { status: "PUBLISHED" };
-  if (filters.grade) where.grade = filters.grade;
+  if (filters.allowedGrades) {
+    if (!filters.allowedGrades.length) return [];
+    if (filters.grade && !filters.allowedGrades.includes(filters.grade)) return [];
+    where.grade = filters.grade ?? { in: filters.allowedGrades };
+  } else if (filters.grade) {
+    where.grade = filters.grade;
+  }
   if (filters.subject) where.subject = filters.subject;
 
   const papers = await db.paper.findMany({

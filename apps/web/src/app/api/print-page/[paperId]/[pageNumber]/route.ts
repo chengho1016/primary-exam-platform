@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { notFound } from "next/navigation";
 import sharp from "sharp";
+import { hasPaperAccess } from "@/lib/auth/entitlements";
 import { getCurrentUser } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
 
@@ -38,6 +39,7 @@ export async function GET(
   const { paperId, pageNumber } = await params;
   const page = Number(pageNumber);
   if (paperId !== PAPER_ID || !Number.isInteger(page) || page < 1 || page > PAGE_COUNT) notFound();
+  if (!(await hasPaperAccess(user.id, paperId))) return new Response("Grade access denied", { status: 403 });
 
   const authorization = new URL(request.url).searchParams.get("job");
   const printJob = authorization ? await db.printJob.findFirst({

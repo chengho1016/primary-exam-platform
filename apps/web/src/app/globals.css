@@ -289,7 +289,8 @@ svg { display: block; }
 .filter-bar { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; margin-bottom: 24px; padding: 18px; border: 1px solid var(--line); border-radius: 17px; background: #fff; }
 .papers-header { margin-bottom: 20px; }
 .paper-toolbar { display: grid; gap: 16px; margin-bottom: 18px; padding: 20px; border: 1px solid var(--line); border-radius: 22px; background: #fff; box-shadow: var(--shadow-soft); }
-.toolbar-label { display: block; margin-bottom: 9px; color: var(--ink-soft); font-size: 11px; font-weight: 900; letter-spacing: .06em; }
+.toolbar-label { display: block; margin-bottom: 9px; color: var(--ink-soft); font-size: 12px; font-weight: 850; }
+.grade-scope-note { margin: 8px 0 0; color: var(--ink-soft); font-size: 11px; font-weight: 750; }
 .filter-chips { display: flex; flex-wrap: wrap; gap: 9px; }
 .filter-chips a { min-height: 38px; display: inline-flex; align-items: center; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); background: #fff; font-size: 12px; font-weight: 850; }
 .filter-chips a:hover { border-color: #c5d3e7; color: var(--blue); background: #f8fbff; }

@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { hasPaperAccess } from "@/lib/auth/entitlements";
+import { canAccessGrade } from "@/lib/auth/grade-access";
 import { buildPrintWatermarkText } from "@/lib/auth/phone";
 import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
@@ -12,13 +13,13 @@ export async function createPrintJobAction(formData: FormData) {
   if (typeof paperId !== "string" || !paperId) throw new Error("無效的試卷");
 
   const user = await requireUser();
-  if (!(await hasPaperAccess(user.id, paperId))) redirect("/membership");
-
   const paper = await db.paper.findFirst({
     where: { id: paperId, status: "PUBLISHED", OR: [{ printablePdfPath: { not: null } }, { sourceAssetPath: { not: "" } }] },
-    select: { id: true },
+    select: { id: true, grade: true },
   });
   if (!paper) throw new Error("此試卷暫時未能列印");
+  if (!canAccessGrade(user, paper.grade)) redirect("/papers");
+  if (!(await hasPaperAccess(user.id, paperId))) redirect("/membership");
 
   const authorization = `PRINT-${randomUUID().slice(0, 8).toUpperCase()}`;
   const now = new Date();

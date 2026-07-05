@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { hasPaperAccess } from "@/lib/auth/entitlements";
 import { getCurrentUser } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
 
@@ -32,6 +33,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ pape
   ]);
 
   if (!paper) notFound();
+  if (!(await hasPaperAccess(user.id, paperId))) return new Response("Grade access denied", { status: 403 });
   if (!printJob) return new Response("Print authorization expired", { status: 403 });
 
   const source = parseDataUri(paper.sourceAssetPath);

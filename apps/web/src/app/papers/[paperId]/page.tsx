@@ -4,6 +4,8 @@ import { AppShell } from "@/components/app-shell";
 import { LockIcon, PrinterIcon, SparklesIcon } from "@/components/icons";
 import { Badge } from "@/components/ui";
 import { createPrintJobAction } from "@/app/print/actions";
+import { canAccessGrade } from "@/lib/auth/grade-access";
+import { getCurrentUser } from "@/lib/auth/session";
 import { getPublishedPaperDetails } from "@/lib/papers/paper-repository";
 
 export async function generateMetadata({ params }: { params: Promise<{ paperId: string }> }) {
@@ -14,9 +16,10 @@ export async function generateMetadata({ params }: { params: Promise<{ paperId: 
 
 export default async function PaperDetailPage({ params }: { params: Promise<{ paperId: string }> }) {
   const { paperId } = await params;
-  const details = await getPublishedPaperDetails(paperId);
+  const [details, user] = await Promise.all([getPublishedPaperDetails(paperId), getCurrentUser()]);
   if (!details) notFound();
   const { summary: paper, topics, onlineQuestionCount, canPrint, printMode } = details;
+  if (user && !canAccessGrade(user, paper.grade)) notFound();
   const practiceReady = onlineQuestionCount >= 15;
   const readinessPercent = Math.min(Math.round((onlineQuestionCount / 15) * 100), 100);
 

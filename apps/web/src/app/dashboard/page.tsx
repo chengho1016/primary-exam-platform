@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { ArrowRightIcon } from "@/components/icons";
 import { ButtonLink, ProgressBar, SectionHeading } from "@/components/ui";
+import { buildAllowedGradeLabel, getAllowedGrades } from "@/lib/auth/grade-access";
 import { requireUser } from "@/lib/auth/session";
 import { getDashboardLearningData } from "@/lib/learning/learning-repository";
 import { subjects } from "@/lib/site-config";
@@ -20,11 +21,12 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const child = user.children[0];
   const childProfiles = user.children.slice(0, 3);
-  const learning = child ? await getDashboardLearningData(child.id) : { weeklyAttemptCount: 0, recentAttempts: [], recommendedPaper: null };
+  const allowedGradeLabel = buildAllowedGradeLabel(getAllowedGrades(user));
+  const learning = child ? await getDashboardLearningData(child.id, child.grade) : { weeklyAttemptCount: 0, recentAttempts: [], recommendedPaper: null };
   const weeklyGoal = 4;
   const goalProgress = Math.min(100, learning.weeklyAttemptCount / weeklyGoal * 100);
-  const gradePapersHref = child ? `/papers?grade=${child.grade}` : "/papers";
-  const recommendedHref = learning.recommendedPaper ? `/practice/${learning.recommendedPaper.id}` : `${gradePapersHref}${child ? "&subject=math" : "?subject=math"}`;
+  const gradePapersHref = "/papers";
+  const recommendedHref = learning.recommendedPaper ? `/practice/${learning.recommendedPaper.id}` : "/papers?subject=math";
 
   return (
     <AppShell activePath="/dashboard">
@@ -33,7 +35,7 @@ export default async function DashboardPage() {
           <div>
             <p className="eyebrow">Learning OS · 今日任務中心</p>
             <h1>你好，{user.displayName}</h1>
-            <p>{child?.displayName ?? "孩子"}今個星期已完成{learning.weeklyAttemptCount}次練習；下一步係保持短、準、穩。</p>
+            <p>{child?.displayName ?? "孩子"}今個星期已完成{learning.weeklyAttemptCount}次練習；帳戶只會開放 {allowedGradeLabel} 的試卷服務。</p>
           </div>
           <div className="dashboard-header-right">
             <span className="dashboard-today">{new Intl.DateTimeFormat("zh-HK", { weekday: "long", month: "long", day: "numeric" }).format(new Date())}</span>
@@ -66,7 +68,7 @@ export default async function DashboardPage() {
 
         <SectionHeading title="選擇科目" description={`內容會自動配合${child?.displayName ?? "孩子"}目前的小${child?.grade ?? "學"}年級。`} />
         <div className="subject-grid">
-          {subjects.map((subject) => <Link className={`subject-tile tone-${subject.tone}`} href={`${gradePapersHref}${child ? `&subject=${subject.id}` : `?subject=${subject.id}`}`} key={subject.id}><span>{subject.shortName}</span><strong>{subject.name}</strong><small>查看試卷 →</small></Link>)}
+          {subjects.map((subject) => <Link className={`subject-tile tone-${subject.tone}`} href={`/papers?subject=${subject.id}`} key={subject.id}><span>{subject.shortName}</span><strong>{subject.name}</strong><small>查看試卷 →</small></Link>)}
         </div>
 
         <div className="dashboard-grid">

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { PaperCard } from "@/components/paper-card";
+import { buildAllowedGradeLabel, getAllowedGrades, isGradeRestrictedUser } from "@/lib/auth/grade-access";
+import { getCurrentUser } from "@/lib/auth/session";
 import { listPublishedPapers } from "@/lib/papers/paper-repository";
 import { grades, subjects } from "@/lib/site-config";
 
@@ -17,15 +19,21 @@ function buildFilterHref(next: { grade?: string; subject?: string }) {
 }
 
 export default async function PapersPage({ searchParams }: { searchParams: Promise<{ grade?: string; subject?: string }> }) {
-  const filters = await searchParams;
-  const grade = Number(filters.grade);
-  const selectedGrade = Number.isInteger(grade) && grade >= 1 && grade <= 6 ? String(grade) : "";
+  const [filters, user] = await Promise.all([searchParams, getCurrentUser()]);
+  const requestedGrade = Number(filters.grade);
+  const gradeRestricted = Boolean(user && isGradeRestrictedUser(user));
+  const allowedGrades = user ? getAllowedGrades(user) : [];
+  const visibleGrades = gradeRestricted ? allowedGrades : grades;
+  const selectedGrade = Number.isInteger(requestedGrade) && requestedGrade >= 1 && requestedGrade <= 6 && (!gradeRestricted || allowedGrades.includes(requestedGrade)) ? String(requestedGrade) : "";
   const selectedSubject = filters.subject && subjectValues[filters.subject] ? filters.subject : "";
   const papers = await listPublishedPapers({
     grade: selectedGrade ? Number(selectedGrade) : undefined,
     subject: selectedSubject ? subjectValues[selectedSubject] : undefined,
+    allowedGrades: gradeRestricted ? allowedGrades : undefined,
   });
   const selectedSubjectLabel = selectedSubject ? subjectValues[selectedSubject] : "全部科目";
+  const gradeScopeLabel = gradeRestricted ? buildAllowedGradeLabel(allowedGrades) : "P1-P6";
+  const currentGradeLabel = selectedGrade ? `小${selectedGrade}` : gradeRestricted ? gradeScopeLabel : "全部年級";
 
   return (
     <AppShell activePath="/papers">
@@ -34,11 +42,11 @@ export default async function PapersPage({ searchParams }: { searchParams: Promi
           <div>
             <p className="eyebrow">試卷庫</p>
             <h1>揀一份卷，立即開始今日學習任務</h1>
-            <p>{selectedGrade ? `小${selectedGrade}` : "全部年級"} · {selectedSubjectLabel} · 找到 {papers.length} 份可用試卷。每張卡都標示是否可練習、可列印，家長不用逐頁估。</p>
+            <p>{currentGradeLabel} · {selectedSubjectLabel} · 找到 {papers.length} 份可用試卷。系統只會顯示帳戶小朋友年級可使用的服務。</p>
           </div>
           <div className="library-hero-stats" aria-label="試卷庫摘要">
             <span><strong>{papers.length}</strong>份試卷</span>
-            <span><strong>{selectedGrade ? `小${selectedGrade}` : "P1-P6"}</strong>年級</span>
+            <span><strong>{currentGradeLabel}</strong>年級</span>
             <span><strong>{selectedSubjectLabel}</strong>科目</span>
           </div>
         </header>
@@ -48,10 +56,11 @@ export default async function PapersPage({ searchParams }: { searchParams: Promi
             <span className="toolbar-label">年級</span>
             <div className="filter-chips">
               <Link className={!selectedGrade ? "active" : ""} href={buildFilterHref({ subject: selectedSubject })}>全部</Link>
-              {grades.map((gradeOption) => (
+              {visibleGrades.map((gradeOption) => (
                 <Link className={selectedGrade === String(gradeOption) ? "active" : ""} href={buildFilterHref({ grade: String(gradeOption), subject: selectedSubject })} key={gradeOption}>小{gradeOption}</Link>
               ))}
             </div>
+            {gradeRestricted ? <p className="grade-scope-note">此帳戶只開放：{gradeScopeLabel}</p> : null}
           </div>
           <div>
             <span className="toolbar-label">科目</span>
@@ -65,7 +74,7 @@ export default async function PapersPage({ searchParams }: { searchParams: Promi
         </section>
 
         <form className="filter-bar compact-filter" method="get">
-          <div className="field"><label htmlFor="grade-filter">年級</label><select id="grade-filter" name="grade" defaultValue={selectedGrade}><option value="">全部年級</option>{grades.map((gradeOption) => <option value={gradeOption} key={gradeOption}>小{gradeOption}</option>)}</select></div>
+          <div className="field"><label htmlFor="grade-filter">年級</label><select id="grade-filter" name="grade" defaultValue={selectedGrade}><option value="">全部可用年級</option>{visibleGrades.map((gradeOption) => <option value={gradeOption} key={gradeOption}>小{gradeOption}</option>)}</select></div>
           <div className="field"><label htmlFor="subject-filter">科目</label><select id="subject-filter" name="subject" defaultValue={selectedSubject}><option value="">全部科目</option>{subjects.map((subject) => <option value={subject.id} key={subject.id}>{subject.name}</option>)}</select></div>
           <button className="button button-primary button-small" type="submit">套用篩選</button>
         </form>
@@ -76,7 +85,7 @@ export default async function PapersPage({ searchParams }: { searchParams: Promi
           <div className="empty-state upgraded-empty-state">
             <span className="empty-state-symbol" aria-hidden="true">卷</span>
             <h2>暫時未有符合條件的試卷</h2>
-            <p>試下切換年級或科目；如果你是管理員，可以先到後台上傳新試卷。</p>
+            <p>{gradeRestricted ? "此帳戶沒有這個年級的服務權限；請改用已登記小朋友年級。" : "試下切換年級或科目；如果你是管理員，可以先到後台上傳新試卷。"}</p>
             <div className="empty-actions"><Link className="button button-secondary button-small" href="/papers">清除篩選</Link><Link className="button button-primary button-small" href="/admin/papers/new">上傳試卷</Link></div>
           </div>
         )}

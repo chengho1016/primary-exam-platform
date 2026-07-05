@@ -42,9 +42,9 @@ export async function getParentReport(childId: string) {
   return { attempts, accuracy, resolvedWrongCount, activeWrongCount, subjectTotals };
 }
 
-export async function getRecommendedPracticePaper() {
+export async function getRecommendedPracticePaper(grade?: number) {
   const papers = await db.paper.findMany({
-    where: { status: "PUBLISHED", subject: "數學" },
+    where: { status: "PUBLISHED", subject: "數學", ...(grade ? { grade } : {}) },
     orderBy: [{ updatedAt: "desc" }],
     select: {
       id: true,
@@ -61,7 +61,7 @@ export async function getRecommendedPracticePaper() {
   return papers.find((paper) => paper._count.questions >= 15) ?? null;
 }
 
-export async function getDashboardLearningData(childId: string) {
+export async function getDashboardLearningData(childId: string, grade?: number) {
   const weekStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const [weeklyAttemptCount, recentAttempts, recommendedPaper] = await Promise.all([
     db.attempt.count({ where: { childId, status: "COMPLETED", completedAt: { gte: weekStart } } }),
@@ -71,7 +71,7 @@ export async function getDashboardLearningData(childId: string) {
       take: 5,
       include: { paper: { select: { title: true, subject: true } } },
     }),
-    getRecommendedPracticePaper(),
+    getRecommendedPracticePaper(grade),
   ]);
   return { weeklyAttemptCount, recentAttempts, recommendedPaper };
 }
