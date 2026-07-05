@@ -2,7 +2,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { siteConfig } from "@/lib/site-config";
 
-export const metadata = { title: "私隱政策｜小學堂" };
+export const metadata = { title: "私隱政策" };
 
 export default function PrivacyPage() {
   return (
@@ -12,7 +12,7 @@ export default function PrivacyPage() {
         <div className="container legal-card">
           <p className="eyebrow">Privacy</p>
           <h1>私隱政策</h1>
-          <p>小學堂只收集提供學習服務所需的基本資料，包括登入電郵、電話號碼、家長/孩子名稱、年級、練習紀錄、錯題紀錄、列印授權及會籍狀態。</p>
+          <p>考試吧只收集提供學習服務所需的基本資料，包括登入電郵、電話號碼、家長/孩子名稱、年級、練習紀錄、錯題紀錄、列印授權及會籍狀態。</p>
           <h2>我們如何使用資料</h2>
           <ul><li>用作登入、會員權限、試卷練習、錯題追蹤及家長報告。</li><li>管理員操作會寫入 AdminAuditLog，方便追查帳戶、試卷及權限變更。</li><li>不會出售會員或孩子資料。</li></ul>
           <h2>資料保安</h2>

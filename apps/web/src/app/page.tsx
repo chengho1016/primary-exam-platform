@@ -32,7 +32,7 @@ export default function HomePage() {
             <div className="hero-copy redesign-hero-copy">
               <p className="eyebrow">香港小學生 · 練習 / 列印 / 跟進</p>
               <h1>每日十五題，慢慢變成真正識做。</h1>
-              <p>小學堂將試卷庫、智能練習、錯題追蹤和家長管理整理成一條清晰路線。孩子不再迷路，家長不再靠估，管理員亦可以穩定擴充題庫。</p>
+              <p>考試吧將試卷庫、智能練習、錯題追蹤和家長管理整理成一條清晰路線。孩子不再迷路，家長不再靠估，管理員亦可以穩定擴充題庫。</p>
               <div className="hero-actions">
                 <ButtonLink href="/register">免費開始練習<ArrowRightIcon /></ButtonLink>
                 <ButtonLink href="/papers" variant="secondary">瀏覽試卷庫</ButtonLink>

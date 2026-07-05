@@ -16,7 +16,7 @@ const faqs = [
   ["付款後如何開通？", `正式自動付款前，請用 ${siteConfig.supportEmail} 聯絡；管理員可即時在後台開通會籍與列印額度。`],
 ] as const;
 
-export const metadata = { title: "收費方案｜小學堂" };
+export const metadata = { title: "收費方案" };
 
 export default function PricingPage() {
   return (

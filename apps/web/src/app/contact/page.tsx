@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { ButtonLink, SectionHeading } from "@/components/ui";
 import { siteConfig } from "@/lib/site-config";
 
-export const metadata = { title: "聯絡我們｜小學堂" };
+export const metadata = { title: "聯絡我們" };
 
 export default function ContactPage() {
   return (
@@ -17,7 +17,7 @@ export default function ContactPage() {
               <div className="contact-card">
                 <h3>客服電郵</h3>
                 <p>{siteConfig.supportEmail}</p>
-                <ButtonLink href={`mailto:${siteConfig.supportEmail}?subject=小學堂會員開通查詢`}>發送查詢</ButtonLink>
+                <ButtonLink href={`mailto:${siteConfig.supportEmail}?subject=考試吧會員開通查詢`}>發送查詢</ButtonLink>
               </div>
             </div>
             <aside className="form-panel contact-runbook">
