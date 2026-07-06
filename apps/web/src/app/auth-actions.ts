@@ -11,6 +11,8 @@ import { createVerificationToken } from "@/lib/auth/verification";
 
 export interface AuthActionState {
   error?: string;
+  step?: "verify";
+  email?: string;
 }
 
 const loginSchema = z.object({
@@ -89,8 +91,8 @@ export async function registerAction(
     return { error: result.error || "未能發送驗證電郵，請稍後再試" };
   }
 
-  // Redirect to verification page
-  redirect(`/verify?email=${encodeURIComponent(email)}`);
+  // Return verification step instead of redirecting — single-page flow
+  return { step: "verify", email };
 }
 
 export async function logoutAction() {
