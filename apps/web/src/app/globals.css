@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #2D2E2A !important;
-  --ink-soft: #A4835A !important;
-  --navy: #4F1D0E !important;
-  --blue: #E3A37D !important;
-  --blue-dark: #C8875E !important;
-  --blue-soft: #FFEEE7 !important;
-  --mint: #78A890 !important;
-  --mint-soft: #EAF5EF !important;
-  --sun: #D4956B !important;
-  --sun-soft: #FFF0E5 !important;
-  --coral: #C7775E !important;
-  --coral-soft: #FFF0E8 !important;
-  --purple: #B8956A !important;
-  --purple-soft: #F7EFE5 !important;
-  --paper: #FDF5EE !important;
-  --line: #D9C4B0 !important;
-  --white: #fff !important;
-  --shadow-sm: 0 10px 28px rgba(79, 29, 14, 0.06) !important;
-  --shadow-md: 0 22px 55px rgba(79, 29, 14, 0.10) !important;
-  --shadow-soft: 0 12px 30px rgba(79, 29, 14, 0.07) !important;
-  --ring: 0 0 0 4px rgba(227, 163, 125, 0.22) !important;
+  --ink: #16304a;
+  --ink-soft: #526579;
+  --navy: #173653;
+  --blue: #4c7df3;
+  --blue-dark: #3564d7;
+  --blue-soft: #edf3ff;
+  --mint: #40b891;
+  --mint-soft: #e9f8f2;
+  --sun: #f2b94b;
+  --sun-soft: #fff6dd;
+  --coral: #ee826d;
+  --coral-soft: #fff0ec;
+  --purple: #8b74d8;
+  --purple-soft: #f2efff;
+  --paper: #f7f8fb;
+  --line: #e1e7ef;
+  --white: #fff;
+  --shadow-sm: 0 10px 28px rgba(38, 58, 82, 0.08);
+  --shadow-md: 0 22px 55px rgba(38, 58, 82, 0.13);
+  --shadow-soft: 0 12px 30px rgba(38, 58, 82, 0.08);
+  --ring: 0 0 0 4px rgba(76, 125, 243, 0.14);
 }
 
 * { box-sizing: border-box; }
