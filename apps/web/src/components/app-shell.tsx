@@ -3,15 +3,20 @@ import type { ReactNode } from "react";
 import { logoutAction } from "@/app/auth-actions";
 import { BookIcon, CardIcon, ChartIcon, HomeIcon, PaperIcon, SettingsIcon, SparklesIcon, UploadIcon, UsersIcon, WrongBookIcon } from "@/components/icons";
 import { siteConfig } from "@/lib/site-config";
+import { isOnlinePracticeEnabled } from "@/lib/features";
 import { getCurrentUser } from "@/lib/auth/session";
 
-const memberNavigation = [
-  { href: "/dashboard", label: "首頁", desktopLabel: "學習首頁", icon: HomeIcon },
+const baseMemberNavigation = [
+  { href: "/dashboard", label: "首頁", desktopLabel: "會員首頁", icon: HomeIcon },
   { href: "/papers", label: "試卷", desktopLabel: "尋找及列印試卷", icon: PaperIcon },
-  { href: "/wrong-book", label: "錯題", desktopLabel: "錯題本", icon: WrongBookIcon },
+  { href: "/wrong-book", label: "錯題", desktopLabel: "錯題本", icon: WrongBookIcon, onlinePracticeOnly: true },
   { href: "/parent", label: "報告", desktopLabel: "家長報告", icon: ChartIcon },
   { href: "/membership", label: "會員", desktopLabel: "會員計劃", icon: CardIcon },
 ];
+
+const memberNavigation = isOnlinePracticeEnabled
+  ? baseMemberNavigation
+  : baseMemberNavigation.filter((item) => !item.onlinePracticeOnly);
 
 const adminNavigation = [
   { href: "/admin", label: "概覽", desktopLabel: "管理概覽", icon: HomeIcon },

@@ -10,7 +10,7 @@ export default function LoginPage() {
     <main className="auth-page">
       <aside className="auth-aside">
         <Link className="brand" href="/"><span className="brand-mark"><BookIcon /></span>{siteConfig.name}</Link>
-        <div className="auth-aside-copy"><h1>每天一點練習，累積真正進步。</h1><p>登入後繼續上次的練習、查看錯題本，亦可為孩子列印已授權試卷。</p></div>
+        <div className="auth-aside-copy"><h1>先揀卷，再列印，從紙本開始。</h1><p>現階段先專注影印試卷：登入後按孩子年級揀卷、預覽後即時水印列印。線上練習會之後獨立開放。</p></div>
         <div className="auth-quote">「最有用的不是做更多題，而是知道哪一類題目需要再試一次。」</div>
       </aside>
       <section className="auth-main">

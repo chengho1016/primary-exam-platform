@@ -3,6 +3,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { hasPaperAccess } from "@/lib/auth/entitlements";
 import { getCurrentUser } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
+import { isOnlinePracticeEnabled } from "@/lib/features";
 import { gradeAnswer, type AnswerRule } from "@/lib/practice/grading";
 import { buildQuestionContentSnapshot } from "@/lib/questions/question-snapshot";
 
@@ -43,6 +44,8 @@ async function syncWrongBook(
 }
 
 export async function POST(request: Request) {
+  if (!isOnlinePracticeEnabled) return Response.json({ error: "線上練習已暫停，請先使用影印試卷服務。" }, { status: 403 });
+
   const user = await getCurrentUser();
   const child = user?.children[0];
   if (!user || !child) return Response.json({ error: "請先登入家長帳戶" }, { status: 401 });

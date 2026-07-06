@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Badge, ButtonLink } from "@/components/ui";
 import { requireUser } from "@/lib/auth/session";
+import { isOnlinePracticeEnabled, onlinePracticeStatus } from "@/lib/features";
 import { formatAnswerRule } from "@/lib/admin/presentation";
 import { getRecommendedPracticePaper, getWrongBook } from "@/lib/learning/learning-repository";
 
@@ -10,6 +11,32 @@ export const metadata = { title: "錯題本" };
 export default async function WrongBookPage() {
   const user = await requireUser();
   const child = user.children[0];
+
+  if (!isOnlinePracticeEnabled) {
+    return (
+      <AppShell activePath="/papers">
+        <div className="app-content wrong-book-redesign-page">
+          <header className="app-page-header wrong-book-header">
+            <div>
+              <p className="eyebrow">線上練習服務</p>
+              <h1>{onlinePracticeStatus.pausedTitle}</h1>
+              <p>{onlinePracticeStatus.pausedDescription}</p>
+            </div>
+            <ButtonLink href="/papers">前往影印試卷庫</ButtonLink>
+          </header>
+          <section className="wrong-hero-card">
+            <div>
+              <span>目前方向</span>
+              <strong>先把影印試卷、水印、權限流程做好</strong>
+              <p>錯題本會跟線上練習一齊保留，等服務重新開放後再繼續使用。</p>
+            </div>
+            <Link className="button button-primary" href="/papers">瀏覽及列印試卷</Link>
+          </section>
+        </div>
+      </AppShell>
+    );
+  }
+
   const { items, topicCounts } = child ? await getWrongBook(child.id) : { items: [], topicCounts: {} };
   const recommendedPaper = await getRecommendedPracticePaper(child?.grade);
   const practiceHref = items[0]?.question.paper.id

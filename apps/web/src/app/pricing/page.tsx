@@ -5,7 +5,7 @@ import { ButtonLink, SectionHeading } from "@/components/ui";
 import { siteConfig } from "@/lib/site-config";
 
 const plans = [
-  { name: "考試之星", description: "無限下載及列印，適合恆常溫習", price: "$128", suffix: "／月", features: ["不限次數網上練習", "無限水印列印", "完整錯題本及家長報告", "最多3個孩子檔案", "單月收費，隨時取消"], cta: "聯絡開通", href: "/contact?plan=star", featured: false },
+  { name: "考試之星", description: "無限下載及列印，適合恆常溫習", price: "$128", suffix: "／月", features: ["水印試卷列印", "按年級科目揀卷", "未來線上練習獨立重開", "最多3個孩子檔案", "單月收費，隨時取消"], cta: "聯絡開通", href: "/contact?plan=star", featured: false },
   { name: "考試之王", description: "全年無限下載及列印，最抵用", price: "$300", suffix: "／年", features: ["考試之星全部功能", "全年無限下載及列印", "每年收費，節省 $1,236", "優先客服支援"], cta: "聯絡開通", href: "/contact?plan=king", featured: true },
 ];
 
@@ -25,7 +25,7 @@ export default function PricingPage() {
       <main>
         <section className="section pricing-hero-section">
           <div className="container">
-            <SectionHeading eyebrow="Plans" title="兩個方案，無限練習與列印" description="考試之星適合逐月使用，考試之王全年最抵。聯絡客服後，管理員可即時開通會籍。" />
+            <SectionHeading eyebrow="Plans" title="兩個方案，水印試卷無限列印" description="現階段先開放影印試卷，線上練習會之後獨立重開。考試之星適合逐月使用，考試之王全年最抵。" />
             <div className="pricing-grid">{plans.map((plan) => <article className={`pricing-card ${plan.featured ? "featured" : ""}`} key={plan.name}>{plan.featured ? <span className="pricing-ribbon">建議主推</span> : null}<h3>{plan.name}</h3><p>{plan.description}</p><div className="price">{plan.price}<small>{plan.suffix}</small></div><ul className="feature-list">{plan.features.map((feature) => <li key={feature}><CheckIcon />{feature}</li>)}</ul><ButtonLink className="button-full" href={plan.href} variant={plan.featured ? "primary" : "secondary"}>{plan.cta}</ButtonLink></article>)}</div>
           </div>
         </section>

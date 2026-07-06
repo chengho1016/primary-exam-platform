@@ -40,9 +40,9 @@ export default async function PapersPage({ searchParams }: { searchParams: Promi
       <div className="app-content">
         <header className="app-page-header papers-header paper-library-hero">
           <div>
-            <p className="eyebrow">試卷庫</p>
-            <h1>揀一份卷，立即開始今日學習任務</h1>
-            <p>{currentGradeLabel} · {selectedSubjectLabel} · 找到 {papers.length} 份可用試卷。系統只會顯示帳戶小朋友年級可使用的服務。</p>
+            <p className="eyebrow">影印試卷庫</p>
+            <h1>揀一份卷，預覽後立即列印</h1>
+            <p>{currentGradeLabel} · {selectedSubjectLabel} · 找到 {papers.length} 份可用試卷。現階段先專注水印影印試卷；線上練習會拆成獨立服務，稍後再開放。</p>
           </div>
           <div className="library-hero-stats" aria-label="試卷庫摘要">
             <span><strong>{papers.length}</strong>份試卷</span>

@@ -3,6 +3,7 @@ import { PracticeSession } from "@/components/practice-session";
 import { canAccessGrade } from "@/lib/auth/grade-access";
 import { hasPaperAccess } from "@/lib/auth/entitlements";
 import { requireUser } from "@/lib/auth/session";
+import { isOnlinePracticeEnabled } from "@/lib/features";
 import { getPublishedPaperDetails } from "@/lib/papers/paper-repository";
 import { getPracticeQuestionPool } from "@/lib/practice/practice-repository";
 
@@ -10,6 +11,8 @@ export const metadata = { title: "15題智能練習" };
 
 export default async function PracticePage({ params }: { params: Promise<{ paperId: string }> }) {
   const { paperId } = await params;
+  if (!isOnlinePracticeEnabled) redirect(`/papers/${paperId}`);
+
   const user = await requireUser();
   const paper = await getPublishedPaperDetails(paperId);
   if (!paper) notFound();

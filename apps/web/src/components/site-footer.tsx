@@ -14,7 +14,7 @@ export function SiteFooter() {
         <div><strong>支援</strong><Link href="/contact">聯絡我們</Link><Link href="/privacy">私隱政策</Link><Link href="/terms">服務條款</Link></div>
         <div><strong>管理</strong><Link href="/admin">管理後台</Link><Link href="/admin/users">會員管理</Link><Link href="/admin/database">資料庫概覽</Link></div>
       </div>
-      <div className="container footer-bottom">© 2026 {siteConfig.name}。商業化 MVP，持續加入更多試卷與課題練習。</div>
+      <div className="container footer-bottom">© 2026 {siteConfig.name}。現階段先專注影印試卷服務；線上練習會之後獨立重開。</div>
     </footer>
   );
 }

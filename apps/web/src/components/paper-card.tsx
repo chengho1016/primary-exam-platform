@@ -1,12 +1,19 @@
 import Link from "next/link";
 import { LockIcon, PaperIcon, SparklesIcon } from "@/components/icons";
 import { Badge } from "@/components/ui";
+import { isOnlinePracticeEnabled, onlinePracticeStatus } from "@/lib/features";
 import type { PaperSummary } from "@/lib/domain/types";
 
 const difficultyLabel = { easy: "基礎", medium: "標準", hard: "進階" } as const;
 
 export function PaperCard({ paper }: { paper: PaperSummary }) {
-  const canPractice = paper.questionCount >= 15;
+  const canPractice = isOnlinePracticeEnabled && paper.questionCount >= 15;
+  const readinessLabel = isOnlinePracticeEnabled
+    ? canPractice ? "可即時練習" : "待補題庫"
+    : "影印試卷優先";
+  const readinessDescription = isOnlinePracticeEnabled
+    ? canPractice ? "適合網上15題練習" : "可先查看或列印試卷"
+    : "現階段先預覽及列印完整試卷";
 
   return (
     <article className="paper-card upgraded-paper-card">
@@ -29,12 +36,16 @@ export function PaperCard({ paper }: { paper: PaperSummary }) {
           <span>約{paper.durationMinutes}分鐘</span>
         </div>
         <div className="paper-readiness">
-          <span className={canPractice ? "ready" : "pending"}>{canPractice ? "可即時練習" : "待補題庫"}</span>
-          <small>{canPractice ? "適合網上15題練習" : "可先查看或列印試卷"}</small>
+          <span className={isOnlinePracticeEnabled && !canPractice ? "pending" : "ready"}>{readinessLabel}</span>
+          <small>{readinessDescription}</small>
         </div>
         <div className="paper-card-actions">
-          <Link className="button button-secondary button-small" href={`/papers/${paper.id}`}>預覽及列印</Link>
-          {canPractice ? <Link className="button button-primary button-small" href={`/practice/${paper.id}`}><SparklesIcon />線上練習</Link> : <Link className="card-link" href={`/papers/${paper.id}`}>預覽試卷 →</Link>}
+          <Link className="button button-primary button-small" href={`/papers/${paper.id}`}>預覽及列印</Link>
+          {isOnlinePracticeEnabled ? (
+            canPractice ? <Link className="button button-secondary button-small" href={`/practice/${paper.id}`}><SparklesIcon />線上練習</Link> : <Link className="card-link" href={`/papers/${paper.id}`}>預覽試卷 →</Link>
+          ) : (
+            <span className="button button-disabled button-small"><SparklesIcon />{onlinePracticeStatus.pausedLabel}</span>
+          )}
         </div>
       </div>
     </article>

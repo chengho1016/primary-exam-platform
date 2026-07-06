@@ -36,6 +36,10 @@ vi.mock("@/lib/questions/question-snapshot", () => ({
   buildQuestionContentSnapshot: mocks.buildQuestionContentSnapshot,
 }));
 
+vi.mock("@/lib/features", () => ({
+  isOnlinePracticeEnabled: true,
+}));
+
 function makeQuestion(index: number) {
   return {
     id: `question-${index}`,

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui";
 import { createPrintJobAction } from "@/app/print/actions";
 import { canAccessGrade } from "@/lib/auth/grade-access";
 import { getCurrentUser } from "@/lib/auth/session";
+import { isOnlinePracticeEnabled, onlinePracticeStatus } from "@/lib/features";
 import { getPublishedPaperDetails } from "@/lib/papers/paper-repository";
 
 export async function generateMetadata({ params }: { params: Promise<{ paperId: string }> }) {
@@ -20,8 +21,29 @@ export default async function PaperDetailPage({ params }: { params: Promise<{ pa
   if (!details) notFound();
   const { summary: paper, topics, onlineQuestionCount, canPrint, printMode } = details;
   if (user && !canAccessGrade(user, paper.grade)) notFound();
-  const practiceReady = onlineQuestionCount >= 15;
-  const readinessPercent = Math.min(Math.round((onlineQuestionCount / 15) * 100), 100);
+  const practiceReady = isOnlinePracticeEnabled && onlineQuestionCount >= 15;
+  const readinessPercent = isOnlinePracticeEnabled ? Math.min(Math.round((onlineQuestionCount / 15) * 100), 100) : 100;
+  const practiceStatusCopy = isOnlinePracticeEnabled
+    ? practiceReady ? "已可網上練習" : "等待題庫補齊"
+    : onlinePracticeStatus.pausedTitle;
+  const practiceStatusDescription = isOnlinePracticeEnabled
+    ? practiceReady ? "已達 15 題門檻，可以直接進入沉浸式練習。" : "未達 15 題門檻時，建議先用紙本列印或等待 Admin 補題。"
+    : onlinePracticeStatus.pausedDescription;
+
+  const printButton = canPrint ? (
+    <form action={createPrintJobAction}>
+      <input name="paperId" type="hidden" value={paper.id} />
+      <button className="button button-primary" type="submit"><PrinterIcon />預覽及列印</button>
+    </form>
+  ) : (
+    <span className="button button-disabled">列印檔案整理中</span>
+  );
+
+  const renderPracticeButton = () => isOnlinePracticeEnabled
+    ? practiceReady
+      ? <Link className="button button-secondary" href={`/practice/${paper.id}`}><SparklesIcon />線上練習</Link>
+      : <span className="button button-disabled">網上題目整理中</span>
+    : <span className="button button-disabled"><SparklesIcon />{onlinePracticeStatus.pausedLabel}</span>;
 
   return (
     <AppShell activePath="/papers">
@@ -33,25 +55,14 @@ export default async function PaperDetailPage({ params }: { params: Promise<{ pa
               <Badge tone="mint">{paper.subject}</Badge>
               <Badge tone="gray">{paper.academicYear}</Badge>
             </div>
-            <p className="eyebrow">Paper Mission Brief</p>
+            <p className="eyebrow">Print Mission Brief</p>
             <h1>{paper.title}</h1>
             <p>
-              先了解試卷範圍，再選擇「預覽及列印」或「線上練習」。家長可以先睇卷面，再決定列印紙本定做 15 題短練習。
+              先預覽試卷內容，再用會員水印列印完整紙本。線上練習已暫停，之後會拆成獨立服務再重新開放。
             </p>
             <div className="paper-detail-actions-inline">
-              {canPrint ? (
-                <form action={createPrintJobAction}>
-                  <input name="paperId" type="hidden" value={paper.id} />
-                  <button className="button button-primary" type="submit"><PrinterIcon />預覽及列印</button>
-                </form>
-              ) : (
-                <span className="button button-disabled">列印檔案整理中</span>
-              )}
-              {practiceReady ? (
-                <Link className="button button-secondary" href={`/practice/${paper.id}`}><SparklesIcon />線上練習</Link>
-              ) : (
-                <span className="button button-disabled">網上題目整理中</span>
-              )}
+              {printButton}
+              {renderPracticeButton()}
             </div>
           </div>
 
@@ -60,11 +71,10 @@ export default async function PaperDetailPage({ params }: { params: Promise<{ pa
               className="paper-readiness-ring"
               style={{ background: `conic-gradient(var(--mint) 0 ${readinessPercent}%, var(--mint-soft) ${readinessPercent}% 100%)` }}
             >
-              <strong>{onlineQuestionCount}</strong>
-              <span>/ 15 題</span>
+              {isOnlinePracticeEnabled ? <><strong>{onlineQuestionCount}</strong><span>/ 15 題</span></> : <><strong>列印</strong><span>優先</span></>}
             </div>
-            <h2>{practiceReady ? "已可網上練習" : "等待題庫補齊"}</h2>
-            <p>{practiceReady ? "已達 15 題門檻，可以直接進入沉浸式練習。" : "未達 15 題門檻時，建議先用紙本列印或等待 Admin 補題。"}</p>
+            <h2>{practiceStatusCopy}</h2>
+            <p>{practiceStatusDescription}</p>
             <div className="readiness-track"><span style={{ width: `${readinessPercent}%` }} /></div>
           </aside>
         </section>
@@ -75,13 +85,13 @@ export default async function PaperDetailPage({ params }: { params: Promise<{ pa
               <div><span>題目</span><strong>{paper.questionCount}題</strong><small>完整試卷題量</small></div>
               <div><span>頁數</span><strong>{paper.pageCount || "—"}頁</strong><small>原卷／列印來源</small></div>
               <div><span>建議時間</span><strong>{paper.durationMinutes}分鐘</strong><small>家庭測驗節奏</small></div>
-              <div><span>網上練習</span><strong>{onlineQuestionCount}題</strong><small>已覆核可抽題</small></div>
+              <div><span>列印服務</span><strong>{canPrint ? "已開放" : "整理中"}</strong><small>線上練習暫停</small></div>
             </section>
 
             <section className="paper-journey-grid" aria-label="使用流程">
-              <div><span>01</span><strong>先睇範圍</strong><small>確認年級、科目、學年同課題。</small></div>
-              <div><span>02</span><strong>做 15 題</strong><small>系統抽出已覆核題目，即時批改。</small></div>
-              <div><span>03</span><strong>再列印</strong><small>需要完整紙本測驗時，用會員水印列印。</small></div>
+              <div><span>01</span><strong>先預覽</strong><small>確認年級、科目、學年同課題。</small></div>
+              <div><span>02</span><strong>再列印</strong><small>用會員水印輸出完整紙本試卷。</small></div>
+              <div><span>03</span><strong>紙本作答</strong><small>孩子按正式測驗節奏完成，再由家長跟進。</small></div>
             </section>
 
             <section className="paper-topic-section">
@@ -93,13 +103,13 @@ export default async function PaperDetailPage({ params }: { params: Promise<{ pa
               )}
             </section>
 
-            <div className="action-note paper-detail-note"><LockIcon />此試卷共有 {paper.questionCount} 題；其中 {onlineQuestionCount} 題已通過內容檢查，可供系統抽題。所有列印均會加入會員水印。</div>
+            <div className="action-note paper-detail-note"><LockIcon />所有列印均會加入會員水印。線上練習現已暫停，避免同影印試卷流程混在一起。</div>
           </article>
 
           <aside className="action-card action-card-redesign">
-            <p className="eyebrow">Choose Mode</p>
-            <h3>預覽列印或線上練習</h3>
-            <p>家長先預覽試卷，確認合適就列印；想即時批改就用線上練習。</p>
+            <p className="eyebrow">Print Mode</p>
+            <h3>先專注影印試卷</h3>
+            <p>家長先預覽試卷，確認合適就列印；線上練習會之後以獨立服務形式重開。</p>
             <div className="action-stack action-stack-redesign">
               {canPrint ? (
                 <form action={createPrintJobAction}>
@@ -109,15 +119,11 @@ export default async function PaperDetailPage({ params }: { params: Promise<{ pa
               ) : (
                 <span className="button button-disabled">列印檔案整理中</span>
               )}
-              {practiceReady ? (
-                <Link className="button button-secondary" href={`/practice/${paper.id}`}><SparklesIcon />線上練習</Link>
-              ) : (
-                <span className="button button-disabled">網上題目整理中</span>
-              )}
+              {renderPracticeButton()}
             </div>
             <div className="paper-mode-note">
-              <strong>Learning OS 建議</strong>
-              <span>{practiceReady ? "如果想即時知道對錯，先做 15 題；如果想紙本測驗，先預覽再列印。" : "如果網上題未齊，先用預覽及列印模式完成紙本測驗。"}</span>
+              <strong>營運方向</strong>
+              <span>影印試卷同線上練習先拆開；目前先把紙本預覽、列印、水印及權限流程做到清晰穩定。</span>
             </div>
           </aside>
         </div>

@@ -3,7 +3,7 @@ import { CheckIcon } from "@/components/icons";
 import { ButtonLink } from "@/components/ui";
 
 const plans = [
-  { name: "考試之星", description: "無限下載及列印，適合恆常溫習", price: "$128", suffix: "／月", features: ["不限次數網上練習", "無限水印列印", "完整錯題本及家長報告", "最多3個孩子檔案", "單月收費，隨時取消"], button: "聯絡開通", href: "/contact?plan=star", featured: false },
+  { name: "考試之星", description: "無限試卷預覽及水印列印", price: "$128", suffix: "／月", features: ["水印試卷列印", "按年級科目揀卷", "線上練習稍後重開", "最多3個孩子檔案", "單月收費，隨時取消"], button: "聯絡開通", href: "/contact?plan=star", featured: false },
   { name: "考試之王", description: "全年無限下載及列印，最抵用", price: "$300", suffix: "／年", features: ["考試之星全部功能", "全年無限下載及列印", "每年收費，節省 $1,236", "優先客服支援"], button: "聯絡開通", href: "/contact?plan=king", featured: true },
 ];
 
