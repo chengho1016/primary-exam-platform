@@ -4,7 +4,7 @@ import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: {
-    default: `${siteConfig.name}｜小學生智能試卷練習平台`,
+    default: `${siteConfig.name}｜小學生試卷預覽及水印列印平台`,
     template: `%s｜${siteConfig.name}`,
   },
   description: siteConfig.description,
