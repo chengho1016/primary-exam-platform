@@ -59,10 +59,9 @@ export function RegisterForm() {
       </div>
 
       <div className="field"><label htmlFor="register-password">設定密碼<RequiredStar /></label><input autoComplete="new-password" id="register-password" name="password" type="password" placeholder="最少8字元，包含英文字母及數字" required /></div>
-      <div className="field captcha-field"><label htmlFor="verification-code">驗證碼<RequiredStar /></label><div className="captcha-row"><span>1234</span><input id="verification-code" inputMode="numeric" name="verificationCode" placeholder="請輸入左邊數字" required /></div></div>
       <label className="checkbox form-meta"><input type="checkbox" required />我同意服務條款及私隱政策</label>
       {state.error ? <p className="form-error" role="alert">{state.error}</p> : null}
-      <button className="button button-primary button-full" disabled={isPending} type="submit">{isPending ? "建立中…" : "建立帳戶"}</button>
+      <button className="button button-primary button-full" disabled={isPending} type="submit">{isPending ? "發送驗證碼中…" : "發送驗證碼"}</button>
     </form>
   );
 }

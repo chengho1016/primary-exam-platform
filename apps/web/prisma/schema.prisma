@@ -89,6 +89,20 @@ model Session {
   @@index([expiresAt])
 }
 
+model EmailVerificationToken {
+  id         String    @id @default(cuid())
+  email      String
+  code       String
+  payload    Json
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([email, expiresAt])
+  @@index([expiresAt])
+}
+
 model ChildProfile {
   id             String          @id @default(cuid())
   parentId       String

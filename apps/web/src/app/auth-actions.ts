@@ -7,6 +7,7 @@ import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { createSession, deleteSession } from "@/lib/auth/session";
 import { canSignInWithAccountStatus, getAccountStatusLoginMessage } from "@/lib/auth/account-status";
 import { normalizePhoneNumber } from "@/lib/auth/phone";
+import { createVerificationToken } from "@/lib/auth/verification";
 
 export interface AuthActionState {
   error?: string;
@@ -31,13 +32,8 @@ const registerSchema = z.object({
   grade2: z.coerce.number().int().min(1).max(6).optional(),
   childName3: z.string().trim().max(50).optional(),
   grade3: z.coerce.number().int().min(1).max(6).optional(),
-  verificationCode: z.string().trim().refine((value) => value === "1234", "驗證碼不正確"),
   password: z.string().min(8, "密碼最少需要8個字元").regex(/[A-Za-z]/, "密碼需要包含英文字母").regex(/[0-9]/, "密碼需要包含數字"),
 });
-
-function isUniqueConstraintError(error: unknown) {
-  return Boolean(error && typeof error === "object" && "code" in error && error.code === "P2002");
-}
 
 export async function loginAction(
   _previousState: AuthActionState,
@@ -68,32 +64,33 @@ export async function registerAction(
   const parsedAccount = registerSchema.safeParse(Object.fromEntries(formData));
   if (!parsedAccount.success) return { error: parsedAccount.error.issues[0]?.message };
 
-  try {
-    const passwordHash = await hashPassword(parsedAccount.data.password);
-    const children = [
-      { displayName: parsedAccount.data.childName1, grade: parsedAccount.data.grade1 },
-      parsedAccount.data.childName2 ? { displayName: parsedAccount.data.childName2, grade: parsedAccount.data.grade2 ?? parsedAccount.data.grade1 } : null,
-      parsedAccount.data.childName3 ? { displayName: parsedAccount.data.childName3, grade: parsedAccount.data.grade3 ?? parsedAccount.data.grade1 } : null,
-    ].filter((child): child is { displayName: string; grade: number } => Boolean(child));
-    const user = await db.user.create({
-      data: {
-        email: parsedAccount.data.email,
-        phoneNumber: parsedAccount.data.phoneNumber,
-        displayName: parsedAccount.data.name,
-        passwordHash,
-        children: {
-          create: children,
-        },
-      },
-    });
-    await createSession(user.id);
-  } catch (error) {
-    if (isUniqueConstraintError(error)) return { error: "此電郵地址已經註冊" };
-    console.error("Failed to register account.", error);
-    return { error: "未能建立帳戶，請稍後再試" };
+  const { name, email, phoneNumber, password, childName1, grade1, childName2, grade2, childName3, grade3 } = parsedAccount.data;
+
+  // Build children array
+  const children = [
+    { displayName: childName1, grade: grade1 },
+    childName2 ? { displayName: childName2, grade: grade2 ?? grade1 } : null,
+    childName3 ? { displayName: childName3, grade: grade3 ?? grade1 } : null,
+  ].filter((c): c is { displayName: string; grade: number } => Boolean(c));
+
+  // Hash password BEFORE storing in pending token
+  const passwordHash = await hashPassword(password);
+
+  // Create verification token + send email
+  const result = await createVerificationToken(email, {
+    name,
+    email,
+    phoneNumber,
+    passwordHash,
+    children,
+  });
+
+  if (!result.success) {
+    return { error: result.error || "未能發送驗證電郵，請稍後再試" };
   }
 
-  redirect("/dashboard");
+  // Redirect to verification page
+  redirect(`/verify?email=${encodeURIComponent(email)}`);
 }
 
 export async function logoutAction() {
