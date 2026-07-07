@@ -1109,3 +1109,102 @@ body {
   .print-page { width: 210mm; height: 297mm; break-after: page; box-shadow: none; }
   .print-page:last-child { break-after: auto; }
 }
+
+/* ── Loading skeletons ── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .4; }
+}
+
+.skeleton {
+  border-radius: 12px;
+  background: linear-gradient(110deg, #edf1f7 30%, #f4f6fa 50%, #edf1f7 70%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+.skeleton-brand-mark {
+  width: 36px; height: 36px; border-radius: 12px; flex-shrink: 0;
+}
+
+.skeleton-text-short { height: 18px; width: 120px; border-radius: 8px; }
+.skeleton-text-sm { height: 14px; width: 80px; border-radius: 7px; margin-top: 6px; }
+.skeleton-avatar { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; }
+
+.skeleton-nav-item {
+  height: 42px; border-radius: 12px; margin-bottom: 4px;
+}
+
+.skeleton-page-header {
+  height: 90px; border-radius: 18px; margin-bottom: 24px;
+}
+
+.skeleton-card-lg {
+  height: 220px; border-radius: 22px; margin-bottom: 20px;
+}
+
+.skeleton-card {
+  height: 160px; border-radius: 18px; margin-bottom: 16px;
+}
+
+[aria-busy="true"] .skeleton-brand-mark,
+[aria-busy="true"] .skeleton-text-short,
+[aria-busy="true"] .skeleton-text-sm,
+[aria-busy="true"] .skeleton-avatar,
+[aria-busy="true"] .skeleton-nav-item,
+[aria-busy="true"] .skeleton-page-header,
+[aria-busy="true"] .skeleton-card-lg,
+[aria-busy="true"] .skeleton-card {
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+/* sidebar account skeleton */
+.sidebar-account > div {
+  display: flex; flex-direction: column; gap: 4px;
+}
+
+/* ── UI cleanup pass: reduce visual noise and keep the print flow obvious. ── */
+.clean-home-hero { padding: 82px 0 76px; }
+.clean-hero-grid { grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); align-items: stretch; gap: 44px; }
+.hero-quick-card {
+  display: grid;
+  gap: 14px;
+  align-self: center;
+  padding: 24px;
+  border: 1px solid rgba(16, 28, 45, .08);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, .82);
+  box-shadow: var(--shadow-md);
+}
+.hero-quick-card div { display: grid; grid-template-columns: 34px 1fr; column-gap: 12px; row-gap: 2px; align-items: center; padding: 14px; border-radius: 18px; background: #f8fafc; }
+.hero-quick-card span { width: 34px; height: 34px; display: grid; grid-row: span 2; place-items: center; border-radius: 12px; color: #fff; background: var(--blue); font-weight: 950; }
+.hero-quick-card strong { color: var(--navy); }
+.hero-quick-card small { color: var(--ink-soft); font-size: 12px; line-height: 1.55; }
+.compact-section { padding: 64px 0; }
+.compact-feature-grid { grid-template-columns: repeat(3, 1fr); }
+.compact-footer-grid { grid-template-columns: 2fr repeat(2, 1fr); }
+.clean-library-hero { padding: 28px; border: 1px solid rgba(16,28,45,.08); border-radius: 28px; background: linear-gradient(135deg, #fff, #f7f9fd); box-shadow: var(--shadow-soft); }
+.clean-library-hero::after { content: none; }
+.clean-paper-card .paper-illustration { min-height: 96px; justify-content: flex-start; padding: 22px; }
+.clean-paper-card .paper-illustration svg { width: 34px; }
+.clean-paper-card .paper-illustration span { font-size: 20px; }
+.clean-paper-card .paper-readiness { display: none; }
+.clean-card-actions { justify-content: flex-start; margin-top: auto; }
+.clean-dashboard-header { align-items: flex-start; }
+.clean-mission-list { margin-top: 24px; }
+.clean-paper-detail-hero { display: block; padding: 36px; }
+.clean-paper-detail-hero .paper-detail-copy { max-width: 760px; }
+.clean-paper-detail-grid { align-items: start; }
+.clean-action-card .eyebrow { margin-bottom: 10px; }
+
+@media (max-width: 900px) {
+  .clean-hero-grid { grid-template-columns: 1fr; }
+  .compact-feature-grid, .compact-footer-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .clean-home-hero { padding: 56px 0 48px; }
+  .hero-quick-card { padding: 16px; border-radius: 22px; }
+  .clean-library-hero { padding: 22px; }
+  .compact-section { padding: 48px 0; }
+}

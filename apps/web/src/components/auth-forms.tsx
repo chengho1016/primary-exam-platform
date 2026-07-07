@@ -27,7 +27,6 @@ export function LoginForm() {
     <form action={action} className="form-stack">
       <div className="field"><label htmlFor="email">電郵地址</label><input autoComplete="email" id="email" name="email" type="email" placeholder="parent@example.com" required /></div>
       <div className="field"><label htmlFor="password">密碼</label><input autoComplete="current-password" id="password" name="password" type="password" placeholder="最少8個字元" required /></div>
-      <div className="form-meta"><span>安全登入後保持30日</span><span>忘記密碼功能稍後開放</span></div>
       {state.error ? <p className="form-error" role="alert">{state.error}</p> : null}
       <button className="button button-primary button-full" disabled={isPending} type="submit">{isPending ? "登入中…" : "登入帳戶"}</button>
     </form>
