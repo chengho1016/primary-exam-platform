@@ -2,7 +2,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/prisma";
 
-const EXPECTED_TOKEN_HASH = "b8e4428277d013c599d04bfe49656ab9b362d1729a5afc57e61631df98ceb4ee";
+const EXPECTED_TOKEN_HASH = "0c238fb2044812a978343d3326511eee05be8c7b330df2d2441d410b31f14aa8";
 
 function hasValidToken(value: string | null) {
   if (!value) return false;
