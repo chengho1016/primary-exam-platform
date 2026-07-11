@@ -76,7 +76,7 @@ export function AdminNewPaperForm() {
             <div className="field"><label htmlFor="paper-subject">科目</label><select id="paper-subject" name="subject" defaultValue="數學"><option>中文</option><option>英文</option><option>數學</option><option>人文</option><option>科學</option></select></div>
           </div>
           <div className="field"><label htmlFor="paper-year">學年</label><input id="paper-year" name="academicYear" placeholder="2025–2026" /></div>
-          <div className="field"><label htmlFor="paper-access">會員存取</label><select id="paper-access" name="access" defaultValue="MEMBERSHIP"><option value="FREE">免費試用</option><option value="MEMBERSHIP">月費會員</option><option value="PURCHASE">逐份購買</option></select></div>
+          <div className="field"><label htmlFor="paper-access">會員存取</label><select id="paper-access" name="access" defaultValue="MEMBERSHIP"><option value="FREE">免費</option><option value="MEMBERSHIP">會員試卷</option><option value="PURCHASE">單份權限（舊）</option></select></div>
           {error ? <p className="form-error" role="alert">{error}</p> : null}
           <button className="button button-primary button-full" disabled={isPending} type="submit">{isPending ? "正在安全上傳…" : "儲存草稿並上傳"}</button>
         </div>

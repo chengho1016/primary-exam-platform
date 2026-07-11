@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { loginAction, registerAction, type AuthActionState } from "@/app/auth-actions";
 
@@ -216,7 +217,10 @@ export function RegisterForm() {
       </div>
 
       <div className="field"><label htmlFor="register-password">設定密碼<RequiredStar /></label><input autoComplete="new-password" id="register-password" name="password" type="password" placeholder="最少8字元，包含英文字母及數字" required /></div>
-      <label className="checkbox form-meta"><input type="checkbox" required />我同意服務條款及私隱政策</label>
+      <label className="checkbox form-meta terms-checkbox">
+        <input type="checkbox" required />
+        <span>我同意 <Link href="/terms">服務條款</Link> 及 <Link href="/privacy">私隱政策</Link></span>
+      </label>
       {state.error ? <p className="form-error" role="alert">{state.error}</p> : null}
       <button className="button button-primary button-full" disabled={isPending} type="submit">{isPending ? "發送驗證碼中…" : "發送驗證碼"}</button>
     </form>

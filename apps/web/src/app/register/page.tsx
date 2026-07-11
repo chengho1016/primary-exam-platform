@@ -10,8 +10,8 @@ export default function RegisterPage() {
     <main className="auth-page">
       <aside className="auth-aside">
         <Link className="brand" href="/"><span className="brand-mark"><BookIcon /></span>{siteConfig.name}</Link>
-        <div className="auth-aside-copy"><h1>一個家長帳戶，照顧每個孩子。</h1><p>建立孩子檔案後，系統會按年級整理試卷、練習紀錄和錯題。</p></div>
-        <div className="auth-quote">免費試用包括精選網上練習；需要更多試卷時才選擇月費或逐份購買。</div>
+        <div className="auth-aside-copy"><h1>一個家長帳戶，照顧每個孩子。</h1><p>建立孩子檔案後，系統會按年級整理可用試卷，預覽清楚後再列印水印版本。</p></div>
+        <div className="auth-quote">免費建立帳戶後可先瀏覽試卷；需要更多列印額度時，再開通月費或年費方案。</div>
       </aside>
       <section className="auth-main">
         <div className="auth-card">

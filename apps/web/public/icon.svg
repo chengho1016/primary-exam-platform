@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">考試吧 Exam Go</title>
+  <rect width="128" height="128" rx="34" fill="#2d2e2a"/>
+  <path d="M34 34c13-6 24-5 30 1v58c-6-6-17-7-30-1V34Z" fill="#e3a37d"/>
+  <path d="M94 34c-13-6-24-5-30 1v58c6-6 17-7 30-1V34Z" fill="#fff8f2"/>
+  <path d="M64 35v58" stroke="#2d2e2a" stroke-width="5" stroke-linecap="round"/>
+</svg>

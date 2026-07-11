@@ -12,8 +12,10 @@ export function PaperCard({ paper }: { paper: PaperSummary }) {
   return (
     <article className="paper-card upgraded-paper-card clean-paper-card">
       <div className={`paper-illustration subject-${paper.subjectId}`}>
+        <div className="paper-cover-lines" aria-hidden="true"><span /><span /><span /></div>
         <PaperIcon />
         <span>{paper.subject}</span>
+        <small>{paper.academicYear}</small>
       </div>
       <div className="paper-content">
         <div className="paper-badges">
@@ -23,8 +25,9 @@ export function PaperCard({ paper }: { paper: PaperSummary }) {
         </div>
         <h3>{paper.title}</h3>
         <div className="paper-card-meta">
-          <span>{paper.questionCount}題</span>
-          <span>{paper.pageCount}頁</span>
+          <span>{paper.academicYear}</span>
+          <span>{paper.questionCount > 0 ? `${paper.questionCount}題` : "紙本試卷"}</span>
+          <span>{paper.pageCount > 0 ? `${paper.pageCount}頁` : "頁數待確認"}</span>
           <span>{paper.durationMinutes}分鐘</span>
         </div>
         <div className="paper-card-actions clean-card-actions">

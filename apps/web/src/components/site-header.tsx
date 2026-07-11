@@ -27,7 +27,7 @@ export async function SiteHeader() {
           ) : (
             <>
               <Link className="header-login" href="/login">登入</Link>
-              <Link className="button button-primary button-small" href="/register">免費試用</Link>
+              <Link className="button button-primary button-small" href="/register">建立帳戶</Link>
             </>
           )}
         </div>

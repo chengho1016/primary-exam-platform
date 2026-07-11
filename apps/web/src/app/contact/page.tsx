@@ -10,25 +10,27 @@ export default function ContactPage() {
     <>
       <SiteHeader />
       <main>
-        <section className="section">
-          <div className="container contact-layout">
+        <section className="section contact-hero-section">
+          <div className="container contact-layout contact-layout-upgraded">
             <div>
-              <SectionHeading eyebrow="Contact" title="想試用、購買或開通會員？" description="早期商業化階段先採用人工開通：收到家長查詢後，管理員可以在後台即時設定會籍、方案和列印額度。" />
-              <div className="contact-card">
+              <SectionHeading eyebrow="Contact" title="想試用、購買或開通會員？" description="直接電郵我們，講低想開通的方案、孩子年級及聯絡方式；確認後會為你開通帳戶。" />
+              <div className="contact-card contact-card-upgraded">
                 <h3>客服電郵</h3>
                 <p>{siteConfig.supportEmail}</p>
                 <ButtonLink href={`mailto:${siteConfig.supportEmail}?subject=考試吧會員開通查詢`}>發送查詢</ButtonLink>
               </div>
             </div>
-            <aside className="form-panel contact-runbook">
+            <aside className="form-panel contact-runbook contact-runbook-upgraded">
               <h2>開通流程</h2>
               <ol>
-                <li>家長選擇方案並聯絡客服。</li>
-                <li>管理員到「會員管理」建立或搜尋帳戶。</li>
-                <li>設定會籍為 ACTIVE、方案名稱及列印額度。</li>
-                <li>家長重新登入後即可使用會員內容。</li>
+                <li><strong>選方案</strong><span>月費「考試之星」或年費「考試之王」。</span></li>
+                <li><strong>發電郵</strong><span>留下註冊電郵、孩子年級及想開通的方案。</span></li>
+                <li><strong>完成開通</strong><span>確認後會收到回覆，重新登入即可使用。</span></li>
               </ol>
-              <p>之後接入自動付款時，這套流程可直接變成後台 fallback。</p>
+              <div className="contact-plan-grid" aria-label="方案提示">
+                <div><strong>$128/月</strong><span>考試之星</span></div>
+                <div><strong>$300/年</strong><span>考試之王</span></div>
+              </div>
             </aside>
           </div>
         </section>

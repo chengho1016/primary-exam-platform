@@ -8,7 +8,7 @@ const paperStatusLabels = {
 const paperAccessLabels = {
   FREE: "免費",
   MEMBERSHIP: "月費會員",
-  PURCHASE: "逐份購買",
+  PURCHASE: "單份權限（舊）",
 } as const;
 
 const questionTypeLabels = {
