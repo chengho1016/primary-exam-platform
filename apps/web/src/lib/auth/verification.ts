@@ -2,7 +2,7 @@ import "server-only";
 import { randomInt } from "node:crypto";
 import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db/prisma";
-import { sendVerificationEmail } from "@/lib/email/ses";
+import { sendVerificationEmail } from "@/lib/email/send-verification-email";
 
 const CODE_LENGTH = 6;
 const EXPIRY_MINUTES = 10;
