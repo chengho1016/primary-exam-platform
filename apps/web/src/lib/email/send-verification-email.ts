@@ -1,4 +1,5 @@
 import "server-only";
+import { sendVerificationEmailWithGmail } from "@/lib/email/gmail";
 import { resolveEmailProvider } from "@/lib/email/provider";
 import { sendVerificationEmailWithResend } from "@/lib/email/resend";
 import { sendVerificationEmailWithSes } from "@/lib/email/ses";
@@ -8,6 +9,13 @@ export async function sendVerificationEmail(
   code: string,
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const config = resolveEmailProvider(process.env);
+
+  if (config.provider === "gmail") {
+    return sendVerificationEmailWithGmail(to, code, {
+      from: config.from,
+      user: config.user,
+    });
+  }
 
   if (config.provider === "resend") {
     return sendVerificationEmailWithResend(to, code, config.from);

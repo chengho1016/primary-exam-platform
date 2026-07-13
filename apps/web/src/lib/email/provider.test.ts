@@ -2,6 +2,20 @@ import { describe, expect, it } from "vitest";
 import { resolveEmailProvider } from "./provider";
 
 describe("resolveEmailProvider", () => {
+  it("uses Gmail when it is explicitly selected", () => {
+    expect(
+      resolveEmailProvider({
+        EMAIL_PROVIDER: "gmail",
+        GMAIL_SMTP_USER: "examgohk@gmail.com",
+        GMAIL_APP_PASSWORD: "abcd efgh ijkl mnop",
+      }),
+    ).toEqual({
+      provider: "gmail",
+      from: "考試吧 Exam Go <examgohk@gmail.com>",
+      user: "examgohk@gmail.com",
+    });
+  });
+
   it("uses Resend when its marketplace variables are configured", () => {
     expect(
       resolveEmailProvider({
@@ -47,6 +61,13 @@ describe("resolveEmailProvider", () => {
     expect(resolveEmailProvider({ EMAIL_PROVIDER: "resend" })).toEqual({
       provider: "unconfigured",
       error: "Resend is selected but RESEND_API_KEY and sender domain are not configured",
+    });
+  });
+
+  it("reports missing Gmail credentials without exposing secrets", () => {
+    expect(resolveEmailProvider({ EMAIL_PROVIDER: "gmail" })).toEqual({
+      provider: "unconfigured",
+      error: "Gmail is selected but GMAIL_SMTP_USER and GMAIL_APP_PASSWORD are not configured",
     });
   });
 

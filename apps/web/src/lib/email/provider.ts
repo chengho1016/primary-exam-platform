@@ -1,11 +1,24 @@
-export type EmailProviderName = "resend" | "ses";
+export type EmailProviderName = "gmail" | "resend" | "ses";
 
 export type EmailProviderConfig =
+  | { provider: "gmail"; from: string; user: string }
   | { provider: "resend"; from: string }
   | { provider: "ses"; from: string }
   | { provider: "unconfigured"; error: string };
 
 type EmailEnvironment = Record<string, string | undefined>;
+
+function gmailConfig(env: EmailEnvironment): EmailProviderConfig | null {
+  const user = env.GMAIL_SMTP_USER?.trim();
+  const appPassword = env.GMAIL_APP_PASSWORD?.replace(/\s/g, "");
+  const from = env.GMAIL_FROM_EMAIL?.trim()
+    || (user ? `考試吧 Exam Go <${user}>` : "");
+
+  if (user && appPassword && from) {
+    return { provider: "gmail", from, user };
+  }
+  return null;
+}
 
 function resendConfig(env: EmailEnvironment): EmailProviderConfig | null {
   const domain = env.RESEND_EMAIL_DOMAIN?.trim();
@@ -32,6 +45,13 @@ function sesConfig(env: EmailEnvironment): EmailProviderConfig | null {
 export function resolveEmailProvider(env: EmailEnvironment): EmailProviderConfig {
   const requested = env.EMAIL_PROVIDER?.trim().toLowerCase();
 
+  if (requested === "gmail") {
+    return gmailConfig(env) ?? {
+      provider: "unconfigured",
+      error: "Gmail is selected but GMAIL_SMTP_USER and GMAIL_APP_PASSWORD are not configured",
+    };
+  }
+
   if (requested === "resend") {
     return resendConfig(env) ?? {
       provider: "unconfigured",
@@ -46,10 +66,10 @@ export function resolveEmailProvider(env: EmailEnvironment): EmailProviderConfig
     };
   }
 
-  // Preserve the incumbent provider until EMAIL_PROVIDER explicitly opts in to
-  // Resend. Marketplace provisioning can expose Resend variables before the
-  // sender domain finishes DNS verification.
+  // Preserve the incumbent SES provider unless EMAIL_PROVIDER explicitly opts
+  // in to Gmail or Resend.
   return sesConfig(env)
+    ?? gmailConfig(env)
     ?? resendConfig(env)
     ?? { provider: "unconfigured", error: "No email provider is configured" };
 }
